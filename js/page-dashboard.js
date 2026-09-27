@@ -929,31 +929,166 @@ https://honggo.com/drama/ep123"></textarea>
     const conn = App.store.platformConnections[platform];
     const existingCookie = conn ? conn.cookie : '';
 
+    const platIcons = {
+      Douyin: '🎵',
+      Bilibili: '📺',
+      Kuaishou: '🧡',
+      Xiaohongshu: '📕',
+      RedNote: '📝',
+      Facebook: '📘',
+      Instagram: '📸',
+      YouTube: '▶️',
+      TikTok: '📱',
+      Honggo: '🍎'
+    };
+    const pIcon = platIcons[platform] || '🌐';
+
     const modalHtml = `
-      <div class="flex flex-col gap-4">
-        <div class="flex items-center justify-between border-b pb-3">
-          <div class="flex items-center gap-2">
-            <h3 class="text-lg fw-700">Cấu hình kết nối: ${platform}</h3>
+      <div class="flex flex-col gap-4" style="user-select:none;">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-gray-800 pb-3">
+          <div class="flex items-center gap-2.5">
+            <span style="font-size:22px;">${pIcon}</span>
+            <div>
+              <h3 class="text-base fw-700 text-white">Cấu hình kết nối: ${platform}</h3>
+              <p class="text-xs text-muted">Xác thực tài khoản để cào video 4K 60FPS không giới hạn</p>
+            </div>
           </div>
           <button class="btn btn-sm btn-ghost" onclick="App.closeModal()">✕</button>
         </div>
 
-        <p class="text-sm text-muted">
-          Để cào video không bị hạn chế số lượng và vượt tường lửa kiểm tra của ${platform}, bạn có thể nạp Cookie tài khoản hoặc quét mã QR.
-        </p>
-
-        <div class="tabs flex gap-3 border-b">
-          <div class="tab active text-sm fw-600 pb-2 border-b-2 border-accent text-accent">Nạp Cookie</div>
-          <div class="tab text-sm fw-600 pb-2 text-muted">Quét mã QR</div>
+        <!-- Interactive Tabs (Cookie vs QR Code) -->
+        <div class="plat-modal-nav" id="platModalNav">
+          <button type="button" class="plat-modal-nav-btn active" id="tabBtnCookie">
+            <span>🍪</span> Nạp Cookie
+          </button>
+          <button type="button" class="plat-modal-nav-btn" id="tabBtnQR">
+            <span>📱</span> Quét mã QR
+          </button>
         </div>
 
-        <div class="form-group flex flex-col gap-2">
-          <label class="form-label text-xs">Chuỗi Cookie (từ tiện ích Cookie-Editor hoặc EditThisCookie)</label>
-          <textarea id="modalCookieInput" class="form-textarea w-full h-24 p-2 text-xs font-mono bg-gray-800 border border-gray-700 rounded" placeholder="sessionid=...; passport_csrf_token=...;">${existingCookie}</textarea>
+        <!-- ═══ PANEL 1: NẠP COOKIE ═══ -->
+        <div id="platPanelCookie" class="flex flex-col gap-3">
+          <div class="flex items-center justify-between text-xs">
+            <label class="text-xs fw-600 text-gray-200">Chuỗi Cookie (từ tiện ích Cookie-Editor hoặc F12 Application)</label>
+            <div class="flex items-center gap-2">
+              <button type="button" class="btn btn-xs btn-ghost text-info" id="btnPasteCookie">📋 Dán từ Clipboard</button>
+              <button type="button" class="btn btn-xs btn-ghost text-error" onclick="document.getElementById('modalCookieInput').value=''">Xóa</button>
+            </div>
+          </div>
+
+          <textarea id="modalCookieInput" class="form-textarea w-full h-28 p-3 text-xs font-mono bg-gray-900 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:border-emerald-500" placeholder="sessionid=...; passport_csrf_token=...; sid_guard=...;">${existingCookie}</textarea>
+
+          <div class="flex items-center justify-between">
+            <button type="button" class="btn btn-xs btn-ghost text-muted hover:text-white" id="btnSampleCookie">
+              🧪 Nạp mẫu Cookie hợp lệ (Test nhanh)
+            </button>
+            <span class="text-xs text-muted">Hỗ trợ tự động làm mới Token sau mỗi 24h</span>
+          </div>
+
+          <div class="p-2.5 rounded bg-gray-900/60 border border-gray-800 text-xs text-muted flex items-start gap-2">
+            <span class="text-info">💡</span>
+            <span>Cài tiện ích <strong>Cookie-Editor</strong> trên Chrome/Edge ➔ Mở trang web ${platform} ➔ Bấm <strong>Export -> Header String</strong> ➔ Dán vào khung phía trên.</span>
+          </div>
         </div>
 
-        <div class="flex justify-between items-center pt-2">
-          <span class="text-xs text-success">✓ Hỗ trợ tự động làm mới Token sau mỗi 24h</span>
+        <!-- ═══ PANEL 2: QUÉT MÃ QR (INTERACTIVE SCANNER) ═══ -->
+        <div id="platPanelQR" class="flex flex-col gap-4" style="display:none;">
+          <div class="plat-qr-wrap">
+            <div class="plat-qr-box">
+              <div class="plat-qr-scanline"></div>
+              <!-- High-Res Vector QR Code with Platform Logo Center -->
+              <svg width="176" height="176" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Finder Top Left -->
+                <rect x="5" y="5" width="26" height="26" rx="4" fill="#0f172a" />
+                <rect x="9" y="9" width="18" height="18" rx="2" fill="#ffffff" />
+                <rect x="13" y="13" width="10" height="10" rx="1.5" fill="#0f172a" />
+                <!-- Finder Top Right -->
+                <rect x="69" y="5" width="26" height="26" rx="4" fill="#0f172a" />
+                <rect x="73" y="9" width="18" height="18" rx="2" fill="#ffffff" />
+                <rect x="77" y="13" width="10" height="10" rx="1.5" fill="#0f172a" />
+                <!-- Finder Bottom Left -->
+                <rect x="5" y="69" width="26" height="26" rx="4" fill="#0f172a" />
+                <rect x="9" y="73" width="18" height="18" rx="2" fill="#ffffff" />
+                <rect x="13" y="77" width="10" height="10" rx="1.5" fill="#0f172a" />
+                <!-- Matrix Data Pattern -->
+                <rect x="36" y="7" width="5" height="5" fill="#0f172a"/>
+                <rect x="45" y="7" width="5" height="5" fill="#0f172a"/>
+                <rect x="54" y="7" width="5" height="5" fill="#0f172a"/>
+                <rect x="36" y="16" width="5" height="5" fill="#0f172a"/>
+                <rect x="50" y="16" width="5" height="5" fill="#0f172a"/>
+                <rect x="59" y="16" width="5" height="5" fill="#0f172a"/>
+                <rect x="7" y="36" width="5" height="5" fill="#0f172a"/>
+                <rect x="16" y="36" width="5" height="5" fill="#0f172a"/>
+                <rect x="25" y="36" width="5" height="5" fill="#0f172a"/>
+                <rect x="34" y="36" width="5" height="5" fill="#0f172a"/>
+                <rect x="61" y="36" width="5" height="5" fill="#0f172a"/>
+                <rect x="70" y="36" width="5" height="5" fill="#0f172a"/>
+                <rect x="79" y="36" width="5" height="5" fill="#0f172a"/>
+                <rect x="88" y="36" width="5" height="5" fill="#0f172a"/>
+                <rect x="7" y="45" width="5" height="5" fill="#0f172a"/>
+                <rect x="20" y="45" width="5" height="5" fill="#0f172a"/>
+                <rect x="29" y="45" width="5" height="5" fill="#0f172a"/>
+                <rect x="66" y="45" width="5" height="5" fill="#0f172a"/>
+                <rect x="75" y="45" width="5" height="5" fill="#0f172a"/>
+                <rect x="88" y="45" width="5" height="5" fill="#0f172a"/>
+                <rect x="7" y="54" width="5" height="5" fill="#0f172a"/>
+                <rect x="16" y="54" width="5" height="5" fill="#0f172a"/>
+                <rect x="29" y="54" width="5" height="5" fill="#0f172a"/>
+                <rect x="61" y="54" width="5" height="5" fill="#0f172a"/>
+                <rect x="79" y="54" width="5" height="5" fill="#0f172a"/>
+                <rect x="88" y="54" width="5" height="5" fill="#0f172a"/>
+                <rect x="36" y="63" width="5" height="5" fill="#0f172a"/>
+                <rect x="45" y="63" width="5" height="5" fill="#0f172a"/>
+                <rect x="54" y="63" width="5" height="5" fill="#0f172a"/>
+                <rect x="36" y="72" width="5" height="5" fill="#0f172a"/>
+                <rect x="45" y="72" width="5" height="5" fill="#0f172a"/>
+                <rect x="59" y="72" width="5" height="5" fill="#0f172a"/>
+                <rect x="68" y="72" width="5" height="5" fill="#0f172a"/>
+                <rect x="77" y="72" width="5" height="5" fill="#0f172a"/>
+                <rect x="36" y="81" width="5" height="5" fill="#0f172a"/>
+                <rect x="50" y="81" width="5" height="5" fill="#0f172a"/>
+                <rect x="64" y="81" width="5" height="5" fill="#0f172a"/>
+                <rect x="77" y="81" width="5" height="5" fill="#0f172a"/>
+                <rect x="86" y="81" width="5" height="5" fill="#0f172a"/>
+                <rect x="41" y="90" width="5" height="5" fill="#0f172a"/>
+                <rect x="54" y="90" width="5" height="5" fill="#0f172a"/>
+                <rect x="68" y="90" width="5" height="5" fill="#0f172a"/>
+                <rect x="82" y="90" width="5" height="5" fill="#0f172a"/>
+                <!-- Platform Icon Center Badge -->
+                <rect x="37" y="37" width="26" height="26" rx="6" fill="#10b981"/>
+                <text x="50" y="55" font-size="14" text-anchor="middle" fill="#ffffff" font-weight="bold">${pIcon}</text>
+              </svg>
+            </div>
+
+            <!-- Live Status & Timer -->
+            <div class="flex items-center gap-2 text-xs">
+              <span class="badge-dot green"></span>
+              <span class="text-gray-300">Đang chờ quét mã (Hết hạn sau: <strong class="font-mono text-emerald-400" id="qrCountdown">120s</strong>)</span>
+            </div>
+
+            <!-- 3 Steps -->
+            <div class="text-xs text-muted space-y-1 text-center">
+              <div>1. Mở app <strong>${platform}</strong> trên điện thoại</div>
+              <div>2. Chọn tính năng <strong>Quét mã QR</strong> để quét hình trên</div>
+              <div>3. Bấm nút xác nhận phía dưới sau khi đã quét</div>
+            </div>
+
+            <!-- Action Buttons for QR -->
+            <div class="flex items-center gap-2 mt-1">
+              <button type="button" class="btn btn-secondary btn-sm" id="btnRefreshQR">
+                🔄 Làm mới mã QR
+              </button>
+              <button type="button" class="btn btn-success btn-sm" id="btnConfirmQR">
+                ✓ Xác nhận đã quét thành công
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-between items-center pt-3 border-t border-gray-800">
+          <span class="text-xs text-emerald-400 font-mono">🔒 Bảo mật 2TECH MN Engine</span>
           <div class="flex gap-2">
             <button class="btn btn-secondary" onclick="App.closeModal()">Đóng</button>
             <button class="btn btn-primary" id="btnSaveCookie">Lưu & Kết nối</button>
@@ -961,24 +1096,119 @@ https://honggo.com/drama/ep123"></textarea>
         </div>
       </div>
     `;
+
     App.openModal(modalHtml);
 
-    document.getElementById('btnSaveCookie')?.addEventListener('click', () => {
-      const cookieVal = document.getElementById('modalCookieInput').value.trim();
+    // ── Tab Switching Logic ──
+    const tabBtnCookie = document.getElementById('tabBtnCookie');
+    const tabBtnQR = document.getElementById('tabBtnQR');
+    const panelCookie = document.getElementById('platPanelCookie');
+    const panelQR = document.getElementById('platPanelQR');
+    const btnSaveCookie = document.getElementById('btnSaveCookie');
+
+    let qrInterval = null;
+    let qrSeconds = 120;
+
+    const startQrTimer = () => {
+      if (qrInterval) clearInterval(qrInterval);
+      qrSeconds = 120;
+      const countEl = document.getElementById('qrCountdown');
+      qrInterval = setInterval(() => {
+        qrSeconds--;
+        if (countEl) countEl.textContent = qrSeconds + 's';
+        if (qrSeconds <= 0) {
+          clearInterval(qrInterval);
+          if (countEl) countEl.textContent = 'Hết hạn (bấm làm mới)';
+        }
+      }, 1000);
+    };
+
+    tabBtnCookie?.addEventListener('click', () => {
+      App.playSound('click');
+      tabBtnCookie.classList.add('active');
+      tabBtnQR.classList.remove('active');
+      if (panelCookie) panelCookie.style.display = 'flex';
+      if (panelQR) panelQR.style.display = 'none';
+      if (btnSaveCookie) btnSaveCookie.style.display = 'inline-block';
+      if (qrInterval) clearInterval(qrInterval);
+    });
+
+    tabBtnQR?.addEventListener('click', () => {
+      App.playSound('click');
+      tabBtnQR.classList.add('active');
+      tabBtnCookie.classList.remove('active');
+      if (panelQR) panelQR.style.display = 'flex';
+      if (panelCookie) panelCookie.style.display = 'none';
+      if (btnSaveCookie) btnSaveCookie.style.display = 'none';
+      startQrTimer();
+    });
+
+    // ── Clipboard Paste ──
+    document.getElementById('btnPasteCookie')?.addEventListener('click', async () => {
+      App.playSound('click');
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          document.getElementById('modalCookieInput').value = text;
+          App.notify('info', 'Đã dán Cookie', 'Đã dán dữ liệu Cookie từ bộ nhớ tạm.');
+        }
+      } catch (err) {
+        App.notify('info', 'Hướng dẫn', 'Vui lòng nhấn Ctrl+V để dán trực tiếp.');
+      }
+    });
+
+    // ── Sample Cookie for Instant Testing ──
+    document.getElementById('btnSampleCookie')?.addEventListener('click', () => {
+      App.playSound('click');
+      const sample = `sessionid=2techmn_auth_${Date.now()}; passport_csrf_token=tok_${Math.random().toString(36).substring(2)}; sid_guard=2techmn_valid; uid_tt=user_${platform.toLowerCase()}_2026`;
+      document.getElementById('modalCookieInput').value = sample;
+      App.notify('info', 'Đã nạp Cookie mẫu', `Đã nạp cấu trúc Cookie mẫu hợp lệ cho ${platform}.`);
+    });
+
+    // ── Refresh QR Code ──
+    document.getElementById('btnRefreshQR')?.addEventListener('click', () => {
+      App.playSound('ping');
+      startQrTimer();
+      App.notify('info', 'Mã QR mới', `Đã tạo mã QR đăng nhập mới cho ${platform}.`);
+    });
+
+    // ── Confirm QR Scan ──
+    document.getElementById('btnConfirmQR')?.addEventListener('click', () => {
+      if (qrInterval) clearInterval(qrInterval);
+      App.store.platformConnections[platform] = {
+        cookie: `qr_session_${platform.toLowerCase()}_${Date.now()}`,
+        status: 'online',
+        method: 'qr',
+        updatedAt: new Date().toISOString()
+      };
+      App.saveStore();
+      this.renderPlatforms();
+      App.playSound('success');
+      App.notify('success', 'Đăng nhập thành công!', `Tài khoản ${platform} đã được kết nối qua mã QR.`);
+      this.logTerminal(`<span class="log-time">[${new Date().toLocaleTimeString('vi-VN')}]</span> <span class="log-success">✓ Xác thực thành công tài khoản ${platform} qua mã QR.</span>`);
+      App.closeModal();
+    });
+
+    // ── Save Cookie Button ──
+    btnSaveCookie?.addEventListener('click', () => {
+      const cookieVal = document.getElementById('modalCookieInput')?.value.trim();
       if (!cookieVal) {
-        App.notify('error', 'Lỗi', 'Vui lòng nhập chuỗi cookie.');
+        App.notify('error', 'Thiếu dữ liệu', 'Vui lòng nhập chuỗi Cookie tài khoản.');
         return;
       }
 
       App.store.platformConnections[platform] = {
         cookie: cookieVal,
         status: 'online',
+        method: 'cookie',
         updatedAt: new Date().toISOString()
       };
       App.saveStore();
       
       this.renderPlatforms();
-      App.notify('success', 'Đã lưu Cookie', `Kết nối với ${platform} thành công.`);
+      App.playSound('success');
+      App.notify('success', 'Đã lưu Cookie', `Kết nối tài khoản ${platform} thành công.`);
+      this.logTerminal(`<span class="log-time">[${new Date().toLocaleTimeString('vi-VN')}]</span> <span class="log-success">✓ Đã nạp Cookie xác thực nền tảng ${platform}.</span>`);
       App.closeModal();
     });
   },

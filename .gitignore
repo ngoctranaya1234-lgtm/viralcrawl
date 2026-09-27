@@ -1,10 +1,22 @@
-# Dependency and build
 node_modules/
 .DS_Store
 Thumbs.db
-
-# Documentation frames (large images)
-docs/reference-frames/
-
-# Logs
 *.log
+_site/
+work/
+admin-panel/
+data/
+downloads/
+bin/
+.env
+.env.*
+!.env.example
+config.json
+admin-password.txt
+*cookies*.txt
+*.sqlite
+*.sqlite-*
+*.db
+*.pem
+*.key
+docs/reference-frames/
