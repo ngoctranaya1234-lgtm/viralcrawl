@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ViralCrawl — Công cụ hỗ trợ lấy video đa nền tảng</title>
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2310b981'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='18' font-weight='bold'>V</text></svg>">
+</head>
+<body>
+
+<div class="app-layout" id="app">
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">V</div>
+      <div>
+        <div class="brand-text">ViralCrawl</div>
+        <div style="font-size:10px;color:var(--text-muted);letter-spacing:0.04em;">by 2TECH MN</div>
+      </div>
+    </div>
+
+    <div class="sidebar-user" id="sidebarUser" style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+      <div id="userAvatar" style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;">?</div>
+      <div style="flex:1;min-width:0;">
+        <div id="userName" style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Chưa đăng nhập</div>
+        <div id="userBalance" style="font-size:11px;color:var(--success);font-family:var(--font-mono);">0đ</div>
+      </div>
+      <button class="btn btn-sm btn-ghost" id="btnLogin" title="Đăng nhập" aria-label="Đăng nhập" style="font-size:11px;padding:4px 10px;">Đăng nhập</button>
+    </div>
+
+    <nav class="sidebar-nav" id="sidebarNav">
+      <div class="sidebar-section">Nguồn video</div>
+
+      <button class="sidebar-item active" data-page="dashboard" aria-label="Tải ngay" title="Tải ngay">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+        Tải ngay
+      </button>
+
+      <button class="sidebar-item" data-page="download-link" aria-label="Tải video bằng link" title="Tải video bằng link">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+        Tải video bằng link
+      </button>
+
+      <div class="sidebar-section">Thư viện</div>
+
+      <button class="sidebar-item" data-page="downloaded" aria-label="File đã tải" title="File đã tải">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+        File đã tải
+        <span class="sidebar-badge" id="badgeDownloaded">8</span>
+      </button>
+
+      <button class="sidebar-item" data-page="history" aria-label="Lịch sử tải" title="Lịch sử tải">
+        <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        Lịch sử tải
+      </button>
+
+      <div class="sidebar-footer-section">
+        <button class="sidebar-item" data-page="settings" aria-label="Cài đặt" title="Cài đặt">
+          <span class="icon"><svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          Cài đặt
+        </button>
+
+        <button class="sidebar-item" data-page="pricing" aria-label="Bảng Giá" title="Bảng Giá">
+          <span class="icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+          Bảng Giá
+        </button>
+
+        <button class="sidebar-item" data-page="support" aria-label="Gửi câu hỏi" title="Gửi câu hỏi">
+          <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+          Gửi câu hỏi
+        </button>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="app-header">
+    <div class="flex items-center gap-3">
+      <button class="btn btn-icon btn-ghost btn-sm" id="menuToggle" aria-label="Menu" title="Menu" style="display:none;">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <h1 class="header-title" id="pageTitle">Tải ngay</h1>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost btn-sm" id="btnMute" aria-label="Tắt âm thanh" title="Tắt âm thanh">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      </button>
+      <div class="badge badge-neutral" id="headerBalance" style="cursor:pointer;" onclick="App.navigate('pricing')" title="Số dư tài khoản">
+        <span style="font-size:11px;">💰</span> <span id="headerBalanceAmount" class="font-mono" style="font-size:11px;">0đ</span>
+      </div>
+      <div class="badge badge-success"><span class="badge-dot green"></span> Đang hoạt động</div>
+    </div>
+  </header>
+
+  <!-- ═══ STEPPER BAR ═══ -->
+  <div class="stepper-bar" id="stepperBar">
+    <div class="stepper-step completed" data-step="1">
+      <span class="stepper-num">✓</span>
+      <span>1. Đăng nhập</span>
+    </div>
+    <div class="stepper-line"></div>
+    <div class="stepper-step active" data-step="2">
+      <span class="stepper-num">2</span>
+      <span>2. Chọn nền tảng</span>
+    </div>
+    <div class="stepper-line"></div>
+    <div class="stepper-step" data-step="3">
+      <span class="stepper-num">3</span>
+      <span>3. Tải video</span>
+    </div>
+    <div class="stepper-line"></div>
+    <div class="stepper-step" data-step="4">
+      <span class="stepper-num">4</span>
+      <span>4. Hoàn tất</span>
+    </div>
+  </div>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <main class="app-main" id="mainContent">
+    <!-- Page content injected here by JS -->
+    <div class="empty-state">
+      <div class="empty-icon">⏳</div>
+      <div class="empty-title">Đang tải giao diện...</div>
+    </div>
+  </main>
+
+  <!-- ═══ FOOTER TICKER ═══ -->
+  <footer class="app-footer">
+    <span class="footer-dot"></span>
+    <span id="footerStatus">Đang chờ lệnh — 2TECH MN ViralCrawl v2.0</span>
+    <span style="margin-left:auto;font-family:var(--font-mono);" id="footerUptime">0m 0s</span>
+  </footer>
+</div>
+
+<!-- ═══ MODAL OVERLAY ═══ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent" role="dialog" aria-modal="true">
+    <!-- Dynamic modal content -->
+  </div>
+</div>
+
+<!-- ═══ SCRIPTS ═══ -->
+<script src="js/app.js"></script>
+<script src="js/page-dashboard.js"></script>
+<script src="js/page-download-link.js"></script>
+<script src="js/page-downloaded.js"></script>
+<script src="js/page-history.js"></script>
+<script src="js/page-settings.js"></script>
+<script src="js/page-pricing.js"></script>
+<script src="js/page-support.js"></script>
+<script>
+  // Boot the application once all page scripts are loaded
+  document.addEventListener('DOMContentLoaded', () => App.init());
+</script>
+</body>
+</html>
