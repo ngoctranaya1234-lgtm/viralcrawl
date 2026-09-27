@@ -1,5 +1,5 @@
-// ViralCrawl 4K — Service Worker (2TECH MN - Nguyễn Minh Nhựt)
-const CACHE_NAME = 'viralcrawl-4k-v2.5';
+// Mnhut 2tech Al 4K — Service Worker (2TECH MN - Nguyễn Minh Nhựt)
+const CACHE_NAME = 'mnhut-2tech-al-4k-v2.6';
 const ASSETS = [
   './',
   './index.html',

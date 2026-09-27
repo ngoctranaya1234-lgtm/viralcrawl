@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   ViralCrawl — Page: Bảng Giá Chính Thức (2TECH MN)
+   Mnhut 2tech Al — Page: Bảng Giá Chính Thức (2TECH MN)
    ═══════════════════════════════════════════════════════════════ */
 
 window.Pages = window.Pages || {};

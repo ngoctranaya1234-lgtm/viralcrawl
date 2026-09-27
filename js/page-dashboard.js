@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   ViralCrawl — Page: Tải ngay (Dashboard / Multi-Platform Scraper)
+   Mnhut 2tech Al — Page: Tải ngay (Dashboard / Multi-Platform Scraper)
    Đơn vị chủ quản: 2TECH MN — Kỹ sư trưởng: Nguyễn Minh Nhựt
    Thiết kế giao diện Commercial Studio chuẩn theo tham chiếu thực tế
    ═══════════════════════════════════════════════════════════════ */
@@ -26,7 +26,7 @@ window.Pages['dashboard'] = {
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
             <div class="flex items-center gap-2">
-              <h1 class="text-2xl fw-800 text-white tracking-wide">ViralCrawl 4K — Cào video hỗ trợ dịch & lồng tiếng</h1>
+              <h1 class="text-2xl fw-800 text-white tracking-wide">Mnhut 2tech Al 4K — Cào video hỗ trợ dịch & lồng tiếng</h1>
               <span class="badge-4k">4K 60FPS</span>
             </div>
             <p class="text-xs text-muted mt-1">Bản quyền phần mềm thuộc về <strong>2TECH MN</strong> — Trực thuộc <strong>Nguyễn Minh Nhựt</strong>. Bóc tách video đa nền tảng sạch 100% watermark.</p>

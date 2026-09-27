@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   ViralCrawl — Page: Lịch sử tải (Download History Log)
+   Mnhut 2tech Al — Page: Lịch sử tải (Download History Log)
    Phát triển cho 2TECH MN (Nguyễn Minh Nhựt)
    ═══════════════════════════════════════════════════════════════ */
 
@@ -448,14 +448,14 @@ window.Pages['history'] = {
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'lich_su_tai_viralcrawl.csv';
+    link.download = 'lich_su_tai_mnhut_2tech_al.csv';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 
     App.playSound('success');
-    App.notify('success', 'Xuất file thành công', `Đã xuất ${sessions.length} phiên tải ra file lich_su_tai_viralcrawl.csv.`);
+    App.notify('success', 'Xuất file thành công', `Đã xuất ${sessions.length} phiên tải ra file lich_su_tai_mnhut_2tech_al.csv.`);
   },
 
   /**
@@ -480,7 +480,7 @@ window.Pages['history'] = {
         <div class="flex justify-between items-center border-b border-gray-800 pb-3">
           <div>
             <h3 class="text-base fw-700 text-white">Chi Tiết Phiên Tải #${s.id}</h3>
-            <p class="text-xs text-muted mt-0.5">Nhật ký hệ thống ViralCrawl • 2TECH MN</p>
+            <p class="text-xs text-muted mt-0.5">Nhật ký hệ thống Mnhut 2tech Al • 2TECH MN</p>
           </div>
           <button class="btn btn-sm btn-ghost" onclick="App.closeModal()">✕</button>
         </div>

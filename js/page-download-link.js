@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   ViralCrawl — Page: Tải Video Bằng Link (Download Video by URL)
+   Mnhut 2tech Al — Page: Tải Video Bằng Link (Download Video by URL)
    Developed for 2TECH MN (Nguyễn Minh Nhựt)
    ═══════════════════════════════════════════════════════════════ */
 
@@ -163,7 +163,7 @@ window.Pages['download-link'] = {
               <!-- Thông tin lưu trữ -->
               <div class="text-xs text-muted p-2 rounded bg-input border border-gray-800">
                 <div class="fw-600 text-white mb-1">Thư mục tải về mặc định:</div>
-                <div class="font-mono text-xs text-muted truncate">${(App.store && App.store.settings && App.store.settings.downloadPath) || 'D:\\Videos\\ViralCrawl\\Downloaded\\'}</div>
+                <div class="font-mono text-xs text-muted truncate">${(App.store && App.store.settings && App.store.settings.downloadPath) || 'D:\\Videos\\Mnhut_2tech_Al\\Downloaded\\'}</div>
               </div>
 
               <!-- Nút Tải Video Ngay nổi bật -->
@@ -491,7 +491,7 @@ window.Pages['download-link'] = {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `ViralCrawl_Download_Log_${Date.now()}.txt`;
+      a.download = `Mnhut_2tech_Al_Download_Log_${Date.now()}.txt`;
       a.click();
       URL.revokeObjectURL(url);
       App.notify('success', 'Xuất file thành công', 'File nhật ký đã được lưu vào máy.');
@@ -708,7 +708,7 @@ window.Pages['download-link'] = {
     if (progressDetail) progressDetail.textContent = `Thành công ${addedCount}/${total} video`;
 
     this.log('success', `Đã xếp hàng thành công ${addedCount} video vào hàng đợi hệ thống!`);
-    this.log('info', `Ghi chú yt-dlp: Toàn bộ video ở trạng thái "Chờ xử lý (pending)" và sẽ được backend tải về thư mục D:\\Videos\\ViralCrawl\\Downloaded\\`);
+    this.log('info', `Ghi chú yt-dlp: Toàn bộ video ở trạng thái "Chờ xử lý (pending)" và sẽ được backend tải về thư mục D:\\Videos\\Mnhut_2tech_Al\\Downloaded\\`);
     this.log('info', `════════════════════════════════════════════════════════`);
 
     App.playSound('success');

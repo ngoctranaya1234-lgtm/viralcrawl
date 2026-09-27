@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   ViralCrawl — Page: File đã tải (Thư viện video gốc)
+   Mnhut 2tech Al — Page: File đã tải (Thư viện video gốc)
    Bản quyền: 2TECH MN — NGUYỄN MINH NHỰT
    ═══════════════════════════════════════════════════════════════ */
 
@@ -417,7 +417,7 @@ window.Pages['downloaded'] = {
       return;
     }
 
-    const defaultDir = (App.store.settings && App.store.settings.downloadPath) || 'D:\\Videos\\ViralCrawl\\Downloaded\\';
+    const defaultDir = (App.store.settings && App.store.settings.downloadPath) || 'D:\\Videos\\Mnhut_2tech_Al\\Downloaded\\';
     const sanitize = (name) => (name || 'video').replace(/[\\/:*?"<>|]/g, '_');
     const filePath = v.filePath || v.path || (defaultDir + (v.fileName || sanitize(v.title) + '.mp4'));
 

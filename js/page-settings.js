@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   ViralCrawl — Page: Cài Đặt Hệ Thống (2TECH MN - Nguyễn Minh Nhựt)
+   Mnhut 2tech Al — Page: Cài Đặt Hệ Thống (2TECH MN - Nguyễn Minh Nhựt)
    ═══════════════════════════════════════════════════════════════ */
 
 window.Pages = window.Pages || {};
@@ -42,7 +42,7 @@ window.Pages['settings'] = {
   render() {
     App.store = App.store || {};
     const settings = Object.assign({
-      downloadPath: 'D:\\Videos\\ViralCrawl\\Downloaded\\',
+      downloadPath: 'D:\\Videos\\Mnhut_2tech_Al\\Downloaded\\',
       quality: 'max',
       threads: 4,
       autoClean: true,
@@ -124,7 +124,7 @@ window.Pages['settings'] = {
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="p-3 bg-gray-900 rounded border border-gray-800">
               <span class="text-xs text-muted block mb-1">Gói cước đang kích hoạt:</span>
-              <strong class="text-sm text-accent font-mono">ViralCrawl ${planKey}</strong>
+              <strong class="text-sm text-accent font-mono">Mnhut 2tech Al ${planKey}</strong>
               <div class="text-xs text-muted mt-1">Cấp phép bởi 2TECH MN</div>
             </div>
 
@@ -245,7 +245,7 @@ window.Pages['settings'] = {
             <div class="form-group flex flex-col gap-1">
               <label class="form-label text-xs fw-500">Thư mục lưu video tải về gốc</label>
               <div class="flex gap-2">
-                <input type="text" class="form-input text-xs font-mono flex-1" id="inputDownloadPath" value="${settings.downloadPath || 'D:\\Videos\\ViralCrawl\\Downloaded\\'}" readonly>
+                <input type="text" class="form-input text-xs font-mono flex-1" id="inputDownloadPath" value="${settings.downloadPath || 'D:\\Videos\\Mnhut_2tech_Al\\Downloaded\\'}" readonly>
                 <button class="btn btn-secondary btn-sm" id="btnBrowseDownloadPath">Chọn...</button>
               </div>
             </div>

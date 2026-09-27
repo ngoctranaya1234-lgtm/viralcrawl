@@ -1,6 +1,6 @@
 'use strict';
 /* ═══════════════════════════════════════════════════════════════
-   ViralCrawl — Public UI Gateway & 4K Streaming Server
+   Mnhut 2tech Al — Public UI Gateway & 4K Streaming Server
    Developed for 2TECH MN (Nguyễn Minh Nhựt)
    ═══════════════════════════════════════════════════════════════ */
 
@@ -10,7 +10,7 @@ const path = require('node:path');
 const os = require('node:os');
 const { spawn, execFile } = require('node:child_process');
 
-const DATA = process.env.VC_DATA_DIR || path.join(process.env.LOCALAPPDATA || os.homedir(), '2TECHMN', 'ViralCrawl');
+const DATA = process.env.VC_DATA_DIR || path.join(process.env.LOCALAPPDATA || os.homedir(), '2TECHMN', 'Mnhut_2tech_Al');
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_PORT = Number(process.env.VC_ADMIN_PORT || 3891);
 const ROOT = __dirname;
@@ -169,7 +169,7 @@ if (require.main === module) {
   const server = makeGateway();
   server.listen(PORT, '127.0.0.1', () => {
     console.log('═══════════════════════════════════════════════════');
-    console.log(`  🎬 ViralCrawl 4K Studio — 2TECH MN (Nguyễn Minh Nhựt)`);
+    console.log(`  🎬 Mnhut 2tech Al 4K Studio — 2TECH MN (Nguyễn Minh Nhựt)`);
     console.log(`  👉 Đang chạy tại: http://localhost:${PORT}`);
     console.log('═══════════════════════════════════════════════════');
   });

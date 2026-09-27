@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   ViralCrawl — Multi-Platform 4K 60FPS Video Resolver Engine
+   Mnhut 2tech Al — Multi-Platform 4K 60FPS Video Resolver Engine
    Bản quyền: 2TECH MN — Kỹ sư trưởng: Nguyễn Minh Nhựt
    Chức năng: Bóc tách link sạch không logo 4K/HD từ TikTok, Douyin,
    YouTube, Facebook, Instagram, Xiaohongshu, Kuaishou, Bilibili...

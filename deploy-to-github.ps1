@@ -48,7 +48,7 @@ Write-Host ">>> Retrieved GitHub token successfully." -ForegroundColor Green
 $headers = @{
     "Authorization" = "token $token"
     "Accept" = "application/vnd.github+json"
-    "User-Agent" = "ViralCrawl-Deployer"
+    "User-Agent" = "Mnhut-2tech-Al-Deployer"
 }
 
 # 1. Create or verify repo
@@ -56,7 +56,7 @@ $repoName = "viralcrawl"
 $repoOwner = "ngoctranaya1234-lgtm"
 $body = @{
     name = $repoName
-    description = "ViralCrawl 4K — Multi-Platform Video Downloader by 2TECH MN (Nguyen Minh Nhut)"
+    description = "Mnhut 2tech Al 4K — Multi-Platform Video Downloader (Nguyen Minh Nhut - 2TECH MN)"
     private = $false
     auto_init = $false
 } | ConvertTo-Json

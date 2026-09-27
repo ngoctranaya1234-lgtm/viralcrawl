@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   ViralCrawl — Page: Gửi câu hỏi & Hỗ trợ kỹ thuật (2TECH MN)
+   Mnhut 2tech Al — Page: Gửi câu hỏi & Hỗ trợ kỹ thuật (2TECH MN)
    Official Customer Support (2techmn.com)
    ═══════════════════════════════════════════════════════════════ */
 
@@ -44,7 +44,7 @@ window.Pages['support'] = {
             <div>
               <div class="text-xs text-muted">Đơn vị chủ quản</div>
               <div class="text-sm fw-700 text-white mt-0.5">2TECH MN (Nguyễn Minh Nhựt)</div>
-              <div class="text-xs text-muted mt-1">Bản quyền phần mềm ViralCrawl</div>
+              <div class="text-xs text-muted mt-1">Bản quyền phần mềm Mnhut 2tech Al</div>
             </div>
           </div>
         </div>
@@ -62,7 +62,7 @@ window.Pages['support'] = {
                   <span class="text-muted faq-toggle text-sm">▼</span>
                 </div>
                 <div class="faq-content text-xs text-muted mt-2 pt-2 border-t border-gray-800 leading-relaxed" style="display:none;">
-                  Bạn cài tiện ích <strong>Cookie-Editor</strong> trên trình duyệt Chrome/Edge, đăng nhập tài khoản Douyin/Xiaohongshu rồi nhấn "Export -> Header String". Sau đó dán vào mục kết nối nền tảng trong ViralCrawl. Hệ thống có cơ chế tự động gửi heartbeat để duy trì phiên đăng nhập không bị out.
+                  Bạn cài tiện ích <strong>Cookie-Editor</strong> trên trình duyệt Chrome/Edge, đăng nhập tài khoản Douyin/Xiaohongshu rồi nhấn "Export -> Header String". Sau đó dán vào mục kết nối nền tảng trong Mnhut 2tech Al. Hệ thống có cơ chế tự động gửi heartbeat để duy trì phiên đăng nhập không bị out.
                 </div>
               </div>
 
@@ -84,7 +84,7 @@ window.Pages['support'] = {
                   <span class="text-muted faq-toggle text-sm">▼</span>
                 </div>
                 <div class="faq-content text-xs text-muted mt-2 pt-2 border-t border-gray-800 leading-relaxed" style="display:none;">
-                  ViralCrawl sử dụng mô hình trí tuệ nhân tạo nhận diện phổ âm thanh để bóc tách triệt để tiếng nói (vocal lời thoại), trong khi bảo toàn 100% tiếng nhạc nền gốc, tiếng động vật, bước chân, tiếng gió và các hiệu ứng âm thanh môi trường xung quanh.
+                  Mnhut 2tech Al sử dụng mô hình trí tuệ nhân tạo nhận diện phổ âm thanh để bóc tách triệt để tiếng nói (vocal lời thoại), trong khi bảo toàn 100% tiếng nhạc nền gốc, tiếng động vật, bước chân, tiếng gió và các hiệu ứng âm thanh môi trường xung quanh.
                 </div>
               </div>
 
@@ -95,7 +95,7 @@ window.Pages['support'] = {
                   <span class="text-muted faq-toggle text-sm">▼</span>
                 </div>
                 <div class="faq-content text-xs text-muted mt-2 pt-2 border-t border-gray-800 leading-relaxed" style="display:none;">
-                  Bạn sao chép liên kết trang cá nhân (Profile URL) của kênh cần cào dán vào tính năng <strong>Cào Kênh Nâng Cao</strong>, chọn số lượng video cần quét và nhấn <strong>Bắt đầu</strong>. ViralCrawl của 2TECH MN sẽ tự động bóc tách danh sách video không logo, thống kê lượt xem, thả tim và hỗ trợ tải hàng loạt kèm lách bản quyền tự động.
+                  Bạn sao chép liên kết trang cá nhân (Profile URL) của kênh cần cào dán vào tính năng <strong>Cào Kênh Nâng Cao</strong>, chọn số lượng video cần quét và nhấn <strong>Bắt đầu</strong>. Mnhut 2tech Al của 2TECH MN sẽ tự động bóc tách danh sách video không logo, thống kê lượt xem, thả tim và hỗ trợ tải hàng loạt kèm lách bản quyền tự động.
                 </div>
               </div>
 
@@ -121,7 +121,7 @@ window.Pages['support'] = {
               <select class="form-select text-xs" id="supportSubject">
                 <option value="Lỗi tải video / Link không hỗ trợ">Lỗi tải video / Link không hỗ trợ</option>
                 <option value="Hỗ trợ kết nối nền tảng (Cookie/QR)">Hỗ trợ kết nối nền tảng (Cookie/QR)</option>
-                <option value="Tư vấn nâng cấp gói ViralCrawl">Tư vấn nâng cấp gói ViralCrawl</option>
+                <option value="Tư vấn nâng cấp gói Mnhut 2tech Al">Tư vấn nâng cấp gói Mnhut 2tech Al</option>
                 <option value="Yêu cầu hoàn tiền / Đổi gói">Yêu cầu hoàn tiền / Đổi gói</option>
                 <option value="Góp ý tính năng mới">Góp ý tính năng mới</option>
                 <option value="Báo lỗi phần mềm">Báo lỗi phần mềm</option>
@@ -202,7 +202,7 @@ window.Pages['support'] = {
       }
 
       const subject = encodeURIComponent(subjectEl.value);
-      const body = encodeURIComponent(`Thông tin liên hệ: ${contact}\n\nNội dung:\n${message}\n\n---\nGửi từ ViralCrawl Tool by 2TECH MN (Chủ quản: Nguyễn Minh Nhựt)`);
+      const body = encodeURIComponent(`Thông tin liên hệ: ${contact}\n\nNội dung:\n${message}\n\n---\nGửi từ Mnhut 2tech Al Tool by 2TECH MN (Chủ quản: Nguyễn Minh Nhựt)`);
       const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=support@2techmn.com&su=${subject}&body=${body}`;
 
       const win = window.open(gmailUrl, '_blank');

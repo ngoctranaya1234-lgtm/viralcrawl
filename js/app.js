@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   ViralCrawl — Core Application Controller & State Engine
+   Mnhut 2tech Al — Core Application Controller & State Engine
    Developed for 2TECH MN (Nguyễn Minh Nhựt)
    ═══════════════════════════════════════════════════════════════ */
 
@@ -24,7 +24,7 @@ const App = {
     downloadHistory: [],
     platformConnections: {}, // { Douyin: {cookie, status}, ... }
     settings: {
-      downloadPath: 'D:\\Videos\\ViralCrawl\\Downloaded\\',
+      downloadPath: 'D:\\Videos\\Mnhut_2tech_Al\\Downloaded\\',
       gpuEncoder: 'nvenc_h264',
       quality: 'high',
       threads: 4,
@@ -388,7 +388,7 @@ const App = {
 
         <div style="text-align:left;margin-bottom:18px;">
           <h3 style="font-size:19px;font-weight:600;color:#1f1f1f;margin:0 0 6px 0;">Đăng nhập bằng tài khoản Google</h3>
-          <p style="font-size:13px;color:#5f6368;margin:0;">Để tiếp tục sử dụng <strong>ViralCrawl 4K Studio</strong></p>
+          <p style="font-size:13px;color:#5f6368;margin:0;">Để tiếp tục sử dụng <strong>Mnhut 2tech Al 4K Studio</strong></p>
           <div style="margin-top:10px;padding:8px 12px;background:#e8f0fe;border-radius:8px;font-size:12px;color:#1967d2;display:flex;align-items:center;gap:6px;">
             <span>🎁</span> <span>Mỗi tài khoản Google mới được cấp <strong style="color:#0d652d;">2.000.000đ</strong> số dư miễn phí!</span>
           </div>
@@ -446,7 +446,7 @@ const App = {
 
         <!-- Footer -->
         <div style="margin-top:18px;padding-top:12px;border-top:1px solid #f1f3f4;font-size:11px;color:#70757a;text-align:center;line-height:1.5;">
-          Phần mềm ViralCrawl 4K — Bản quyền <strong>2TECH MN</strong> (Kỹ sư: Nguyễn Minh Nhựt).
+          Phần mềm Mnhut 2tech Al 4K — Bản quyền <strong>2TECH MN</strong> (Kỹ sư: Nguyễn Minh Nhựt).
         </div>
       </div>
     `;
@@ -558,7 +558,7 @@ const App = {
     if (isNewUser) {
       this.notify('success', 'Đăng nhập Google thành công!', `Chào mừng ${name}! Đã cấp 2.000.000đ số dư vào tài khoản.`);
     } else {
-      this.notify('success', 'Đăng nhập thành công!', `Chào mừng ${name} quay trở lại ViralCrawl.`);
+      this.notify('success', 'Đăng nhập thành công!', `Chào mừng ${name} quay trở lại Mnhut 2tech Al.`);
     }
   },
 
