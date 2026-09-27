@@ -2,11 +2,11 @@
 // Public gateway. Private data and administrative routes stay in the sibling service.
 const http=require('node:http'), fs=require('node:fs'), path=require('node:path'), os=require('node:os');
 const {spawn,execFile}=require('node:child_process');
-const DATA=process.env.VC_DATA_DIR||path.join(process.env.LOCALAPPDATA||os.homedir(),'2TECHMN','ViralCrawl');
+const DATA=process.env.VC_DATA_DIR||path.join(process.env.LOCALAPPDATA||os.homedir(),'2TECHMN','Mnhut_2tech_Al');
 const ROOT=__dirname,PORT=Number(process.env.PORT||3000);
 const STATIC=new Map([['/','index.html'],['/index.html','index.html'],['/manifest.json','manifest.json'],['/sw.js','sw.js'],['/assets/logo.svg','assets/logo.svg'],['/css/app.css','css/app.css'],...['app','page-dashboard','page-download-link','page-downloaded','page-history','page-settings','page-pricing','page-support'].map(n=>[`/js/${n}.js`,`js/${n}.js`])]);
 const MIME={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml'};
-const API=/^\/api\/(health|catalog|me|auth\/(google|callback|logout)|support\/compose|purchase|transactions|jobs(?:\/[a-zA-Z0-9-]+\/cancel)?|connections(?:\/[a-z]+)?|settings|sessions(?:\/[a-f0-9]{64})?|account\/export|files\/[a-zA-Z0-9-]+)$/;
+const API=/^\/api\/(health|catalog|me|auth\/(google|callback|logout)|support\/compose|purchase|transactions|jobs(?:\/[a-zA-Z0-9-]+\/cancel)?|connections(?:\/[a-z]+)?|settings|sessions(?:\/[a-f0-9]{64})?|account\/export|files\/[a-zA-Z0-9-]+|payment\/(channels|create|simulate-confirm|status\/[a-zA-Z0-9-]+|webhook\/[a-zA-Z0-9_-]+|vnpay\/return))$/;
 const OPEN_HOSTS=new Set(['mail.google.com','accounts.google.com','www.youtube.com','www.tiktok.com','www.facebook.com','www.instagram.com','www.douyin.com','passport.bilibili.com','www.kuaishou.com','www.xiaohongshu.com','x.com','vimeo.com','www.reddit.com','www.twitch.tv','www.dailymotion.com','www.pinterest.com']);
 function makeGateway(options={}) {
  const data=options.dataDir||DATA,root=options.root||ROOT,adminPort=Number(options.adminPort||process.env.VC_ADMIN_PORT||3891);
