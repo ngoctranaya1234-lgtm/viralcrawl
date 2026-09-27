@@ -1,5 +1,7 @@
 # Core Identity and Internal Wallet Implementation Plan
 
+> **Superseded:** Use `2026-09-27-internal-credit-core-remediation-plan.md`. This historical plan retains the earlier 2,000,000-credit and Google-only decisions and must not be executed.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace every simulated account, balance, pricing, and support path with official Google identity, server-owned internal credits, one-use vouchers, real plan purchases, and Gmail compose.
