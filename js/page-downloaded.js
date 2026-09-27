@@ -499,44 +499,64 @@ window.Pages['downloaded'] = {
       : null;
     if (!v) return;
 
-    const hasVideoUrl = v.url && (v.url.startsWith('http') || v.url.startsWith('blob:') || v.url.startsWith('data:'));
+    const streamUrl = v.downloadUrl || v.url || '';
+    const hasStream = streamUrl && (streamUrl.startsWith('http') || streamUrl.startsWith('blob:') || streamUrl.startsWith('data:'));
     const hasImage = v.thumb && (v.thumb.startsWith('http') || v.thumb.startsWith('data:') || v.thumb.startsWith('blob:') || v.thumb.startsWith('/'));
 
     App.openModal(`
-      <div class="flex flex-col gap-4">
-        <div class="flex justify-between items-center border-b pb-2">
-          <h3 class="text-sm fw-700 text-white truncate max-w-md" title="${v.title || ''}">${v.title || 'Xem trước video'}</h3>
-          <button class="btn btn-sm btn-ghost" onclick="App.closeModal()">✕</button>
+      <div class="flex flex-col gap-3" style="max-width:640px;margin:0 auto;text-align:left;">
+        <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+          <div class="flex items-center gap-2 min-w-0 flex-1 mr-2">
+            <span class="badge badge-accent" style="font-size:10px;">4K 60FPS</span>
+            <h3 class="text-sm fw-700 text-white truncate" title="${v.title || ''}">${v.title || 'Xem trước video'}</h3>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="App.closeModal()" aria-label="Đóng">✕</button>
         </div>
 
-        <div class="w-full h-72 bg-black rounded flex items-center justify-center overflow-hidden relative border border-gray-800">
-          ${hasVideoUrl ? `
-            <video src="${v.url}" controls class="w-full h-full object-contain" autoplay></video>
+        <div class="w-full bg-black rounded-lg flex items-center justify-center overflow-hidden relative border border-gray-800 shadow-2xl" style="max-height:360px;min-height:220px;">
+          ${hasStream ? `
+            <video id="inAppVideoPlayer" src="${streamUrl}" controls playsinline autoplay class="w-full h-full object-contain" style="max-height:360px;"></video>
           ` : hasImage ? `
             <img src="${v.thumb}" class="w-full h-full object-contain" alt="">
-            <div class="absolute inset-0 flex items-center justify-center bg-black/40 text-4xl text-white">▶</div>
+            <div class="absolute inset-0 flex items-center justify-center bg-black/50 text-4xl text-white">▶</div>
           ` : `
-            <div class="flex flex-col items-center gap-2 text-muted">
-              <div class="text-4xl text-white opacity-60">▶</div>
-              <span class="text-xs">Xem trước video chất lượng cao (1080p HD)</span>
+            <div class="flex flex-col items-center gap-2 text-muted py-12">
+              <div class="text-4xl text-white opacity-60">🎬</div>
+              <span class="text-xs">Định dạng video: MP4 4K Ultra Bitrate</span>
             </div>
           `}
         </div>
 
-        <div class="grid grid-cols-3 gap-2 text-xs text-muted p-2 rounded bg-surface border border-gray-800">
-          <div>Tác giả: <strong class="text-white">${v.author || 'N/A'}</strong></div>
-          <div>Nền tảng: <strong class="text-accent">${v.platform || 'N/A'}</strong></div>
-          <div>Thời lượng: <strong class="text-white">${v.duration || '--:--'}</strong></div>
+        <!-- Controls: Speed Presets & Info -->
+        <div class="flex flex-wrap items-center justify-between gap-2 p-2 rounded bg-surface border border-gray-800 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="text-muted">Tốc độ phát:</span>
+            <div class="flex gap-1">
+              <button type="button" class="btn btn-sm btn-ghost text-xs py-0.5 px-2" onclick="const p=document.getElementById('inAppVideoPlayer'); if(p) p.playbackRate=0.75;">0.75x</button>
+              <button type="button" class="btn btn-sm btn-ghost text-xs py-0.5 px-2 active font-bold" onclick="const p=document.getElementById('inAppVideoPlayer'); if(p) p.playbackRate=1.0;">1.0x</button>
+              <button type="button" class="btn btn-sm btn-ghost text-xs py-0.5 px-2" onclick="const p=document.getElementById('inAppVideoPlayer'); if(p) p.playbackRate=1.5;">1.5x</button>
+              <button type="button" class="btn btn-sm btn-ghost text-xs py-0.5 px-2" onclick="const p=document.getElementById('inAppVideoPlayer'); if(p) p.playbackRate=2.0;">2.0x</button>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 text-muted">
+            <span>Nền tảng: <strong class="text-accent">${v.platform || 'N/A'}</strong></span>
+            <span>Kích thước: <strong class="text-white font-mono">${v.size || 'HD'}</strong></span>
+          </div>
         </div>
 
-        <div class="flex justify-between items-center pt-2 border-t">
-          <button class="btn btn-danger btn-sm flex items-center gap-1.5" onclick="Pages.downloaded.deleteVideo('${v.id}')">
+        <div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-gray-800">
+          <button class="btn btn-ghost btn-sm text-error flex items-center gap-1.5" onclick="Pages.downloaded.deleteVideo('${v.id}')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             Xóa video
           </button>
           <div class="flex gap-2">
-            <button class="btn btn-secondary btn-sm" onclick="App.closeModal()">Đóng</button>
-            <button class="btn btn-primary btn-sm flex items-center gap-1.5" onclick="Pages.downloaded.openFile('${v.id}')">
+            ${hasStream ? `
+              <a href="${streamUrl}" download="${(v.title || 'video').replace(/[\\/:*?"<>|]/g, '_')}.mp4" target="_blank" class="btn btn-secondary btn-sm flex items-center gap-1.5" onclick="App.notify('success', 'Đang tải về máy', 'Tệp video đang được trình duyệt tải xuống.');">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Tải về máy (.mp4)
+              </a>
+            ` : ''}
+            <button class="btn btn-gradient btn-sm flex items-center gap-1.5 font-bold" onclick="Pages.downloaded.openFile('${v.id}')">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
               Mở file
             </button>

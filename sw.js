@@ -1,6 +1,6 @@
 'use strict';
-const CACHE_NAME='2techmn-public-v3';
-const ASSETS=['./index.html','./manifest.json','./css/app.css','./js/app.js','./js/page-dashboard.js','./js/page-download-link.js','./js/page-downloaded.js','./js/page-history.js','./js/page-settings.js','./js/page-pricing.js','./js/page-support.js','./assets/logo.svg'];
+const CACHE_NAME='2techmn-public-v4';
+const ASSETS=['./index.html','./manifest.json','./css/app.css','./js/engine-resolver.js','./js/app.js','./js/page-dashboard.js','./js/page-download-link.js','./js/page-downloaded.js','./js/page-history.js','./js/page-settings.js','./js/page-pricing.js','./js/page-support.js','./assets/logo.svg'];
 const assetPaths=new Set(ASSETS.map(p=>new URL(p,self.registration.scope).pathname));
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>(k.startsWith('mnhut-')||k.startsWith('viralcrawl-')||k.startsWith('2techmn-public-'))&&k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

@@ -4,7 +4,7 @@ const http=require('node:http'), fs=require('node:fs'), path=require('node:path'
 const {spawn,execFile}=require('node:child_process');
 const DATA=process.env.VC_DATA_DIR||path.join(process.env.LOCALAPPDATA||os.homedir(),'2TECHMN','Mnhut_2tech_Al');
 const ROOT=__dirname,PORT=Number(process.env.PORT||3000);
-const STATIC=new Map([['/','index.html'],['/index.html','index.html'],['/manifest.json','manifest.json'],['/sw.js','sw.js'],['/assets/logo.svg','assets/logo.svg'],['/css/app.css','css/app.css'],...['app','page-dashboard','page-download-link','page-downloaded','page-history','page-settings','page-pricing','page-support'].map(n=>[`/js/${n}.js`,`js/${n}.js`])]);
+const STATIC=new Map([['/','index.html'],['/index.html','index.html'],['/manifest.json','manifest.json'],['/sw.js','sw.js'],['/assets/logo.svg','assets/logo.svg'],['/css/app.css','css/app.css'],...['engine-resolver','app','page-dashboard','page-download-link','page-downloaded','page-history','page-settings','page-pricing','page-support'].map(n=>[`/js/${n}.js`,`js/${n}.js`])]);
 const MIME={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml'};
 const API=/^\/api\/(health|catalog|me|auth\/(google|callback|logout)|support\/compose|purchase|transactions|jobs(?:\/[a-zA-Z0-9-]+\/cancel)?|connections(?:\/[a-z]+)?|settings|sessions(?:\/[a-f0-9]{64})?|account\/export|files\/[a-zA-Z0-9-]+|payment\/(channels|banks|transfer|transfers|create|simulate-confirm|status\/[a-zA-Z0-9-]+|webhook\/[a-zA-Z0-9_-]+|vnpay\/return))$/;
 const OPEN_HOSTS=new Set(['mail.google.com','accounts.google.com','www.youtube.com','www.tiktok.com','www.facebook.com','www.instagram.com','www.douyin.com','passport.bilibili.com','www.kuaishou.com','www.xiaohongshu.com','x.com','vimeo.com','www.reddit.com','www.twitch.tv','www.dailymotion.com','www.pinterest.com']);
@@ -44,7 +44,7 @@ function makeGateway(options={}) {
    const file=STATIC.get(p);if(!file)return json(404,'Không tìm thấy.');
    if(!['GET','HEAD'].includes(req.method)){res.setHeader('Allow','GET, HEAD');return json(405,'Phương thức không được phép.');}
    const absolute=path.join(root,file);if(!fs.existsSync(absolute)||!fs.statSync(absolute).isFile())return json(404,'Không tìm thấy.');
-   res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';");
+   res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; media-src 'self' blob: https:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';");
    res.setHeader('Content-Type',MIME[path.extname(file)]||'application/octet-stream');if(p==='/sw.js')res.setHeader('Service-Worker-Allowed','/');
    if(req.method==='HEAD')return res.end();const stream=fs.createReadStream(absolute);stream.on('error',()=>res.headersSent?res.destroy():json(500,'Không đọc được tập tin.'));stream.pipe(res);
   }catch{if(!res.headersSent)json(500,'Gateway chưa xử lý được yêu cầu.');else res.destroy();}

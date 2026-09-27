@@ -93,6 +93,7 @@ const App = {
     this.startUptime();
     this.updateMuteIcon();
     this.updateUI();
+    this.syncBackendSession();
 
     // Listen to hash changes for browser back/forward navigation
     window.addEventListener('hashchange', () => {
@@ -359,6 +360,31 @@ const App = {
       }
     }
     if (headerBal) headerBal.textContent = this.formatCurrency(this.store.balance);
+  },
+
+  async syncBackendSession() {
+    try {
+      const res = await fetch('/api/me', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.user) {
+          const u = data.user;
+          this.store.user = {
+            id: u.id,
+            name: u.name || u.email,
+            email: u.email,
+            provider: u.provider || 'google',
+            avatar: null,
+            initial: (u.name || u.email || 'U').charAt(0).toUpperCase()
+          };
+          if (typeof u.balance === 'number') this.store.balance = u.balance;
+          if (u.plan) this.store.plan = u.plan;
+          if (u.planExpiry) this.store.planExpiry = new Date(u.planExpiry).toISOString();
+          this.saveStore();
+          this.updateUI();
+        }
+      }
+    } catch (_) {}
   },
 
   bindLogin() {
