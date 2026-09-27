@@ -1683,3 +1683,224 @@ img, video { max-width: 100%; display: block; }
   box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
 }
 
+/* ═══ VIRALCRAWL PROFESSIONAL STUDIO UI (MATCHING VIDEO REFERENCE) ═══ */
+
+/* 1. Platform Connection Cards Grid (8 Cards: 4x2) */
+.plat-status-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1024px) {
+  .plat-status-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .plat-status-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.plat-status-card {
+  background: #171d2c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.plat-status-card:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.plat-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.plat-status-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.plat-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.plat-name-wrap {
+  min-width: 0;
+}
+
+.plat-name-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plat-pill-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.plat-pill-badge.logged-in {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.plat-pill-badge.not-logged {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.plat-pill-badge.bypass {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.plat-btn-action {
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.plat-btn-action.login-red {
+  background: linear-gradient(135deg, #e11d48, #be123c);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.3);
+}
+
+.plat-btn-action.login-red:hover {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  box-shadow: 0 6px 16px rgba(225, 29, 72, 0.45);
+}
+
+.plat-btn-action.logout-yellow {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #fff;
+}
+
+.plat-btn-action.logout-yellow:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.plat-btn-action.bypass-btn {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 2. Platform Selector Bar (Horizontal Row) */
+.plat-sel-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+}
+
+.plat-sel-btn {
+  background: #171d2c;
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.plat-sel-btn:hover {
+  background: #1e2638;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.plat-sel-btn.active {
+  background: #1a2236;
+  border-color: #3b82f6 !important;
+  color: #fff;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.45), inset 0 0 10px rgba(59, 130, 246, 0.15);
+}
+
+/* 3. Capsule Tabs (Cách tải) */
+.crawl-capsule-tabs {
+  background: #131826;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  gap: 6px;
+  width: fit-content;
+}
+
+.crawl-capsule-tab {
+  padding: 8px 18px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.crawl-capsule-tab:hover {
+  color: #fff;
+}
+
+.crawl-capsule-tab.active {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+}
+

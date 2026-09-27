@@ -1,12 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════
    ViralCrawl — Page: Tải ngay (Dashboard / Multi-Platform Scraper)
+   Đơn vị chủ quản: 2TECH MN — Kỹ sư trưởng: Nguyễn Minh Nhựt
+   Thiết kế giao diện Commercial Studio chuẩn theo tham chiếu thực tế
    ═══════════════════════════════════════════════════════════════ */
 
 window.Pages = window.Pages || {};
 window.Pages['dashboard'] = {
   activeTab: 'tab-link',
+  selectedPlatform: 'Honggo',
   isDownloading: false,
   downloadInterval: null,
+  uptimeTimer: null,
 
   render() {
     App.store.kpi = App.store.kpi || { today: 0, downloading: 0, completed: 0, error: 0 };
@@ -17,92 +21,189 @@ window.Pages['dashboard'] = {
     
     const kpi = App.store.kpi;
     return `
-      <div class="flex flex-col gap-6">
-        <!-- Header -->
-        <div class="flex items-center justify-between">
+      <div class="flex flex-col gap-5">
+        <!-- 1. Header & Live Telemetry -->
+        <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 class="text-2xl fw-700">Tải ngay (Multi-Platform Scraper)</h1>
-            <p class="text-sm text-muted mt-1">Cào video tự động từ 10+ nền tảng — lọc video xu hướng, tải sạch watermark, khử trùng lặp</p>
+            <div class="flex items-center gap-2">
+              <h1 class="text-2xl fw-800 text-white tracking-wide">ViralCrawl 4K — Cào video hỗ trợ dịch & lồng tiếng</h1>
+              <span class="badge-4k">4K 60FPS</span>
+            </div>
+            <p class="text-xs text-muted mt-1">Bản quyền phần mềm thuộc về <strong>2TECH MN</strong> — Trực thuộc <strong>Nguyễn Minh Nhựt</strong>. Bóc tách video đa nền tảng sạch 100% watermark.</p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
             <span class="badge badge-neutral"><span class="badge-dot green"></span> Server AI 2TECH MN: Hoạt động</span>
             <button class="btn btn-secondary btn-sm" id="btnRefreshStats" title="Cập nhật chỉ số">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              Làm mới
+              Đồng bộ
             </button>
           </div>
         </div>
-        
-        <!-- KPI Stats -->
-        <div class="kpi-grid grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-          <div class="kpi-card card p-4">
-            <div class="kpi-label text-muted text-xs uppercase tracking-wide">Video hôm nay</div>
-            <div class="kpi-value text-2xl fw-700 mt-1" id="kpiToday">${kpi.today}</div>
-          </div>
-          <div class="kpi-card card p-4">
-            <div class="kpi-label text-muted text-xs uppercase tracking-wide">Đang tải</div>
-            <div class="kpi-value text-2xl fw-700 mt-1 text-info" id="kpiDownloading">${kpi.downloading}</div>
-          </div>
-          <div class="kpi-card card p-4">
-            <div class="kpi-label text-muted text-xs uppercase tracking-wide">Đã hoàn thành</div>
-            <div class="kpi-value text-2xl fw-700 mt-1 text-success" id="kpiCompleted">${kpi.completed}</div>
-          </div>
-          <div class="kpi-card card p-4">
-            <div class="kpi-label text-muted text-xs uppercase tracking-wide">Lỗi / Bỏ qua</div>
-            <div class="kpi-value text-2xl fw-700 mt-1 text-muted" id="kpiError">${kpi.error}</div>
-          </div>
-          <div class="kpi-card card p-4">
-            <div class="kpi-label text-muted text-xs uppercase tracking-wide">Thời gian chạy</div>
-            <div class="kpi-value text-xl fw-700 mt-1 font-mono text-warning" id="dashUptime">0m 0s</div>
-          </div>
-        </div>
 
-        <!-- Platform Login Section (10+ platforms) -->
-        <div class="card p-5">
-          <div class="flex justify-between items-center mb-4">
+        <!-- 2. Platform Connection Cards Grid (8 Cards: 4x2) matching Reference Image -->
+        <div class="card p-4">
+          <div class="flex justify-between items-center mb-3">
             <div>
-              <h2 class="card-title text-base fw-600">Trạng thái kết nối nền tảng</h2>
-              <p class="text-xs text-muted">Nhấn vào từng nền tảng để nạp Cookie hoặc quét mã QR đăng nhập</p>
+              <h2 class="card-title text-sm fw-700 text-white flex items-center gap-2">
+                <span>Trạng thái kết nối nền tảng</span>
+                <span class="text-xs text-muted fw-400">(Tự động nhận diện tài khoản & vượt tường lửa)</span>
+              </h2>
             </div>
-            <span class="text-xs text-muted">Hỗ trợ 10+ mạng xã hội hot nhất 2026</span>
+            <span class="text-xs text-muted">Hệ thống bóc tách 2TECH MN Engine</span>
           </div>
-          <div class="platform-list grid gap-3" id="platformListContainer" style="grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));">
-            <!-- Rendered via JS -->
+
+          <!-- 4x2 Grid Container -->
+          <div class="plat-status-grid" id="platStatusGrid">
+            <!-- Rendered dynamically via renderPlatforms() -->
+          </div>
+
+          <!-- Legend beneath cards (Exact replica of reference) -->
+          <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted pt-3 mt-3 border-t border-gray-800">
+            <div class="flex items-center gap-1.5">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;"></span>
+              <span class="text-gray-300"><strong>Xanh ✓</strong> = đã đăng nhập</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;"></span>
+              <span class="text-gray-300"><strong>Đỏ ✕</strong> = chưa đăng nhập</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;"></span>
+              <span class="text-gray-300"><strong>Vàng !</strong> = đang mở / bị khóa / chưa rõ</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;"></span>
+              <span class="text-gray-300"><strong>Xanh ―</strong> = không cần đăng nhập</span>
+            </div>
+            <div class="ml-auto text-xs text-muted opacity-80 hidden md:block">
+              💡 Nhấn <strong>"Đăng nhập"</strong> để nạp Cookie hoặc mở trình duyệt xác thực
+            </div>
           </div>
         </div>
 
-        <!-- Crawl Setup Section -->
-        <div class="card p-5">
-          <div class="tabs flex gap-4 border-b border-gray-700 mb-4" id="crawlTabs">
-            <button class="tab active text-sm fw-600 pb-2 border-b-2 border-accent text-accent" data-target="tab-link">🔗 Theo link</button>
-            <button class="tab text-sm fw-600 pb-2 border-b-2 border-transparent text-muted hover:text-white" data-target="tab-keyword">🔍 Theo từ khoá</button>
-            <button class="tab text-sm fw-600 pb-2 border-b-2 border-transparent text-muted hover:text-white" data-target="tab-channel">👤 Theo kênh</button>
-            <button class="tab text-sm fw-600 pb-2 border-b-2 border-transparent text-muted hover:text-white" data-target="tab-playlist">📁 Theo bộ / Playlist</button>
+        <!-- 3. Chọn nền tảng (Horizontal Selector Bar) -->
+        <div class="card p-4">
+          <div class="text-xs fw-700 text-gray-300 uppercase tracking-wider mb-2.5">Chọn nền tảng</div>
+          <div class="plat-sel-container" id="platSelContainer">
+            <!-- Rendered dynamically via renderPlatformSelector() -->
           </div>
-          
+        </div>
+
+        <!-- 4. Cách tải & Input Box (Capsule Tabs + Textarea + Quantity counter) -->
+        <div class="card p-5">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div class="flex items-center gap-3">
+              <span class="text-xs fw-700 text-gray-300 uppercase tracking-wider">Cách tải:</span>
+              <div class="crawl-capsule-tabs" id="crawlCapsuleTabs">
+                <button class="crawl-capsule-tab active" data-target="tab-link">
+                  <span>🔗</span> Theo link
+                </button>
+                <button class="crawl-capsule-tab" data-target="tab-channel">
+                  <span>👤</span> Theo kênh
+                </button>
+                <button class="crawl-capsule-tab" data-target="tab-playlist">
+                  <span>📦</span> Theo bộ
+                </button>
+                <button class="crawl-capsule-tab" data-target="tab-keyword">
+                  <span>🔍</span> Theo từ khoá
+                </button>
+              </div>
+            </div>
+
+            <!-- Quantity counter badge from screenshot -->
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-muted">Số lượng (theo link đã dán):</span>
+              <div class="flex items-center bg-gray-900 border border-gray-700 rounded px-2 py-1">
+                <input type="number" id="crawlQuantity" class="bg-transparent text-white font-mono text-xs w-16 text-center outline-none" value="100" min="1" max="1000">
+              </div>
+            </div>
+          </div>
+
           <div class="tab-content relative min-h-[160px]">
             <!-- Tab 1: Theo Link -->
             <div id="tab-link" class="tab-panel active flex flex-col gap-3">
               <div class="flex justify-between items-center text-xs text-muted">
-                <span>Dán danh sách link video (hỗ trợ Douyin, TikTok, YouTube Shorts, FB Reels, Xiaohongshu, Kuaishou, Bilibili...)</span>
-                <span id="linkCount">0 link được phát hiện</span>
+                <span id="platInputNotice">Dán danh sách liên kết video từ nền tảng đã chọn (hỗ trợ Douyin, Honggo, TikTok, YouTube, FB, IG...):</span>
+                <span class="font-mono text-emerald-400 fw-600" id="linkCount">0 link được phát hiện</span>
               </div>
-              <textarea id="crawlInputLinks" class="form-textarea w-full p-3 rounded bg-gray-800 border border-gray-700 text-sm h-32 font-mono" placeholder="Dán link video tại đây (mỗi dòng 1 link)...
+              <textarea id="crawlInputLinks" class="form-textarea w-full p-3.5 rounded-lg bg-gray-900/90 border border-gray-700/80 text-sm h-36 font-mono text-gray-100 placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all" placeholder="Dán link video tại đây (mỗi dòng 1 link)...
 Ví dụ:
 https://v.douyin.com/iRoLkd1/
-https://www.tiktok.com/@shoptool_ai/video/7689771314827005205
-https://youtube.com/shorts/abcxyz123"></textarea>
-              <div class="flex items-center gap-2">
-                <button class="btn btn-ghost btn-sm text-error" onclick="document.getElementById('crawlInputLinks').value='';document.getElementById('linkCount').textContent='0 link được phát hiện';">Xóa trắng</button>
+https://www.tiktok.com/@creator/video/7689771314827005205
+https://youtube.com/shorts/abcxyz123
+https://honggo.com/drama/ep123"></textarea>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <button class="btn btn-ghost btn-sm text-error text-xs" onclick="document.getElementById('crawlInputLinks').value='';document.getElementById('linkCount').textContent='0 link được phát hiện';App.playSound('click');">
+                    🗑 Xóa trắng
+                  </button>
+                  <button class="btn btn-ghost btn-sm text-xs text-info" id="btnFillSampleLinks">
+                    📋 Nạp link mẫu test nhanh
+                  </button>
+                </div>
+                <div class="text-xs text-muted">
+                  Bóc tách trực tiếp chất lượng <strong>4K 60FPS</strong> Ultra HD
+                </div>
               </div>
             </div>
 
-            <!-- Tab 2: Theo Từ Khóa -->
+            <!-- Tab 2: Theo Kênh -->
+            <div id="tab-channel" class="tab-panel" style="display:none;">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group flex flex-col gap-2">
+                  <label class="form-label text-sm fw-500">URL Kênh hoặc ID Creator</label>
+                  <input type="text" id="crawlChannelUrl" class="form-input p-2.5 rounded bg-gray-900 border border-gray-700 text-sm" placeholder="https://www.douyin.com/user/MS4wLjAB..." value="">
+                  <span class="text-xs text-muted">Quét trọn bộ video của Creator hoặc tự động cập nhật video mới nhất</span>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="form-group flex flex-col gap-2">
+                    <label class="form-label text-sm fw-500">Số video lấy tối đa</label>
+                    <input type="number" id="crawlChannelMax" class="form-input p-2.5 rounded bg-gray-900 border border-gray-700 text-sm font-mono" value="100">
+                  </div>
+                  <div class="form-group flex flex-col gap-2">
+                    <label class="form-label text-sm fw-500">Lọc video ghim</label>
+                    <label class="flex items-center gap-2 mt-2 cursor-pointer">
+                      <div class="toggle"><input type="checkbox" id="checkSkipPinned" checked><div class="toggle-track"></div></div>
+                      <span class="text-xs">Bỏ qua video ghim đầu trang</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 3: Theo Bộ / Playlist -->
+            <div id="tab-playlist" class="tab-panel" style="display:none;">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group flex flex-col gap-2">
+                  <label class="form-label text-sm fw-500">URL Bộ sưu tập / Phim ngắn Honggo / Playlist Douyin</label>
+                  <input type="text" id="crawlPlaylistUrl" class="form-input p-2.5 rounded bg-gray-900 border border-gray-700 text-sm" placeholder="Nhập link bộ phim ngắn Honggo hoặc playlist..." value="">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="form-group flex flex-col gap-2">
+                    <label class="form-label text-sm fw-500">Số tập lấy</label>
+                    <select class="form-select p-2.5 rounded bg-gray-900 border border-gray-700 text-sm">
+                      <option>Toàn bộ các tập (Trọn bộ)</option>
+                      <option>10 tập đầu tiên</option>
+                      <option>50 tập mới nhất</option>
+                    </select>
+                  </div>
+                  <div class="form-group flex flex-col gap-2">
+                    <label class="form-label text-sm fw-500">Tự động đánh số tập</label>
+                    <label class="flex items-center gap-2 mt-2 cursor-pointer">
+                      <div class="toggle"><input type="checkbox" checked><div class="toggle-track"></div></div>
+                      <span class="text-xs">Đánh số Tập 1, 2, 3...</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 4: Theo Từ Khóa -->
             <div id="tab-keyword" class="tab-panel" style="display:none;">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="form-group flex flex-col gap-2">
-                  <label class="form-label text-sm fw-500">Từ khoá tìm kiếm</label>
-                  <input type="text" id="crawlKeyword" class="form-input p-2 rounded bg-gray-800 border border-gray-700 text-sm" placeholder="Nhập từ khoá (Tiếng Việt hoặc Tiếng Trung)..." value="câu cá sinh tồn hoang dã">
+                  <label class="form-label text-sm fw-500">Từ khoá tìm kiếm xu hướng</label>
+                  <input type="text" id="crawlKeyword" class="form-input p-2.5 rounded bg-gray-900 border border-gray-700 text-sm" placeholder="Nhập từ khoá (Tiếng Việt hoặc Tiếng Trung)..." value="câu cá sinh tồn hoang dã">
                   
                   <!-- AI Translation Suggestions -->
                   <div class="mt-1">
@@ -121,7 +222,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
                 <div class="grid grid-cols-2 gap-3">
                   <div class="form-group flex flex-col gap-2">
                     <label class="form-label text-sm fw-500">Nền tảng cào</label>
-                    <select class="form-select p-2 rounded bg-gray-800 border border-gray-700 text-sm" id="crawlPlatSelect">
+                    <select class="form-select p-2.5 rounded bg-gray-900 border border-gray-700 text-sm" id="crawlPlatSelect">
                       <option value="Douyin">Douyin (Trending hot)</option>
                       <option value="TikTok">TikTok Quốc Tế</option>
                       <option value="Xiaohongshu">Xiaohongshu</option>
@@ -132,58 +233,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
                   </div>
                   <div class="form-group flex flex-col gap-2">
                     <label class="form-label text-sm fw-500">Số lượng cào</label>
-                    <input type="number" id="crawlKeywordCount" class="num-spinner form-input p-2 rounded bg-gray-800 border border-gray-700 text-sm" value="50" min="5" max="500">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tab 3: Theo Kênh -->
-            <div id="tab-channel" class="tab-panel" style="display:none;">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="form-group flex flex-col gap-2">
-                  <label class="form-label text-sm fw-500">URL Kênh hoặc ID Creator</label>
-                  <input type="text" id="crawlChannelUrl" class="form-input p-2 rounded bg-gray-800 border border-gray-700 text-sm" placeholder="https://www.douyin.com/user/MS4wLjAB..." value="">
-                  <span class="text-xs text-muted">Hỗ trợ quét trọn bộ video của Creator hoặc tự động cập nhật video mới nhất</span>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div class="form-group flex flex-col gap-2">
-                    <label class="form-label text-sm fw-500">Số video lấy tối đa</label>
-                    <input type="number" id="crawlChannelMax" class="num-spinner form-input p-2 rounded bg-gray-800 border border-gray-700 text-sm" value="100">
-                  </div>
-                  <div class="form-group flex flex-col gap-2">
-                    <label class="form-label text-sm fw-500">Trạng thái theo dõi</label>
-                    <label class="flex items-center gap-2 mt-2 cursor-pointer">
-                      <div class="toggle"><input type="checkbox" id="checkAutoFollow" checked><div class="toggle-track"></div></div>
-                      <span class="text-xs">Tự động thêm vào mục Theo dõi kênh</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tab 4: Theo Bộ -->
-            <div id="tab-playlist" class="tab-panel" style="display:none;">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="form-group flex flex-col gap-2">
-                  <label class="form-label text-sm fw-500">URL Bộ sưu tập / Phim ngắn / Playlist</label>
-                  <input type="text" id="crawlPlaylistUrl" class="form-input p-2 rounded bg-gray-800 border border-gray-700 text-sm" placeholder="Nhập link bộ phim ngắn Honggo hoặc playlist Douyin..." value="">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div class="form-group flex flex-col gap-2">
-                    <label class="form-label text-sm fw-500">Số tập lấy</label>
-                    <select class="form-select p-2 rounded bg-gray-800 border border-gray-700 text-sm">
-                      <option>Toàn bộ các tập (Trọn bộ)</option>
-                      <option>10 tập đầu tiên</option>
-                      <option>Tập mới nhất</option>
-                    </select>
-                  </div>
-                  <div class="form-group flex flex-col gap-2">
-                    <label class="form-label text-sm fw-500">Tự động đánh số tập</label>
-                    <label class="flex items-center gap-2 mt-2 cursor-pointer">
-                      <div class="toggle"><input type="checkbox" checked><div class="toggle-track"></div></div>
-                      <span class="text-xs">Đánh số Tập 1, 2, 3...</span>
-                    </label>
+                    <input type="number" id="crawlKeywordCount" class="form-input p-2.5 rounded bg-gray-900 border border-gray-700 text-sm font-mono" value="50" min="5" max="500">
                   </div>
                 </div>
               </div>
@@ -191,11 +241,11 @@ https://youtube.com/shorts/abcxyz123"></textarea>
           </div>
 
           <!-- Deep Filters & De-duplication Row -->
-          <div class="divider"></div>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+          <div class="divider my-4"></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
             <div>
               <label class="text-xs text-muted block mb-1">Thời lượng video</label>
-              <select class="form-select text-xs w-full" id="filterDuration">
+              <select class="form-select text-xs w-full bg-gray-900 border-gray-700" id="filterDuration">
                 <option value="all">Tất cả thời lượng</option>
                 <option value="short">Dưới 1 phút (Shorts/Reels)</option>
                 <option value="medium">1 - 5 phút (Vlog ngắn)</option>
@@ -205,7 +255,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
             </div>
             <div>
               <label class="text-xs text-muted block mb-1">Sắp xếp ưu tiên</label>
-              <select class="form-select text-xs w-full" id="filterSort">
+              <select class="form-select text-xs w-full bg-gray-900 border-gray-700" id="filterSort">
                 <option value="view">Lượt xem cao nhất (Trending)</option>
                 <option value="like">Lượt tương tác / thả tim</option>
                 <option value="new">Mới đăng gần đây nhất</option>
@@ -216,67 +266,91 @@ https://youtube.com/shorts/abcxyz123"></textarea>
               <label class="text-xs text-muted block mb-1">Chế độ lọc khử trùng</label>
               <label class="flex items-center gap-2 mt-1 cursor-pointer">
                 <div class="toggle"><input type="checkbox" id="checkUniqueOnly" checked><div class="toggle-track"></div></div>
-                <span class="text-xs fw-500">Tải không trùng (Bỏ qua video đã có)</span>
+                <span class="text-xs fw-500 text-gray-200">Bỏ qua video đã tải trước đó</span>
               </label>
             </div>
             <div>
               <label class="text-xs text-muted block mb-1">Xóa watermark gốc</label>
               <label class="flex items-center gap-2 mt-1 cursor-pointer">
                 <div class="toggle"><input type="checkbox" id="checkCleanWatermark" checked><div class="toggle-track"></div></div>
-                <span class="text-xs fw-500 text-success">Lấy link gốc HD không logo</span>
+                <span class="text-xs fw-600 text-emerald-400">Lấy link gốc 4K sạch logo</span>
               </label>
             </div>
           </div>
         </div>
 
-        <!-- Download Progress Bar (shown when downloading) -->
+        <!-- 5. Download Progress Bar (shown when downloading) -->
         <div id="crawlProgressSection" class="card p-4" style="display:none;">
           <div class="flex justify-between items-center text-sm mb-2">
             <span class="fw-600 flex items-center gap-2 text-info">
-              <span class="badge-dot blue"></span> <span id="crawlProgressText">Đang cào video...</span>
+              <span class="badge-dot blue"></span> <span id="crawlProgressText">Đang cào video chất lượng 4K 60FPS...</span>
             </span>
-            <span class="font-mono text-sm fw-600" id="crawlProgressPercent">0%</span>
+            <span class="font-mono text-sm fw-700 text-emerald-400" id="crawlProgressPercent">0%</span>
           </div>
-          <div class="progress h-2 bg-gray-800 rounded">
+          <div class="progress h-2 bg-gray-900 rounded overflow-hidden">
             <div id="crawlProgressBar" class="progress-fill bg-accent h-full" style="width: 0%; transition: width 0.2s;"></div>
           </div>
           <div class="flex justify-between text-xs text-muted mt-2">
-            <span id="crawlSpeed">Tốc độ: Đang tính toán...</span>
-            <span id="crawlRemaining">Ước tính còn lại: ...</span>
+            <span id="crawlSpeed">Tốc độ: 45.2 MB/s (GPU NVENC Engine)</span>
+            <span id="crawlRemaining">Ước tính còn lại: Đang xử lý...</span>
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="flex flex-wrap gap-4 items-center">
-          <button class="btn btn-gradient btn-lg px-6 py-3 rounded fw-600 flex items-center gap-2" id="btnPreviewSelect">
+        <!-- 6. Action Buttons -->
+        <div class="flex flex-wrap gap-3 items-center">
+          <button class="btn btn-gradient btn-lg px-6 py-3 rounded-lg fw-700 flex items-center gap-2 shadow-lg" id="btnPreviewSelect">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             Xem trước & chọn
           </button>
-          <button class="btn btn-secondary px-5 py-3 rounded flex items-center gap-2" id="btnDownloadAll">
+          <button class="btn btn-primary px-5 py-3 rounded-lg fw-600 flex items-center gap-2" id="btnDownloadAll">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Tải hết (không xem)
           </button>
-          <button class="btn btn-secondary px-4 py-3 rounded" id="btnAddToQueue">
+          <button class="btn btn-secondary px-4 py-3 rounded-lg text-sm" id="btnAddToQueue">
             Thêm vào hàng đợi
           </button>
-          <button class="btn btn-danger px-4 py-3 rounded ml-auto" id="btnStopAll">
+          <button class="btn btn-danger px-4 py-3 rounded-lg text-sm ml-auto" id="btnStopAll">
             Dừng tất cả
           </button>
         </div>
 
-        <!-- Terminal Log -->
-        <div class="terminal card flex flex-col h-64 bg-black rounded overflow-hidden">
-          <div class="terminal-header flex justify-between items-center p-2 bg-gray-800 border-b border-gray-700">
+        <!-- 7. KPI Stats Row -->
+        <div class="kpi-grid grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
+          <div class="kpi-card card p-3.5">
+            <div class="kpi-label text-muted text-xs uppercase tracking-wide">Video hôm nay</div>
+            <div class="kpi-value text-2xl fw-800 mt-1 text-white" id="kpiToday">${kpi.today}</div>
+          </div>
+          <div class="kpi-card card p-3.5">
+            <div class="kpi-label text-muted text-xs uppercase tracking-wide">Đang tải</div>
+            <div class="kpi-value text-2xl fw-800 mt-1 text-info" id="kpiDownloading">${kpi.downloading}</div>
+          </div>
+          <div class="kpi-card card p-3.5">
+            <div class="kpi-label text-muted text-xs uppercase tracking-wide">Đã hoàn thành</div>
+            <div class="kpi-value text-2xl fw-800 mt-1 text-emerald-400" id="kpiCompleted">${kpi.completed}</div>
+          </div>
+          <div class="kpi-card card p-3.5">
+            <div class="kpi-label text-muted text-xs uppercase tracking-wide">Lỗi / Bỏ qua</div>
+            <div class="kpi-value text-2xl fw-800 mt-1 text-muted" id="kpiError">${kpi.error}</div>
+          </div>
+          <div class="kpi-card card p-3.5">
+            <div class="kpi-label text-muted text-xs uppercase tracking-wide">Thời gian chạy</div>
+            <div class="kpi-value text-xl fw-700 mt-1 font-mono text-warning" id="dashUptime">0m 0s</div>
+          </div>
+        </div>
+
+        <!-- 8. Realtime Terminal Log -->
+        <div class="terminal card flex flex-col h-60 bg-black/95 rounded-xl border border-gray-800 overflow-hidden shadow-2xl">
+          <div class="terminal-header flex justify-between items-center px-3 py-2 bg-gray-900/90 border-b border-gray-800">
             <div class="flex items-center gap-2">
               <span class="badge-dot green"></span>
-              <span class="text-xs fw-600 font-mono text-white">Nhật ký hoạt động Crawler (Realtime Stream)</span>
+              <span class="text-xs fw-700 font-mono text-gray-200">2TECH MN Engine — Nhật ký hoạt động Crawler (Realtime Stream)</span>
             </div>
             <div class="flex gap-2">
               <button class="btn btn-sm btn-ghost text-xs text-muted hover:text-white" id="btnExportLog">Xuất log</button>
               <button class="btn btn-sm btn-ghost text-xs text-muted hover:text-white" onclick="document.getElementById('dashTerminal').innerHTML=''">Xóa log</button>
             </div>
           </div>
-          <div class="terminal-body flex-1 p-4 overflow-y-auto font-mono text-xs text-gray-300 space-y-1" id="dashTerminal">
+          <div class="terminal-body flex-1 p-3.5 overflow-y-auto font-mono text-xs text-gray-300 space-y-1.5" id="dashTerminal">
             <!-- Terminal entries -->
           </div>
         </div>
@@ -286,7 +360,8 @@ https://youtube.com/shorts/abcxyz123"></textarea>
 
   init() {
     this.renderPlatforms();
-    this.bindTabs();
+    this.renderPlatformSelector();
+    this.bindCapsuleTabs();
     this.bindActions();
     this.initTerminal();
 
@@ -297,10 +372,27 @@ https://youtube.com/shorts/abcxyz123"></textarea>
       document.getElementById('linkCount').textContent = `${lines.length} link được phát hiện`;
     });
 
+    // Fill sample links button
+    document.getElementById('btnFillSampleLinks')?.addEventListener('click', () => {
+      App.playSound('click');
+      const samples = [
+        'https://v.douyin.com/iRoLkd1/',
+        'https://www.tiktok.com/@shoptool_ai/video/7689771314827005205',
+        'https://youtube.com/shorts/abcxyz123',
+        'https://honggo.com/drama/ep101',
+        'https://www.facebook.com/reel/1234567890'
+      ];
+      if (inputLinks) {
+        inputLinks.value = samples.join('\n');
+        document.getElementById('linkCount').textContent = `${samples.length} link được phát hiện`;
+      }
+      App.notify('info', 'Đã nạp link mẫu', `Đã nạp ${samples.length} link mẫu thử nghiệm.`);
+    });
+
     // Refresh stats
     document.getElementById('btnRefreshStats')?.addEventListener('click', () => {
       App.playSound('ping');
-      if(App.store.downloadedVideos) {
+      if (App.store.downloadedVideos) {
         App.store.kpi.completed = App.store.downloadedVideos.length;
       }
       App.saveStore();
@@ -327,77 +419,155 @@ https://youtube.com/shorts/abcxyz123"></textarea>
     }
   },
 
+  // ── Render 4x2 Platform Cards (Matching Reference Screenshot) ──
   renderPlatforms() {
-    const container = document.getElementById('platformListContainer');
+    const container = document.getElementById('platStatusGrid');
     if (!container) return;
 
+    // 8 platforms displayed in 4x2 grid
     const platforms = [
-      { id: 'Douyin', name: 'Douyin', icon: '🎵', desc: 'TikTok Trung Quốc', requireLogin: true },
-      { id: 'TikTok', name: 'TikTok', icon: '📱', desc: 'Không cần login', bypass: true },
-      { id: 'YouTube', name: 'YouTube & Shorts', icon: '▶️', desc: 'Không cần login', bypass: true },
-      { id: 'Xiaohongshu', name: 'Xiaohongshu', icon: '📕', desc: 'Tiểu Hồng Thư nội địa', requireLogin: true },
-      { id: 'RedNote', name: 'RedNote', icon: '📝', desc: 'XHS Quốc Tế', requireLogin: true },
-      { id: 'Kuaishou', name: 'Kuaishou', icon: '🧡', desc: 'Kwai Trung Quốc', requireLogin: true },
-      { id: 'Bilibili', name: 'Bilibili', icon: '📺', desc: 'Bilibili TV quốc tế', requireLogin: true },
-      { id: 'Honggo', name: 'Honggo', icon: '🍎', desc: 'Web drama / Phim ngắn', requireLogin: true },
-      { id: 'Facebook', name: 'Facebook', icon: '📘', desc: 'Reels & Video Page', requireLogin: true },
-      { id: 'Instagram', name: 'Instagram', icon: '📸', desc: 'Reels & Post', requireLogin: true }
+      { id: 'Douyin', name: 'Douyin', icon: '🎵', iconBg: '#0f172a', type: 'cookie' },
+      { id: 'Bilibili', name: 'Bilibili', icon: '📺', iconBg: '#0284c7', type: 'cookie' },
+      { id: 'Kuaishou', name: 'Kuaishou', icon: '🧡', iconBg: '#ea580c', type: 'cookie' },
+      { id: 'Honggo', name: 'Honggo', icon: '🍎', iconBg: '#dc2626', type: 'bypass' },
+      { id: 'TikTok', name: 'TikTok', icon: '📱', iconBg: '#1e1b4b', type: 'bypass' },
+      { id: 'YouTube', name: 'YouTube', icon: '▶️', iconBg: '#991b1b', type: 'bypass' },
+      { id: 'Facebook', name: 'Facebook', icon: '📘', iconBg: '#1e40af', type: 'cookie' },
+      { id: 'Instagram', name: 'Instagram', icon: '📸', iconBg: '#831843', type: 'cookie' }
     ];
 
     let html = '';
     platforms.forEach(p => {
-      let statusClass = 'offline badge-dot red';
-      let statusTitle = 'Chưa đăng nhập';
-      
-      if (p.bypass) {
-        statusClass = 'bypass badge-dot blue';
-        statusTitle = 'Bypass không cần login';
+      const conn = App.store.platformConnections[p.id];
+      const isOnline = conn && conn.status === 'online';
+      const isBypass = p.type === 'bypass';
+
+      let badgeHtml = '';
+      let actionBtnHtml = '';
+
+      if (isBypass) {
+        badgeHtml = `<span class="plat-pill-badge bypass">― Không cần đăng nhập</span>`;
+        actionBtnHtml = `<button class="plat-btn-action bypass-btn" data-plat="${p.id}" data-action="bypass">✓ Tự động bypass VIP</button>`;
+      } else if (isOnline) {
+        badgeHtml = `<span class="plat-pill-badge logged-in">● Đã đăng nhập</span>`;
+        actionBtnHtml = `<button class="plat-btn-action logout-yellow" data-plat="${p.id}" data-action="logout">Đăng xuất</button>`;
       } else {
-        const conn = App.store.platformConnections[p.id];
-        if (conn && conn.status === 'online') {
-          statusClass = 'online badge-dot green';
-          statusTitle = 'Đã kết nối';
-        }
+        badgeHtml = `<span class="plat-pill-badge not-logged">✕ Chưa đăng nhập</span>`;
+        actionBtnHtml = `<button class="plat-btn-action login-red" data-plat="${p.id}" data-action="login">🔑 Đăng nhập</button>`;
       }
 
       html += `
-        <div class="platform-item card p-3 flex items-center justify-between cursor-pointer" data-platform="${p.id}">
-          <div class="flex items-center gap-3">
-            <div class="platform-icon text-xl">${p.icon}</div>
-            <div>
-              <div class="platform-name text-sm fw-600">${p.name}</div>
-              <div class="text-xs text-muted">${p.desc}</div>
+        <div class="plat-status-card" data-plat-id="${p.id}">
+          <div class="plat-status-header">
+            <div class="plat-status-info">
+              <div class="plat-avatar" style="background:${p.iconBg};">${p.icon}</div>
+              <div class="plat-name-wrap">
+                <div class="plat-name-text">${p.name}</div>
+              </div>
             </div>
+            ${badgeHtml}
           </div>
-          <div class="platform-status ${statusClass}" title="${statusTitle}"></div>
+          <div class="plat-status-footer">
+            ${actionBtnHtml}
+          </div>
         </div>
       `;
     });
 
     container.innerHTML = html;
-    this.bindPlatforms();
+    this.bindPlatformCardActions();
   },
 
-  bindTabs() {
-    const tabs = document.querySelectorAll('#crawlTabs .tab');
+  // ── Render Horizontal "Chọn nền tảng" Selector ──
+  renderPlatformSelector() {
+    const container = document.getElementById('platSelContainer');
+    if (!container) return;
+
+    const list = [
+      { id: 'Douyin', name: 'Douyin', icon: '🎵' },
+      { id: 'Bilibili', name: 'Bilibili', icon: '📺' },
+      { id: 'Kuaishou', name: 'Kuaishou', icon: '🧡' },
+      { id: 'Honggo', name: 'Honggo', icon: '🍎' },
+      { id: 'Xiaohongshu', name: 'Xiaohongshu', icon: '📕' },
+      { id: 'RedNote', name: 'RedNote', icon: '📝' },
+      { id: 'YouTube', name: 'YouTube', icon: '▶️' },
+      { id: 'TikTok', name: 'TikTok', icon: '📱' },
+      { id: 'Facebook', name: 'Facebook', icon: '📘' },
+      { id: 'Instagram', name: 'Instagram', icon: '📸' }
+    ];
+
+    let html = '';
+    list.forEach(p => {
+      const isActive = this.selectedPlatform === p.id;
+      html += `
+        <button class="plat-sel-btn ${isActive ? 'active' : ''}" data-plat-sel="${p.id}">
+          <span>${p.icon}</span>
+          <span>${p.name}</span>
+        </button>
+      `;
+    });
+
+    container.innerHTML = html;
+
+    // Bind click events on selector buttons
+    container.querySelectorAll('.plat-sel-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        App.playSound('click');
+        container.querySelectorAll('.plat-sel-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.selectedPlatform = btn.getAttribute('data-plat-sel');
+
+        const notice = document.getElementById('platInputNotice');
+        if (notice) {
+          notice.innerHTML = `Đang chọn <strong>${this.selectedPlatform}</strong> — Dán link video từ ${this.selectedPlatform} hoặc các nền tảng khác:`;
+        }
+
+        App.notify('info', 'Đã chuyển nền tảng', `Chế độ bóc tách tối ưu cho: ${this.selectedPlatform}`);
+      });
+    });
+  },
+
+  // ── Bind Actions on 4x2 Platform Cards ──
+  bindPlatformCardActions() {
+    document.querySelectorAll('.plat-btn-action').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        App.playSound('click');
+        const plat = btn.getAttribute('data-plat');
+        const action = btn.getAttribute('data-action');
+
+        if (action === 'bypass') {
+          App.notify('info', 'Bypass VIP', `${plat} được bảo trợ 2TECH MN Engine không cần nạp Cookie.`);
+        } else if (action === 'logout') {
+          if (confirm(`Bạn có chắc muốn đăng xuất Cookie của ${plat}?`)) {
+            delete App.store.platformConnections[plat];
+            App.saveStore();
+            this.renderPlatforms();
+            App.notify('info', 'Đã đăng xuất', `Đã xóa Cookie kết nối ${plat}.`);
+          }
+        } else if (action === 'login') {
+          this.openPlatformModal(plat);
+        }
+      });
+    });
+  },
+
+  // ── Capsule Tabs Switcher ──
+  bindCapsuleTabs() {
+    const tabs = document.querySelectorAll('#crawlCapsuleTabs .crawl-capsule-tab');
     const panels = {
       'tab-link': document.getElementById('tab-link'),
-      'tab-keyword': document.getElementById('tab-keyword'),
       'tab-channel': document.getElementById('tab-channel'),
       'tab-playlist': document.getElementById('tab-playlist'),
+      'tab-keyword': document.getElementById('tab-keyword'),
     };
 
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
-        tabs.forEach(t => {
-          t.classList.remove('active', 'border-accent', 'text-accent');
-          t.classList.add('border-transparent', 'text-muted');
-        });
+        tabs.forEach(t => t.classList.remove('active'));
         Object.values(panels).forEach(p => { if (p) p.style.display = 'none'; });
 
-        tab.classList.add('active', 'border-accent', 'text-accent');
-        tab.classList.remove('border-transparent', 'text-muted');
-
+        tab.classList.add('active');
         const targetId = tab.getAttribute('data-target');
         if (panels[targetId]) {
           panels[targetId].style.display = 'flex';
@@ -425,7 +595,8 @@ https://youtube.com/shorts/abcxyz123"></textarea>
     if (url.includes('bilibili.com')) return 'Bilibili';
     if (url.includes('facebook.com') || url.includes('fb.watch')) return 'Facebook';
     if (url.includes('instagram.com')) return 'Instagram';
-    return 'Khác';
+    if (url.includes('honggo.com')) return 'Honggo';
+    return this.selectedPlatform || 'Web';
   },
 
   generateRandomDataForUrl(url, index) {
@@ -434,12 +605,12 @@ https://youtube.com/shorts/abcxyz123"></textarea>
     return { 
       id: mockId, 
       url: url,
-      title: `Video từ ${plat} - ${mockId}`, 
+      title: `Video ${plat} 4K 60FPS - ${mockId}`, 
       plat: plat, 
       dur: '00:' + (Math.floor(Math.random() * 40) + 15).toString().padStart(2, '0'), 
       view: Math.floor(Math.random() * 900 + 100) + 'K', 
       like: Math.floor(Math.random() * 50 + 10) + 'K', 
-      size: Math.floor(Math.random() * 50 + 10) + ' MB' 
+      size: Math.floor(Math.random() * 50 + 15) + ' MB' 
     };
   },
 
@@ -486,7 +657,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
       if (!App.requireLogin()) return;
       const urls = this.parseLinks();
       if (urls.length === 0) {
-        App.notify('warning', 'Không có dữ liệu', 'Vui lòng nhập ít nhất 1 đường dẫn hợp lệ.');
+        App.notify('warning', 'Không có dữ liệu', 'Vui lòng dán ít nhất 1 đường dẫn video hợp lệ.');
         return;
       }
       if (!this.checkPlanForUrls(urls)) return;
@@ -498,7 +669,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
       if (!App.requireLogin()) return;
       const urls = this.parseLinks();
       if (urls.length === 0) {
-        App.notify('warning', 'Không có dữ liệu', 'Vui lòng nhập ít nhất 1 đường dẫn hợp lệ.');
+        App.notify('warning', 'Không có dữ liệu', 'Vui lòng dán ít nhất 1 đường dẫn video hợp lệ.');
         return;
       }
       if (!this.checkPlanForUrls(urls)) return;
@@ -511,7 +682,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
       if (!App.requireLogin()) return;
       const urls = this.parseLinks();
       if (urls.length === 0) {
-        App.notify('warning', 'Không có dữ liệu', 'Vui lòng nhập ít nhất 1 đường dẫn hợp lệ.');
+        App.notify('warning', 'Không có dữ liệu', 'Vui lòng dán ít nhất 1 đường dẫn video hợp lệ.');
         return;
       }
       if (!this.checkPlanForUrls(urls)) return;
@@ -569,7 +740,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
         <div class="flex items-center justify-between border-b pb-3">
           <div>
             <h3 class="text-lg fw-700">Xem trước kết quả cào (${list.length} video)</h3>
-            <p class="text-xs text-muted">Chọn các video bạn muốn lưu vào máy hoặc đưa thẳng vào Studio Render</p>
+            <p class="text-xs text-muted">Chọn các video bạn muốn lưu vào máy chất lượng 4K 60FPS</p>
           </div>
           <button class="btn btn-sm btn-ghost" onclick="App.closeModal()">✕</button>
         </div>
@@ -592,7 +763,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
                   <td><input type="checkbox" class="modal-video-check" checked data-id="${v.id}" data-url="${v.url}"></td>
                   <td>
                     <div class="flex items-center gap-3">
-                      <div class="w-12 h-8 rounded bg-gray-800 flex items-center justify-center text-xs text-muted flex-shrink-0">▶ HD</div>
+                      <div class="w-12 h-8 rounded bg-gray-800 flex items-center justify-center text-xs text-emerald-400 fw-700 flex-shrink-0">4K</div>
                       <div class="text-xs fw-500 line-clamp-1" title="${v.title}">${v.title}</div>
                     </div>
                   </td>
@@ -610,7 +781,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
           <span class="text-xs text-muted">Đã chọn: <strong id="modalSelectedCount">${list.length}</strong> / ${list.length} video</span>
           <div class="flex gap-2">
             <button class="btn btn-secondary" onclick="App.closeModal()">Hủy bỏ</button>
-            <button class="btn btn-gradient" id="btnModalConfirmDownload">Tải ${list.length} video đã chọn</button>
+            <button class="btn btn-gradient" id="btnModalConfirmDownload">Tải ${list.length} video đã chọn (4K)</button>
           </div>
         </div>
       </div>
@@ -627,7 +798,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
     const updateCount = () => {
       const checked = document.querySelectorAll('.modal-video-check:checked').length;
       if (countEl) countEl.textContent = checked;
-      if (btnConfirm) btnConfirm.textContent = `Tải ${checked} video đã chọn`;
+      if (btnConfirm) btnConfirm.textContent = `Tải ${checked} video đã chọn (4K)`;
     };
 
     checkAll?.addEventListener('change', () => {
@@ -641,7 +812,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
 
     document.getElementById('btnModalConfirmDownload')?.addEventListener('click', () => {
       const selectedChecks = document.querySelectorAll('.modal-video-check:checked');
-      if(selectedChecks.length === 0) {
+      if (selectedChecks.length === 0) {
         App.notify('warning', 'Không có lựa chọn', 'Vui lòng chọn ít nhất 1 video để tải.');
         return;
       }
@@ -752,28 +923,6 @@ https://youtube.com/shorts/abcxyz123"></textarea>
     setTimeout(() => {
       if (progressSec) progressSec.style.display = 'none';
     }, 3000);
-  },
-
-  bindPlatforms() {
-    document.querySelectorAll('.platform-item').forEach(item => {
-      item.addEventListener('click', () => {
-        App.playSound('click');
-        const plat = item.dataset.platform || item.querySelector('.platform-name').textContent;
-        const isBypass = item.querySelector('.platform-status').classList.contains('bypass');
-        
-        if (isBypass) {
-          App.notify('info', 'Thông báo', `Nền tảng ${plat} hỗ trợ bypass, không cần nạp cookie.`);
-          return;
-        }
-
-        const conn = App.store.platformConnections[plat];
-        if (conn && conn.status === 'online') {
-          App.notify('info', 'Trạng thái', `Tài khoản ${plat} đang hoạt động bình thường.`);
-        }
-        
-        this.openPlatformModal(plat);
-      });
-    });
   },
 
   openPlatformModal(platform) {
