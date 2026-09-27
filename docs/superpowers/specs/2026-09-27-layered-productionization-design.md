@@ -6,7 +6,7 @@
 
 **Company:** 2TECH MN
 
-**Status:** Approved conversational design, pending written-spec review
+**Status:** Approved by the owner on 2026-09-27
 
 ## 1. Summary
 
