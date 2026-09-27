@@ -19,4 +19,12 @@ if (-not $running) {
 if (-not $running) { throw "Tool chưa khởi động. Kiểm tra nhật ký tại $taskData và cổng $toolPort." }
 Write-Host "Tool: $toolUrl | Admin riêng: http://localhost:$privatePort"
 Write-Host "Mật khẩu quản trị ban đầu nằm tại: $(Join-Path $taskData 'admin-password.txt')"
-Start-Process $toolUrl
+$edge = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
+$chrome = 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+if (Test-Path $edge) {
+  Start-Process -FilePath $edge -ArgumentList "--app=$toolUrl"
+} elseif (Test-Path $chrome) {
+  Start-Process -FilePath $chrome -ArgumentList "--app=$toolUrl"
+} else {
+  Start-Process $toolUrl
+}
