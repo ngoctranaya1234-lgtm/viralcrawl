@@ -1616,19 +1616,41 @@ html.device-ios, .device-ios body {
     z-index: 999 !important;
     height: auto !important;
     min-height: 52px !important;
-    padding: max(10px, env(safe-area-inset-top, 10px)) max(14px, env(safe-area-inset-right, 14px)) 10px max(14px, env(safe-area-inset-left, 14px)) !important;
+    padding: max(10px, env(safe-area-inset-top, 10px)) max(12px, env(safe-area-inset-right, 12px)) 10px max(12px, env(safe-area-inset-left, 12px)) !important;
     background: rgba(13, 15, 23, 0.96) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  #menuToggle {
+    display: none !important;
   }
 
   .header-title {
     font-size: 15px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100px !important;
+    flex-shrink: 0 !important;
   }
 
   .header-actions {
+    display: flex !important;
+    align-items: center !important;
     gap: 6px !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
   }
 
   .header-actions .badge-4k,
@@ -1636,8 +1658,46 @@ html.device-ios, .device-ios body {
     display: none !important;
   }
 
+  #btnDeviceMode {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 3px 8px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
+  #headerBalance {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    padding: 3px 8px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
+  #btnMute {
+    display: inline-flex !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 4px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+
   /* Compact stepper on mobile with horizontal scroll */
   .stepper-bar {
+    width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
     display: flex !important;
     padding: 8px 12px !important;
     overflow-x: auto !important;
@@ -1645,24 +1705,34 @@ html.device-ios, .device-ios body {
     gap: 6px !important;
     white-space: nowrap !important;
     scrollbar-width: none !important;
+    box-sizing: border-box !important;
   }
   .stepper-bar::-webkit-scrollbar { display: none !important; }
   .stepper-step { font-size: 11px !important; white-space: nowrap !important; flex-shrink: 0 !important; }
-  .stepper-line { min-width: 12px !important; flex-shrink: 0 !important; }
+  .stepper-line { min-width: 12px !important; width: 12px !important; flex-shrink: 0 !important; }
 
   /* Compact Main Content with bottom padding for mobile nav */
   .app-main {
     flex: 1 0 auto !important;
     width: 100% !important;
+    max-width: 100vw !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
     padding: 12px max(14px, env(safe-area-inset-right, 14px)) calc(80px + env(safe-area-inset-bottom, 20px)) max(14px, env(safe-area-inset-left, 14px)) !important;
+    overflow-x: hidden !important;
     overflow-y: visible !important;
     -webkit-overflow-scrolling: touch !important;
   }
 
   /* Cards responsive single column on mobile */
   .card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
     padding: 14px !important;
     border-radius: 12px !important;
+    overflow: hidden !important;
   }
 
   .grid-cols-2, .grid-cols-3, .grid-cols-4, .grid-cols-5,
@@ -1671,9 +1741,90 @@ html.device-ios, .device-ios body {
     grid-template-columns: 1fr !important;
   }
 
+  /* Single Column Platform Status Cards for Mobile */
   .plat-status-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .plat-status-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 12px 14px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    border-radius: 12px !important;
+    background: #171d2c !important;
+    overflow: hidden !important;
+  }
+
+  .plat-status-header {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
     gap: 8px !important;
+  }
+
+  .plat-status-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  .plat-avatar {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 9px !important;
+    font-size: 18px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .plat-name-text {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #fff !important;
+    white-space: nowrap !important;
+  }
+
+  .plat-pill-badge {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 3px 8px !important;
+    border-radius: 999px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
+  .plat-status-footer {
+    width: 100% !important;
+  }
+
+  .plat-btn-action {
+    width: 100% !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+    touch-action: manipulation !important;
+    -webkit-appearance: none !important;
   }
 
   .btn {
@@ -1681,10 +1832,14 @@ html.device-ios, .device-ios body {
     touch-action: manipulation !important;
   }
 
-  /* Touch scrolling for internal containers */
+  /* Horizontal scrolling containers properly constrained */
   .plat-sel-container,
   .crawl-capsule-tabs,
   .terminal-body {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
     -webkit-overflow-scrolling: touch !important;
   }
 

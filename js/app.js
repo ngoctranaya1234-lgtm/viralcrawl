@@ -111,12 +111,15 @@ const App = {
   detectDevice() {
     const ua = navigator.userAgent || '';
     const platform = navigator.platform || '';
+    const vendor = navigator.vendor || '';
     const maxTouchPoints = navigator.maxTouchPoints || 0;
 
-    // Robust Apple iOS identification (iPhone, iPod, iPad, iPadOS 13+ desktop UA)
+    // Robust Apple iOS identification (iPhone, iPod, iPad, iPadOS 13+ desktop UA, standalone PWA)
     const isIos = /iPad|iPhone|iPod/.test(ua) || 
       (platform === 'MacIntel' && maxTouchPoints > 1) || 
-      (/AppleWebKit/.test(ua) && /Mobile/.test(ua) && !/Android/.test(ua));
+      (/AppleWebKit/.test(ua) && /Mobile/.test(ua) && !/Android/.test(ua)) ||
+      (window.navigator.standalone === true) ||
+      (/Apple/.test(vendor) && maxTouchPoints > 0 && !/Windows|Linux|Android/.test(platform));
 
     const isAndroid = /Android/.test(ua);
     const isMobileScreen = window.innerWidth <= 860 || (maxTouchPoints > 0 && window.innerWidth <= 1024);
@@ -132,7 +135,7 @@ const App = {
       isMobile = true;
     } else if (isMobileScreen) {
       isMobile = true;
-      os = (/Mac|iPhone|iPad/i.test(platform) || /Apple/i.test(navigator.vendor)) ? 'ios' : 'android';
+      os = (/Mac|iPhone|iPad/i.test(platform) || /Apple/i.test(vendor)) ? 'ios' : 'android';
     }
 
     this.device = { os, isMobile, isIos, isAndroid, ua, platform, maxTouchPoints };
@@ -164,17 +167,40 @@ const App = {
 
     const badgeText = document.getElementById('deviceText');
     const badgeIcon = document.getElementById('deviceIcon');
+    const badgeContainer = document.getElementById('btnDeviceMode');
     if (badgeText && badgeIcon) {
       if (mode === 'auto') {
-        if (activeOs === 'ios') { badgeIcon.textContent = '🍏'; badgeText.textContent = 'Apple iOS'; }
-        else if (activeOs === 'android') { badgeIcon.textContent = '🤖'; badgeText.textContent = 'Android'; }
-        else { badgeIcon.textContent = '💻'; badgeText.textContent = 'PC 4K'; }
+        if (activeOs === 'ios') {
+          badgeIcon.textContent = '🍏';
+          badgeText.textContent = 'Apple iOS';
+          badgeContainer?.classList.remove('badge-neutral', 'badge-info');
+          badgeContainer?.classList.add('badge-accent');
+        } else if (activeOs === 'android') {
+          badgeIcon.textContent = '🤖';
+          badgeText.textContent = 'Android';
+          badgeContainer?.classList.remove('badge-neutral', 'badge-accent');
+          badgeContainer?.classList.add('badge-info');
+        } else {
+          badgeIcon.textContent = '💻';
+          badgeText.textContent = 'PC 4K';
+          badgeContainer?.classList.remove('badge-accent', 'badge-info');
+          badgeContainer?.classList.add('badge-neutral');
+        }
       } else if (mode === 'ios') {
-        badgeIcon.textContent = '🍏'; badgeText.textContent = 'Apple iOS';
+        badgeIcon.textContent = '🍏';
+        badgeText.textContent = 'Apple iOS';
+        badgeContainer?.classList.remove('badge-neutral', 'badge-info');
+        badgeContainer?.classList.add('badge-accent');
       } else if (mode === 'android') {
-        badgeIcon.textContent = '🤖'; badgeText.textContent = 'Android';
+        badgeIcon.textContent = '🤖';
+        badgeText.textContent = 'Android';
+        badgeContainer?.classList.remove('badge-neutral', 'badge-accent');
+        badgeContainer?.classList.add('badge-info');
       } else {
-        badgeIcon.textContent = '💻'; badgeText.textContent = 'PC 4K';
+        badgeIcon.textContent = '💻';
+        badgeText.textContent = 'PC 4K';
+        badgeContainer?.classList.remove('badge-accent', 'badge-info');
+        badgeContainer?.classList.add('badge-neutral');
       }
     }
   },
@@ -986,17 +1012,7 @@ const App = {
   // ═══════════════════════════════════════════
   bindMobileMenu() {
     const toggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-    const mq = window.matchMedia('(max-width: 768px)');
-
-    const check = () => {
-      if (toggle) toggle.style.display = mq.matches ? 'flex' : 'none';
-      if (!mq.matches && sidebar) sidebar.classList.remove('open');
-    };
-
-    toggle?.addEventListener('click', () => sidebar?.classList.toggle('open'));
-    mq.addEventListener('change', check);
-    check();
+    if (toggle) toggle.style.display = 'none';
   },
 
   // ═══════════════════════════════════════════

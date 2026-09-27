@@ -24,14 +24,14 @@ window.Pages['dashboard'] = {
       <div class="flex flex-col gap-5">
         <!-- 1. Header & Live Telemetry -->
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-2xl fw-800 text-white tracking-wide">Mnhut 2tech Al 4K — Cào video hỗ trợ dịch & lồng tiếng</h1>
+          <div class="min-w-0" style="max-width:100%;">
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 class="text-xl sm:text-2xl fw-800 text-white tracking-wide" style="word-break:break-word;line-height:1.3;">Mnhut 2tech Al 4K — Cào video hỗ trợ dịch & lồng tiếng</h1>
               <span class="badge-4k">4K 60FPS</span>
             </div>
-            <p class="text-xs text-muted mt-1">Bản quyền phần mềm thuộc về <strong>2TECH MN</strong> — Trực thuộc <strong>Nguyễn Minh Nhựt</strong>. Bóc tách video đa nền tảng sạch 100% watermark.</p>
+            <p class="text-xs text-muted mt-1" style="word-break:break-word;line-height:1.4;">Bản quyền phần mềm thuộc về <strong>2TECH MN</strong> — Trực thuộc <strong>Nguyễn Minh Nhựt</strong>. Bóc tách video đa nền tảng sạch 100% watermark.</p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <span class="badge badge-neutral"><span class="badge-dot green"></span> Server AI 2TECH MN: Hoạt động</span>
             <button class="btn btn-secondary btn-sm" id="btnRefreshStats" title="Cập nhật chỉ số">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -42,14 +42,14 @@ window.Pages['dashboard'] = {
 
         <!-- 2. Platform Connection Cards Grid (8 Cards: 4x2) matching Reference Image -->
         <div class="card p-4">
-          <div class="flex justify-between items-center mb-3">
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
             <div>
-              <h2 class="card-title text-sm fw-700 text-white flex items-center gap-2">
+              <h2 class="card-title text-sm fw-700 text-white flex flex-wrap items-center gap-1.5">
                 <span>Trạng thái kết nối nền tảng</span>
-                <span class="text-xs text-muted fw-400">(Tự động nhận diện tài khoản & vượt tường lửa)</span>
+                <span class="text-xs text-muted fw-400">(Tự động nhận diện tài khoản)</span>
               </h2>
             </div>
-            <span class="text-xs text-muted">Hệ thống bóc tách 2TECH MN Engine</span>
+            <span class="text-xs text-muted hidden sm:inline">2TECH MN Engine</span>
           </div>
 
           <!-- 4x2 Grid Container -->
@@ -315,7 +315,7 @@ https://honggo.com/drama/ep123"></textarea>
         </div>
 
         <!-- 7. KPI Stats Row -->
-        <div class="kpi-grid grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));">
+        <div class="kpi-grid grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
           <div class="kpi-card card p-3.5">
             <div class="kpi-label text-muted text-xs uppercase tracking-wide">Video hôm nay</div>
             <div class="kpi-value text-2xl fw-800 mt-1 text-white" id="kpiToday">${kpi.today}</div>
@@ -447,13 +447,13 @@ https://honggo.com/drama/ep123"></textarea>
 
       if (isBypass) {
         badgeHtml = `<span class="plat-pill-badge bypass">― Không cần đăng nhập</span>`;
-        actionBtnHtml = `<button class="plat-btn-action bypass-btn" data-plat="${p.id}" data-action="bypass">✓ Tự động bypass VIP</button>`;
+        actionBtnHtml = `<button class="plat-btn-action bypass-btn" data-plat="${p.id}" data-action="bypass"><span>✓ Tự động bypass VIP</span></button>`;
       } else if (isOnline) {
         badgeHtml = `<span class="plat-pill-badge logged-in">● Đã đăng nhập</span>`;
-        actionBtnHtml = `<button class="plat-btn-action logout-yellow" data-plat="${p.id}" data-action="logout">Đăng xuất</button>`;
+        actionBtnHtml = `<button class="plat-btn-action logout-yellow" data-plat="${p.id}" data-action="logout"><span>Đăng xuất</span></button>`;
       } else {
         badgeHtml = `<span class="plat-pill-badge not-logged">✕ Chưa đăng nhập</span>`;
-        actionBtnHtml = `<button class="plat-btn-action login-red" data-plat="${p.id}" data-action="login">🔑 Đăng nhập</button>`;
+        actionBtnHtml = `<button class="plat-btn-action login-red" data-plat="${p.id}" data-action="login"><span>🔑 Đăng nhập</span></button>`;
       }
 
       html += `

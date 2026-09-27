@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Mnhut 2tech Al">
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./css/app.css">
+  <link rel="stylesheet" href="./css/app.css?v=2.6">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2310b981'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='18' font-weight='bold'>4K</text></svg>">
 </head>
 <body>
@@ -82,15 +82,12 @@
 
   <!-- ═══ HEADER ═══ -->
   <header class="app-header">
-    <div class="flex items-center gap-3">
-      <button class="btn btn-icon btn-ghost btn-sm" id="menuToggle" aria-label="Menu" title="Menu" style="display:none;">
-        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
+    <div class="flex items-center gap-2 min-w-0">
       <h1 class="header-title" id="pageTitle">Tải ngay</h1>
     </div>
     <div class="header-actions">
-      <div class="badge badge-neutral" id="btnDeviceMode" style="cursor:pointer;" title="Bấm để đổi chế độ giao diện (Auto / iOS / Android / Desktop)">
-        <span id="deviceIcon">📱</span> <span id="deviceText" class="font-mono text-xs">Auto Detect</span>
+      <div class="badge badge-accent font-bold" id="btnDeviceMode" style="cursor:pointer;" title="Bấm để đổi chế độ giao diện (Auto / Apple iOS / Android / Desktop)">
+        <span id="deviceIcon">🍏</span> <span id="deviceText" class="font-mono text-xs">Apple iOS</span>
       </div>
       <span class="badge-4k">4K 60FPS</span>
       <button class="btn btn-ghost btn-sm" id="btnMute" aria-label="Tắt âm thanh" title="Tắt âm thanh">
@@ -176,15 +173,15 @@
 </div>
 
 <!-- ═══ SCRIPTS ═══ -->
-<script src="./js/engine-resolver.js"></script>
-<script src="./js/app.js"></script>
-<script src="./js/page-dashboard.js"></script>
-<script src="./js/page-download-link.js"></script>
-<script src="./js/page-downloaded.js"></script>
-<script src="./js/page-history.js"></script>
-<script src="./js/page-settings.js"></script>
-<script src="./js/page-pricing.js"></script>
-<script src="./js/page-support.js"></script>
+<script src="./js/engine-resolver.js?v=2.6"></script>
+<script src="./js/app.js?v=2.6"></script>
+<script src="./js/page-dashboard.js?v=2.6"></script>
+<script src="./js/page-download-link.js?v=2.6"></script>
+<script src="./js/page-downloaded.js?v=2.6"></script>
+<script src="./js/page-history.js?v=2.6"></script>
+<script src="./js/page-settings.js?v=2.6"></script>
+<script src="./js/page-pricing.js?v=2.6"></script>
+<script src="./js/page-support.js?v=2.6"></script>
 <script>
   // Boot the application once all page scripts are loaded
   document.addEventListener('DOMContentLoaded', () => {
