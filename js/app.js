@@ -77,7 +77,7 @@ const App = {
   // ═══════════════════════════════════════════
   // INIT
   // ═══════════════════════════════════════════
-  deviceMode: 'auto', // 'auto' | 'ios' | 'android' | 'desktop'
+  deviceMode: (() => { try { return localStorage.getItem('vc_device_mode') || 'auto'; } catch (e) { return 'auto'; } })(), // 'auto' | 'ios' | 'android' | 'desktop'
   device: { os: 'desktop', isMobile: false },
 
   init() {
@@ -110,51 +110,71 @@ const App = {
   // ═══════════════════════════════════════════
   detectDevice() {
     const ua = navigator.userAgent || '';
+    const platform = navigator.platform || '';
+    const maxTouchPoints = navigator.maxTouchPoints || 0;
+
+    // Robust Apple iOS identification (iPhone, iPod, iPad, iPadOS 13+ desktop UA)
+    const isIos = /iPad|iPhone|iPod/.test(ua) || 
+      (platform === 'MacIntel' && maxTouchPoints > 1) || 
+      (/AppleWebKit/.test(ua) && /Mobile/.test(ua) && !/Android/.test(ua));
+
+    const isAndroid = /Android/.test(ua);
+    const isMobileScreen = window.innerWidth <= 860 || (maxTouchPoints > 0 && window.innerWidth <= 1024);
+
     let os = 'desktop';
     let isMobile = false;
 
-    if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+    if (isIos) {
       os = 'ios';
       isMobile = true;
-    } else if (/android/i.test(ua)) {
+    } else if (isAndroid) {
       os = 'android';
       isMobile = true;
-    } else if (window.innerWidth <= 768) {
+    } else if (isMobileScreen) {
       isMobile = true;
-      os = /iphone|ipad/i.test(ua) ? 'ios' : (/android/i.test(ua) ? 'android' : 'mobile');
+      os = (/Mac|iPhone|iPad/i.test(platform) || /Apple/i.test(navigator.vendor)) ? 'ios' : 'android';
     }
 
-    this.device = { os, isMobile, ua };
+    this.device = { os, isMobile, isIos, isAndroid, ua, platform, maxTouchPoints };
     this.applyDeviceMode();
   },
 
   applyDeviceMode() {
-    const mode = this.deviceMode;
+    const mode = this.deviceMode; // 'auto' | 'ios' | 'android' | 'desktop'
     let activeOs = this.device.os;
     let isMobile = this.device.isMobile;
 
-    if (mode === 'ios') { activeOs = 'ios'; isMobile = true; }
-    else if (mode === 'android') { activeOs = 'android'; isMobile = true; }
-    else if (mode === 'desktop') { activeOs = 'desktop'; isMobile = false; }
+    if (mode === 'ios') {
+      activeOs = 'ios';
+      isMobile = true;
+    } else if (mode === 'android') {
+      activeOs = 'android';
+      isMobile = true;
+    } else if (mode === 'desktop') {
+      activeOs = 'desktop';
+      isMobile = false;
+    }
 
-    document.documentElement.classList.toggle('device-ios', activeOs === 'ios');
-    document.documentElement.classList.toggle('device-android', activeOs === 'android');
-    document.documentElement.classList.toggle('device-mobile', isMobile);
-    document.documentElement.classList.toggle('device-desktop', !isMobile);
+    const root = document.documentElement;
+    root.classList.toggle('device-ios', activeOs === 'ios');
+    root.classList.toggle('device-android', activeOs === 'android');
+    root.classList.toggle('device-mobile', isMobile);
+    root.classList.toggle('device-desktop', !isMobile);
+    root.classList.toggle('force-mobile-view', isMobile);
 
     const badgeText = document.getElementById('deviceText');
     const badgeIcon = document.getElementById('deviceIcon');
     if (badgeText && badgeIcon) {
       if (mode === 'auto') {
-        if (activeOs === 'ios') { badgeIcon.textContent = '🍏'; badgeText.textContent = 'iOS'; }
+        if (activeOs === 'ios') { badgeIcon.textContent = '🍏'; badgeText.textContent = 'Apple iOS'; }
         else if (activeOs === 'android') { badgeIcon.textContent = '🤖'; badgeText.textContent = 'Android'; }
         else { badgeIcon.textContent = '💻'; badgeText.textContent = 'PC 4K'; }
       } else if (mode === 'ios') {
-        badgeIcon.textContent = '🍏'; badgeText.textContent = 'iOS Sim';
+        badgeIcon.textContent = '🍏'; badgeText.textContent = 'Apple iOS';
       } else if (mode === 'android') {
-        badgeIcon.textContent = '🤖'; badgeText.textContent = 'Android Sim';
+        badgeIcon.textContent = '🤖'; badgeText.textContent = 'Android';
       } else {
-        badgeIcon.textContent = '💻'; badgeText.textContent = 'PC Mode';
+        badgeIcon.textContent = '💻'; badgeText.textContent = 'PC 4K';
       }
     }
   },
@@ -165,6 +185,7 @@ const App = {
       const modes = ['auto', 'ios', 'android', 'desktop'];
       const nextIdx = (modes.indexOf(this.deviceMode) + 1) % modes.length;
       this.deviceMode = modes[nextIdx];
+      try { localStorage.setItem('vc_device_mode', this.deviceMode); } catch (e) {}
       this.applyDeviceMode();
       const labels = {
         auto: 'Tự động nhận diện thiết bị (Auto Detect)',
@@ -178,6 +199,11 @@ const App = {
 
     window.addEventListener('resize', () => {
       if (this.deviceMode === 'auto') this.detectDevice();
+    });
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        if (this.deviceMode === 'auto') this.detectDevice();
+      }, 100);
     });
   },
 
