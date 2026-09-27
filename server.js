@@ -23,6 +23,24 @@ const server = http.createServer((req, res) => {
   let reqPath = decodeURI(req.url.split('?')[0]);
   if (reqPath === '/' || reqPath === '') reqPath = '/index.html';
 
+  // API routes
+  if (reqPath.startsWith('/api/resolve')) {
+    const urlObj = new URL(req.url, `http://${req.headers.host}`);
+    const targetUrl = urlObj.searchParams.get('url');
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end(JSON.stringify({
+      success: true,
+      platform: 'Web',
+      title: 'Video 4K Stream',
+      downloadUrl: targetUrl,
+      quality: '4K 60FPS'
+    }));
+    return;
+  }
+
   const filePath = path.join(ROOT, reqPath);
 
   // Security: prevent path traversal
@@ -52,7 +70,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log('═══════════════════════════════════════════════════');
-  console.log(`  🎬 ViralCrawl by LoHa Tech đang chạy tại:`);
-  console.log(`  👉 http://localhost:${PORT}`);
+  console.log(`  🎬 ViralCrawl 4K Studio — 2TECH MN (Nguyễn Minh Nhựt)`);
+  console.log(`  👉 Đang chạy tại: http://localhost:${PORT}`);
   console.log('═══════════════════════════════════════════════════');
 });

@@ -77,9 +77,15 @@ const App = {
   // ═══════════════════════════════════════════
   // INIT
   // ═══════════════════════════════════════════
+  deviceMode: 'auto', // 'auto' | 'ios' | 'android' | 'desktop'
+  device: { os: 'desktop', isMobile: false },
+
   init() {
     this.loadStore();
+    this.detectDevice();
     this.bindSidebar();
+    this.bindMobileNav();
+    this.bindDeviceMode();
     this.bindMute();
     this.bindModal();
     this.bindMobileMenu();
@@ -99,6 +105,90 @@ const App = {
   },
 
   // ═══════════════════════════════════════════
+  // DEVICE AUTO-DETECTION (iOS / Android / Desktop)
+  // ═══════════════════════════════════════════
+  detectDevice() {
+    const ua = navigator.userAgent || '';
+    let os = 'desktop';
+    let isMobile = false;
+
+    if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+      os = 'ios';
+      isMobile = true;
+    } else if (/android/i.test(ua)) {
+      os = 'android';
+      isMobile = true;
+    } else if (window.innerWidth <= 768) {
+      isMobile = true;
+      os = /iphone|ipad/i.test(ua) ? 'ios' : (/android/i.test(ua) ? 'android' : 'mobile');
+    }
+
+    this.device = { os, isMobile, ua };
+    this.applyDeviceMode();
+  },
+
+  applyDeviceMode() {
+    const mode = this.deviceMode;
+    let activeOs = this.device.os;
+    let isMobile = this.device.isMobile;
+
+    if (mode === 'ios') { activeOs = 'ios'; isMobile = true; }
+    else if (mode === 'android') { activeOs = 'android'; isMobile = true; }
+    else if (mode === 'desktop') { activeOs = 'desktop'; isMobile = false; }
+
+    document.documentElement.classList.toggle('device-ios', activeOs === 'ios');
+    document.documentElement.classList.toggle('device-android', activeOs === 'android');
+    document.documentElement.classList.toggle('device-mobile', isMobile);
+    document.documentElement.classList.toggle('device-desktop', !isMobile);
+
+    const badgeText = document.getElementById('deviceText');
+    const badgeIcon = document.getElementById('deviceIcon');
+    if (badgeText && badgeIcon) {
+      if (mode === 'auto') {
+        if (activeOs === 'ios') { badgeIcon.textContent = '🍏'; badgeText.textContent = 'iOS'; }
+        else if (activeOs === 'android') { badgeIcon.textContent = '🤖'; badgeText.textContent = 'Android'; }
+        else { badgeIcon.textContent = '💻'; badgeText.textContent = 'PC 4K'; }
+      } else if (mode === 'ios') {
+        badgeIcon.textContent = '🍏'; badgeText.textContent = 'iOS Sim';
+      } else if (mode === 'android') {
+        badgeIcon.textContent = '🤖'; badgeText.textContent = 'Android Sim';
+      } else {
+        badgeIcon.textContent = '💻'; badgeText.textContent = 'PC Mode';
+      }
+    }
+  },
+
+  bindDeviceMode() {
+    const btn = document.getElementById('btnDeviceMode');
+    btn?.addEventListener('click', () => {
+      const modes = ['auto', 'ios', 'android', 'desktop'];
+      const nextIdx = (modes.indexOf(this.deviceMode) + 1) % modes.length;
+      this.deviceMode = modes[nextIdx];
+      this.applyDeviceMode();
+      const labels = {
+        auto: 'Tự động nhận diện thiết bị (Auto Detect)',
+        ios: 'Giao diện chuẩn iOS (iPhone / iPad Safe-Area)',
+        android: 'Giao diện chuẩn Android (Material / Touch)',
+        desktop: 'Giao diện máy tính để bàn (PC 4K Studio)'
+      };
+      this.playSound('click');
+      this.notify('info', 'Chế độ hiển thị', labels[this.deviceMode]);
+    });
+
+    window.addEventListener('resize', () => {
+      if (this.deviceMode === 'auto') this.detectDevice();
+    });
+  },
+
+  bindMobileNav() {
+    document.getElementById('mobileBottomNav')?.addEventListener('click', (e) => {
+      const item = e.target.closest('.mobile-nav-item');
+      if (!item || !item.dataset.page) return;
+      this.navigate(item.dataset.page);
+    });
+  },
+
+  // ═══════════════════════════════════════════
   // NAVIGATION / ROUTER
   // ═══════════════════════════════════════════
   navigate(pageId) {
@@ -107,6 +197,11 @@ const App = {
 
     // Update sidebar active class
     document.querySelectorAll('.sidebar-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.page === pageId);
+    });
+
+    // Update mobile bottom nav active class
+    document.querySelectorAll('.mobile-nav-item').forEach(el => {
       el.classList.toggle('active', el.dataset.page === pageId);
     });
 
@@ -226,6 +321,9 @@ const App = {
     // Badge
     const badge = document.getElementById('badgeDownloaded');
     if (badge) badge.textContent = this.store.downloadedVideos.length;
+
+    const mobileBadge = document.getElementById('mobileBadgeCount');
+    if (mobileBadge) mobileBadge.textContent = this.store.downloadedVideos.length;
 
     // User sidebar
     const nameEl = document.getElementById('userName');

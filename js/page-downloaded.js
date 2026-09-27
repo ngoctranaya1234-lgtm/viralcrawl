@@ -428,10 +428,15 @@ window.Pages['downloaded'] = {
       return;
     }
 
-    // 2. Browser playable media URL check
-    if (v.url && (v.url.startsWith('http') || v.url.startsWith('blob:') || v.url.startsWith('data:'))) {
-      window.open(v.url, '_blank');
-      App.notify('info', 'Mở video', 'Đang mở liên kết tệp video.');
+    // 2. Direct Video Download trigger
+    const dlTarget = v.downloadUrl || v.url;
+    if (dlTarget && (dlTarget.startsWith('http') || dlTarget.startsWith('blob:') || dlTarget.startsWith('data:'))) {
+      if (window.VideoResolver && typeof window.VideoResolver.triggerDownload === 'function') {
+        window.VideoResolver.triggerDownload(dlTarget, `${sanitize(v.title)}.mp4`);
+        App.notify('success', 'Đang tải tệp video', `Đang tải "${v.title}" về máy.`);
+        return;
+      }
+      window.open(dlTarget, '_blank');
       return;
     }
 
