@@ -70,8 +70,8 @@ const App = {
     { id: 'downloaded',     title: 'File đã tải',           step: 3 },
     { id: 'history',        title: 'Lịch sử tải',           step: 3 },
     { id: 'settings',       title: 'Cài đặt',              step: 1 },
-    { id: 'pricing',        title: 'Bảng Giá',             step: 1 },
     { id: 'support',        title: 'Gửi câu hỏi',          step: 1 },
+    { id: 'pricing',        title: 'Gói Cước & Ví Tiền',   step: 1 },
   ],
 
   // ═══════════════════════════════════════════
