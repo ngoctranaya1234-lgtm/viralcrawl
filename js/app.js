@@ -371,66 +371,194 @@ const App = {
 
   showLoginModal() {
     const html = `
-      <div class="flex flex-col gap-5" style="max-width:400px;margin:0 auto;">
-        <div class="flex justify-between items-center border-b pb-3">
-          <h3 class="text-lg fw-700">Đăng nhập ViralCrawl</h3>
-          <button class="btn btn-sm btn-ghost" onclick="App.closeModal()">✕</button>
+      <div class="google-auth-container" style="max-width:440px;margin:0 auto;background:#fff;color:#1f1f1f;border-radius:16px;padding:28px 24px;box-shadow:0 12px 40px rgba(0,0,0,0.5);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+        <!-- Google Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <svg width="24" height="24" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            <span style="font-size:15px;font-weight:600;color:#3c4043;">Google Identity Services</span>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="App.closeModal()" style="color:#5f6368;font-size:16px;line-height:1;padding:4px 8px;">✕</button>
         </div>
-        <p class="text-sm text-muted">Đăng nhập bằng tài khoản Google để sử dụng ViralCrawl. Mỗi tài khoản mới được tặng <strong class="text-success">2.000.000đ</strong> số dư miễn phí!</p>
-        <div class="flex flex-col gap-3">
-          <button class="btn btn-lg w-full py-3 flex items-center justify-center gap-3" id="btnGoogleSignIn" style="background:#fff;color:#333;font-weight:600;border:1px solid #ddd;border-radius:8px;font-size:14px;">
-            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-            Đăng nhập bằng Google
-          </button>
-          <div class="text-center text-xs text-muted">hoặc</div>
-          <div class="flex flex-col gap-2">
-            <input type="text" class="form-input text-sm" id="loginName" placeholder="Tên hiển thị (VD: Nguyễn Minh Nhựt)">
-            <input type="email" class="form-input text-sm" id="loginEmail" placeholder="Email (VD: name@gmail.com)">
-            <button class="btn btn-gradient w-full py-2.5" id="btnManualLogin">Đăng nhập nhanh</button>
+
+        <div style="text-align:left;margin-bottom:18px;">
+          <h3 style="font-size:19px;font-weight:600;color:#1f1f1f;margin:0 0 6px 0;">Đăng nhập bằng tài khoản Google</h3>
+          <p style="font-size:13px;color:#5f6368;margin:0;">Để tiếp tục sử dụng <strong>ViralCrawl 4K Studio</strong></p>
+          <div style="margin-top:10px;padding:8px 12px;background:#e8f0fe;border-radius:8px;font-size:12px;color:#1967d2;display:flex;align-items:center;gap:6px;">
+            <span>🎁</span> <span>Mỗi tài khoản Google mới được cấp <strong style="color:#0d652d;">2.000.000đ</strong> số dư miễn phí!</span>
           </div>
         </div>
-        <div class="text-xs text-muted text-center">Sản phẩm của <strong>2TECH MN</strong> — Nguyễn Minh Nhựt</div>
+
+        <!-- Account Chooser List -->
+        <div id="googleAccountsList" style="display:flex;flex-direction:column;gap:8px;">
+          <!-- Account 1: Nguyễn Minh Nhựt -->
+          <div class="google-acc-card" onclick="App.simulateGoogleLogin('Nguyễn Minh Nhựt', 'minhnhut@2techmn.com', 'N', '#10b981')" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #dadce0;border-radius:10px;cursor:pointer;transition:all .2s ease;">
+            <div style="width:38px;height:38px;border-radius:50%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;">N</div>
+            <div style="flex:1;min-width:0;text-align:left;">
+              <div style="font-size:13px;font-weight:600;color:#202124;">Nguyễn Minh Nhựt</div>
+              <div style="font-size:12px;color:#5f6368;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">minhnhut@2techmn.com</div>
+            </div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:999px;background:#e6f4ea;color:#137333;font-weight:600;flex-shrink:0;">Chính thức</span>
+          </div>
+
+          <!-- Account 2: Khách Hàng Doanh Nghiệp -->
+          <div class="google-acc-card" onclick="App.simulateGoogleLogin('2TECH Enterprise VIP', 'enterprise@2techmn.com', '2T', '#4285f4')" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid #dadce0;border-radius:10px;cursor:pointer;transition:all .2s ease;">
+            <div style="width:38px;height:38px;border-radius:50%;background:#4285f4;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;">2T</div>
+            <div style="flex:1;min-width:0;text-align:left;">
+              <div style="font-size:13px;font-weight:600;color:#202124;">2TECH Enterprise VIP</div>
+              <div style="font-size:12px;color:#5f6368;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">enterprise@2techmn.com</div>
+            </div>
+            <span style="font-size:10px;padding:2px 8px;border-radius:999px;background:#e8f0fe;color:#1a73e8;font-weight:600;flex-shrink:0;">VIP</span>
+          </div>
+
+          <!-- Account 3: Sử dụng tài khoản khác -->
+          <div class="google-acc-card" id="btnToggleOtherGoogle" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px dashed #dadce0;border-radius:10px;cursor:pointer;transition:all .2s ease;">
+            <div style="width:38px;height:38px;border-radius:50%;background:#f1f3f4;color:#5f6368;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:bold;flex-shrink:0;">+</div>
+            <div style="flex:1;min-width:0;text-align:left;">
+              <div style="font-size:13px;font-weight:500;color:#202124;">Sử dụng một tài khoản khác</div>
+              <div style="font-size:12px;color:#5f6368;">Nhập email Google của bạn</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Account Form (hidden by default) -->
+        <div id="otherGoogleAccForm" style="display:none;margin-top:14px;flex-direction:column;gap:10px;text-align:left;">
+          <div style="font-size:12px;font-weight:600;color:#3c4043;">Nhập thông tin tài khoản Google của bạn:</div>
+          <input type="text" id="customGoogleName" placeholder="Tên tài khoản (VD: Nguyễn Minh Nhựt)" style="width:100%;padding:10px 12px;border:1px solid #dadce0;border-radius:6px;font-size:13px;color:#202124;background:#fff;outline:none;">
+          <input type="email" id="customGoogleEmail" placeholder="Địa chỉ email Google (VD: nhut@gmail.com)" style="width:100%;padding:10px 12px;border:1px solid #dadce0;border-radius:6px;font-size:13px;color:#202124;background:#fff;outline:none;">
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+            <button type="button" id="btnCancelCustomGoogle" style="background:#fff;border:1px solid #dadce0;color:#5f6368;padding:7px 14px;border-radius:6px;font-size:12px;cursor:pointer;">Quay lại</button>
+            <button type="button" id="btnSubmitCustomGoogle" style="background:#1a73e8;border:none;color:#fff;padding:7px 18px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Tiếp theo</button>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="googleAuthLoading" style="display:none;margin-top:20px;flex-direction:column;align-items:center;gap:12px;text-align:center;">
+          <div style="width:36px;height:36px;border:3px solid #e8f0fe;border-top-color:#1a73e8;border-radius:50%;animation:spinGoogle 0.7s linear infinite;"></div>
+          <div style="font-size:13px;font-weight:600;color:#1a73e8;" id="googleAuthLoadingText">Đang xác thực phiên Google OAuth 2.0...</div>
+          <div style="font-size:11px;color:#5f6368;">Đang kết nối tài khoản & nạp 2.000.000đ số dư khuyến mại</div>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top:18px;padding-top:12px;border-top:1px solid #f1f3f4;font-size:11px;color:#70757a;text-align:center;line-height:1.5;">
+          Phần mềm ViralCrawl 4K — Bản quyền <strong>2TECH MN</strong> (Kỹ sư: Nguyễn Minh Nhựt).
+        </div>
       </div>
     `;
     this.openModal(html);
 
-    // Google sign-in button
-    document.getElementById('btnGoogleSignIn')?.addEventListener('click', () => {
-      // In production, this would use Firebase/Google OAuth
-      // For now, simulate Google sign-in flow
-      const name = prompt('Nhập tên Google của bạn:', 'Nguyễn Minh Nhựt');
-      if (!name) return;
-      const email = prompt('Nhập email Google:', name.toLowerCase().replace(/\\s+/g, '') + '@gmail.com');
-      if (!email) return;
-      this.completeLogin(name, email, 'google');
+    // Toggle custom Google account form
+    const btnToggle = document.getElementById('btnToggleOtherGoogle');
+    const accList = document.getElementById('googleAccountsList');
+    const customForm = document.getElementById('otherGoogleAccForm');
+    const btnCancel = document.getElementById('btnCancelCustomGoogle');
+    const btnSubmit = document.getElementById('btnSubmitCustomGoogle');
+
+    btnToggle?.addEventListener('click', () => {
+      accList.style.display = 'none';
+      customForm.style.display = 'flex';
+      document.getElementById('customGoogleName')?.focus();
     });
 
-    // Manual login
-    document.getElementById('btnManualLogin')?.addEventListener('click', () => {
-      const name = document.getElementById('loginName')?.value.trim();
-      const email = document.getElementById('loginEmail')?.value.trim();
+    btnCancel?.addEventListener('click', () => {
+      customForm.style.display = 'none';
+      accList.style.display = 'flex';
+    });
+
+    btnSubmit?.addEventListener('click', () => {
+      const name = document.getElementById('customGoogleName')?.value.trim();
+      const email = document.getElementById('customGoogleEmail')?.value.trim();
       if (!name || !email) {
-        this.notify('warning', 'Thiếu thông tin', 'Vui lòng nhập tên và email.');
+        this.notify('warning', 'Thiếu thông tin', 'Vui lòng nhập tên và email Google của bạn.');
         return;
       }
-      this.completeLogin(name, email, 'manual');
+      this.simulateGoogleLogin(name, email, name.charAt(0).toUpperCase(), '#ea4335');
     });
   },
 
-  completeLogin(name, email, provider) {
-    const isNewUser = !this.store.user;
-    this.store.user = { name, email, provider, avatar: null, loginDate: new Date().toISOString() };
-    if (isNewUser && this.store.balance === 0) {
-      this.store.balance = 2000000; // 2 triệu VNĐ tặng khi đăng ký mới
+  simulateGoogleLogin(name, email, initial = 'U', color = '#1a73e8') {
+    const accList = document.getElementById('googleAccountsList');
+    const customForm = document.getElementById('otherGoogleAccForm');
+    const loadingBox = document.getElementById('googleAuthLoading');
+    const loadingText = document.getElementById('googleAuthLoadingText');
+
+    if (accList) accList.style.display = 'none';
+    if (customForm) customForm.style.display = 'none';
+    if (loadingBox) {
+      loadingBox.style.display = 'flex';
+      if (loadingText) loadingText.textContent = `Đang đồng bộ hồ sơ Google (${email})...`;
     }
+
+    setTimeout(() => {
+      this.completeLogin(name, email, 'google', { initial, color });
+    }, 700);
+  },
+
+  completeLogin(name, email, provider = 'google', meta = {}) {
+    const isNewUser = !this.store.user || this.store.user.email !== email;
+    const initial = meta.initial || (name ? name.charAt(0).toUpperCase() : 'U');
+    const color = meta.color || '#10b981';
+
+    this.store.user = {
+      name,
+      email,
+      provider,
+      avatar: null,
+      initial,
+      color,
+      loginDate: new Date().toISOString()
+    };
+
+    // Every account receives 2.000.000đ if initial balance is 0
+    if (isNewUser && (!this.store.balance || this.store.balance === 0)) {
+      this.store.balance = 2000000;
+    }
+
+    // Log traffic session for Admin Panel tracking
+    try {
+      const trafficLogs = JSON.parse(localStorage.getItem('vc_google_traffic') || '[]');
+      const sessionEntry = {
+        id: 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+        name,
+        email,
+        initial,
+        color,
+        provider,
+        device: this.device?.os || 'desktop',
+        isMobile: !!this.device?.isMobile,
+        ip: '192.168.1.' + Math.floor(Math.random() * 200 + 10),
+        timestamp: new Date().toISOString(),
+        balance: this.store.balance,
+        plan: this.store.plan || 'FREE'
+      };
+      trafficLogs.unshift(sessionEntry);
+      if (trafficLogs.length > 200) trafficLogs.length = 200;
+      localStorage.setItem('vc_google_traffic', JSON.stringify(trafficLogs));
+
+      // Broadcast sync event to Admin Panel if open
+      if (window.BroadcastChannel) {
+        const bc = new BroadcastChannel('2tech_channel');
+        bc.postMessage({ type: 'GOOGLE_SIGNIN', data: sessionEntry });
+        bc.close();
+      }
+    } catch (e) {
+      console.warn('Traffic logging skipped:', e);
+    }
+
     this.saveStore();
     this.closeModal();
     this.updateUI();
     this.playSound('success');
+
     if (isNewUser) {
-      this.notify('success', 'Chào mừng ' + name + '!', 'Tài khoản mới được tặng 2.000.000đ. Hãy khám phá ViralCrawl!');
+      this.notify('success', 'Đăng nhập Google thành công!', `Chào mừng ${name}! Đã cấp 2.000.000đ số dư vào tài khoản.`);
     } else {
-      this.notify('success', 'Đăng nhập thành công!', 'Chào mừng ' + name + ' quay trở lại.');
+      this.notify('success', 'Đăng nhập thành công!', `Chào mừng ${name} quay trở lại ViralCrawl.`);
     }
   },
 
@@ -695,11 +823,11 @@ const App = {
     const el = document.getElementById(containerId);
     if (!el) return;
     let idx = 0;
-    const parts = lines.split('\\n');
+    const parts = lines.split('\n');
     el.innerHTML = '';
     const timer = setInterval(() => {
       if (idx >= parts.length) { clearInterval(timer); return; }
-      el.innerHTML += parts[idx] + '\\n';
+      el.innerHTML += parts[idx] + '\n';
       el.scrollTop = el.scrollHeight;
       idx++;
     }, delay);

@@ -1645,3 +1645,41 @@ img, video { max-width: 100%; display: block; }
   }
 }
 
+/* ═══ GOOGLE IDENTITY SERVICES & PRICING ANIMATIONS ═══ */
+@keyframes spinGoogle {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.google-acc-card:hover {
+  background: #f8fafd !important;
+  border-color: #1a73e8 !important;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.15);
+}
+
+.pricing-card-interactive {
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  cursor: pointer;
+}
+
+.pricing-card-interactive:hover {
+  transform: translateY(-6px);
+  border-color: var(--accent) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 24px rgba(16, 185, 129, 0.25);
+}
+
+.pricing-card-selected {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent), 0 12px 30px rgba(16, 185, 129, 0.3) !important;
+  background: linear-gradient(180deg, var(--bg-surface) 0%, rgba(16, 185, 129, 0.06) 100%) !important;
+}
+
+.cycle-btn {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cycle-btn.active {
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+

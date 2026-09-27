@@ -411,7 +411,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
   parseLinks() {
     const inputLinks = document.getElementById('crawlInputLinks');
     if (!inputLinks) return [];
-    return inputLinks.value.split('\\n')
+    return inputLinks.value.split('\n')
       .map(l => l.trim())
       .filter(l => l.length > 0 && l.startsWith('http'));
   },
@@ -443,6 +443,43 @@ https://youtube.com/shorts/abcxyz123"></textarea>
     };
   },
 
+  checkPlanForUrls(urls) {
+    const plan = App.store?.plan || 'FREE';
+    const hasDouyinOrPro = urls.some(u => {
+      const p = this.extractPlatformFromUrl(u);
+      return ['Douyin', 'Xiaohongshu', 'Kuaishou', 'RedNote'].includes(p);
+    });
+    const hasUnlimited = urls.some(u => {
+      const p = this.extractPlatformFromUrl(u);
+      return ['Bilibili', 'Honggo'].includes(p);
+    });
+
+    if (plan === 'FREE') {
+      if (hasUnlimited) {
+        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Nền tảng này yêu cầu gói UNLIMITED. Hãy dùng số dư 2.000.000đ để kích hoạt gói!');
+        App.navigate('pricing');
+        return false;
+      }
+      if (hasDouyinOrPro || urls.length > 5) {
+        App.notify('warning', 'Cần nâng cấp gói PRO', 'Tải Douyin / Xiaohongshu hoặc tải hàng loạt trên 5 video yêu cầu gói PRO trở lên. Hãy dùng số dư để nâng cấp!');
+        App.navigate('pricing');
+        return false;
+      }
+    } else if (plan === 'START') {
+      if (hasUnlimited) {
+        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Nền tảng này yêu cầu gói UNLIMITED.');
+        App.navigate('pricing');
+        return false;
+      }
+      if (hasDouyinOrPro) {
+        App.notify('warning', 'Cần nâng cấp gói PRO', 'Tải Douyin / Xiaohongshu yêu cầu gói PRO trở lên.');
+        App.navigate('pricing');
+        return false;
+      }
+    }
+    return true;
+  },
+
   bindActions() {
     // 1. Xem trước & chọn Modal
     document.getElementById('btnPreviewSelect')?.addEventListener('click', () => {
@@ -452,6 +489,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
         App.notify('warning', 'Không có dữ liệu', 'Vui lòng nhập ít nhất 1 đường dẫn hợp lệ.');
         return;
       }
+      if (!this.checkPlanForUrls(urls)) return;
       this.openPreviewModal(urls);
     });
 
@@ -463,6 +501,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
         App.notify('warning', 'Không có dữ liệu', 'Vui lòng nhập ít nhất 1 đường dẫn hợp lệ.');
         return;
       }
+      if (!this.checkPlanForUrls(urls)) return;
       const dataToDownload = urls.map((url, i) => this.generateRandomDataForUrl(url, i));
       this.startBatchDownload(dataToDownload);
     });
@@ -475,6 +514,7 @@ https://youtube.com/shorts/abcxyz123"></textarea>
         App.notify('warning', 'Không có dữ liệu', 'Vui lòng nhập ít nhất 1 đường dẫn hợp lệ.');
         return;
       }
+      if (!this.checkPlanForUrls(urls)) return;
       
       const dataToQueue = urls.map((url, i) => this.generateRandomDataForUrl(url, i));
       App.store.queue.push(...dataToQueue);

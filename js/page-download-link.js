@@ -539,6 +539,41 @@ window.Pages['download-link'] = {
       return;
     }
 
+    // 2.1 Kiểm tra cấp bậc gói cước (VIP Gating)
+    const currentPlan = App.store?.plan || 'FREE';
+    const hasDouyinOrPro = urls.some(u => {
+      const p = this.detectPlatform(u).name;
+      return ['Douyin', 'Xiaohongshu', 'Kuaishou', 'RedNote'].includes(p);
+    });
+    const hasUnlimitedPlat = urls.some(u => {
+      const p = this.detectPlatform(u).name;
+      return ['Bilibili', 'Honggo'].includes(p);
+    });
+
+    if (currentPlan === 'FREE') {
+      if (hasUnlimitedPlat) {
+        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Các nền tảng Bilibili/Honggo yêu cầu gói UNLIMITED. Hãy dùng số dư 2.000.000đ để nâng cấp!');
+        App.navigate('pricing');
+        return;
+      }
+      if (hasDouyinOrPro || urls.length > 5) {
+        App.notify('warning', 'Cần nâng cấp gói PRO', 'Tải Douyin, Xiaohongshu hoặc tải trên 5 video cùng lúc yêu cầu gói PRO trở lên. Hãy dùng số dư để nâng cấp!');
+        App.navigate('pricing');
+        return;
+      }
+    } else if (currentPlan === 'START') {
+      if (hasUnlimitedPlat) {
+        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Nền tảng này yêu cầu gói UNLIMITED.');
+        App.navigate('pricing');
+        return;
+      }
+      if (hasDouyinOrPro) {
+        App.notify('warning', 'Cần nâng cấp gói PRO', 'Tải Douyin / Xiaohongshu / Kuaishou yêu cầu gói PRO trở lên.');
+        App.navigate('pricing');
+        return;
+      }
+    }
+
     // 3. Lấy cấu hình tùy chọn
     const quality = document.getElementById('optDlQuality')?.value || '1080p';
     const format = document.getElementById('optDlFormat')?.value || 'MP4';

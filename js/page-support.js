@@ -148,6 +148,12 @@ window.Pages['support'] = {
   },
 
   init() {
+    // Prefill contact if user is logged in
+    const contactInput = document.getElementById('supportContact');
+    if (contactInput && App.store?.user?.email && !contactInput.value) {
+      contactInput.value = App.store.user.email;
+    }
+
     // Accordion toggle
     document.querySelectorAll('.faq-item').forEach(item => {
       item.addEventListener('click', () => {
