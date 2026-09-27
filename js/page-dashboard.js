@@ -37,10 +37,7 @@ window.Pages['dashboard'] = {
         <div class="kpi-grid grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
           <div class="kpi-card card p-4">
             <div class="kpi-label text-muted text-xs uppercase tracking-wide">Video hôm nay</div>
-            <div class="flex items-center gap-2 mt-1">
-              <div class="kpi-value text-2xl fw-700" id="kpiToday">${kpi.today}</div>
-              <div class="kpi-delta up badge badge-success text-xs">+15 hôm qua</div>
-            </div>
+            <div class="kpi-value text-2xl fw-700 mt-1" id="kpiToday">${kpi.today}</div>
           </div>
           <div class="kpi-card card p-4">
             <div class="kpi-label text-muted text-xs uppercase tracking-wide">Đang tải</div>
@@ -56,7 +53,7 @@ window.Pages['dashboard'] = {
           </div>
           <div class="kpi-card card p-4">
             <div class="kpi-label text-muted text-xs uppercase tracking-wide">Thời gian chạy</div>
-            <div class="kpi-value text-xl fw-700 mt-1 font-mono text-warning" id="dashUptime">38m 44s</div>
+            <div class="kpi-value text-xl fw-700 mt-1 font-mono text-warning" id="dashUptime">0m 0s</div>
           </div>
         </div>
 
@@ -313,6 +310,21 @@ https://youtube.com/shorts/abcxyz123"></textarea>
       document.getElementById('kpiError').textContent = App.store.kpi.error;
       App.notify('info', 'Chỉ số hệ thống', 'Đã đồng bộ chỉ số từ cơ sở dữ liệu 2TECH MN.');
     });
+
+    // Sync live uptime ticker
+    const dashUptimeEl = document.getElementById('dashUptime');
+    if (dashUptimeEl) {
+      const updateUptime = () => {
+        const diff = Math.floor((Date.now() - App.startTime) / 1000);
+        const h = Math.floor(diff / 3600);
+        const m = Math.floor((diff % 3600) / 60);
+        const s = diff % 60;
+        dashUptimeEl.textContent = h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
+      };
+      updateUptime();
+      if (this.uptimeTimer) clearInterval(this.uptimeTimer);
+      this.uptimeTimer = setInterval(updateUptime, 1000);
+    }
   },
 
   renderPlatforms() {

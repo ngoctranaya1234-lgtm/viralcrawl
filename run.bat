@@ -13,15 +13,17 @@ if not exist "%CHROME_PATH%" set "CHROME_PATH=%LOCALAPPDATA%\Google\Chrome\Appli
 set "TARGET_URL=file:///%~dp0index.html"
 set "TARGET_URL=%TARGET_URL:\=/%"
 
+set "PROFILE_DIR=%LOCALAPPDATA%\ViralCrawl_Profile"
+
 :: Ưu tiên mở bằng Edge App Mode (cửa sổ độc lập, không thanh URL, không tab)
 if exist "%EDGE_PATH%" (
-    start "" "%EDGE_PATH%" --app="%TARGET_URL%" --window-size=1400,900
+    start "" "%EDGE_PATH%" --app="%TARGET_URL%" --user-data-dir="%PROFILE_DIR%" --window-size=1400,900
     exit /b
 )
 
 :: Nếu không có Edge, thử Chrome App Mode
 if exist "%CHROME_PATH%" (
-    start "" "%CHROME_PATH%" --app="%TARGET_URL%" --window-size=1400,900
+    start "" "%CHROME_PATH%" --app="%TARGET_URL%" --user-data-dir="%PROFILE_DIR%" --window-size=1400,900
     exit /b
 )
 

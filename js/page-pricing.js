@@ -289,11 +289,7 @@ window.Pages['pricing'] = {
     if (App.playSound) App.playSound('success');
     if (App.notify) App.notify('success', `Đã mua thành công gói ${planKey}!`);
     
-    // Switch to profile or update the current page if it is still active
-    const appEl = document.getElementById('app');
-    if (appEl) {
-      appEl.innerHTML = this.render();
-      this.init();
-    }
+    // Re-render the pricing page
+    App.navigate('pricing');
   }
 };

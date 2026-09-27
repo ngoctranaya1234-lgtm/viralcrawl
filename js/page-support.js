@@ -196,10 +196,14 @@ window.Pages['support'] = {
       }
 
       const subject = encodeURIComponent(subjectEl.value);
-      const body = encodeURIComponent(`Thông tin liên hệ: ${contact}\n\nNội dung:\n${message}\n\n---\nGửi từ ViralCrawl Tool by 2TECH MN`);
-      const gmailUrl = `https://mail.google.com/mail/?view=cm&to=support@2techmn.com&su=${subject}&body=${body}`;
+      const body = encodeURIComponent(`Thông tin liên hệ: ${contact}\n\nNội dung:\n${message}\n\n---\nGửi từ ViralCrawl Tool by 2TECH MN (Chủ quản: Nguyễn Minh Nhựt)`);
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=support@2techmn.com&su=${subject}&body=${body}`;
 
-      window.open(gmailUrl, '_blank');
+      const win = window.open(gmailUrl, '_blank');
+      if (!win) {
+        // Fallback if popup blocker intervenes
+        window.location.href = gmailUrl;
+      }
 
       if (typeof App.playSound === 'function') {
         App.playSound('success');
