@@ -187,7 +187,16 @@
 <script src="./js/page-support.js"></script>
 <script>
   // Boot the application once all page scripts are loaded
-  document.addEventListener('DOMContentLoaded', () => App.init());
+  document.addEventListener('DOMContentLoaded', () => {
+    App.init();
+
+    // Register PWA Service Worker for Mobile (Android & iOS)
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+      navigator.serviceWorker.register('./sw.js').then(() => {
+        console.log('PWA Service Worker registered successfully.');
+      }).catch(err => console.warn('SW registration skipped:', err));
+    }
+  });
 </script>
 </body>
 </html>
