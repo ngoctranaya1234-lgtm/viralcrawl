@@ -66,6 +66,7 @@ export function trapFocus(containerEl) {
 export function createAccessibleDialog({ id, title, content, onClose }) {
   const previousActive = document.activeElement;
   const overlay = element('div', {
+    id,
     class: 'fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4',
     role: 'dialog',
     'aria-modal': 'true',

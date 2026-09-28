@@ -18,6 +18,7 @@ export function createPricingPage({
   let unsubscribeState = null;
   let selectedTheme = 'momo';
   let isSubmitting = false;
+  let currentStatus = null;
 
   function render(outlet) {
     outlet.innerHTML = '';
@@ -95,7 +96,9 @@ export function createPricingPage({
       class: 'w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-emerald-500 transition-all uppercase'
     });
 
-    const statusMsg = element('div', { class: 'text-xs hidden' });
+    const statusMsg = element('div', {
+      class: currentStatus ? currentStatus.className : 'text-xs hidden'
+    }, currentStatus ? [currentStatus.text] : []);
 
     const redeemBtn = element('button', {
       type: 'button',
@@ -103,8 +106,9 @@ export function createPricingPage({
       onClick: async () => {
         const rawCode = codeInput.value.trim().toUpperCase();
         if (!rawCode) {
-          statusMsg.textContent = 'Vui lòng nhập mã kích hoạt.';
-          statusMsg.className = 'text-xs text-amber-400 block';
+          currentStatus = { text: 'Vui lòng nhập mã kích hoạt.', className: 'text-xs text-amber-400 block' };
+          statusMsg.textContent = currentStatus.text;
+          statusMsg.className = currentStatus.className;
           return;
         }
 
@@ -130,14 +134,16 @@ export function createPricingPage({
             throw new Error(redeemRes.error || 'Mã không hợp lệ hoặc đã qua sử dụng.');
           }
 
-          statusMsg.textContent = '✓ Kích hoạt thành công +4.000.000 credit!';
-          statusMsg.className = 'text-xs text-emerald-400 block';
+          currentStatus = { text: '✓ Kích hoạt thành công +4.000.000 credit!', className: 'text-xs text-emerald-400 block' };
+          statusMsg.textContent = currentStatus.text;
+          statusMsg.className = currentStatus.className;
           codeInput.value = '';
           if (state.refreshUser) await state.refreshUser();
           if (state.refreshCredits) await state.refreshCredits();
         } catch (err) {
-          statusMsg.textContent = `✕ Lỗi: ${err.message}`;
-          statusMsg.className = 'text-xs text-red-400 block';
+          currentStatus = { text: `✕ Lỗi: ${err.message}`, className: 'text-xs text-red-400 block' };
+          statusMsg.textContent = currentStatus.text;
+          statusMsg.className = currentStatus.className;
         } finally {
           isSubmitting = false;
           redeemBtn.disabled = false;
