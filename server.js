@@ -6,7 +6,21 @@ const DATA=process.env.VC_DATA_DIR||path.join(process.env.LOCALAPPDATA||os.homed
 const ROOT=__dirname,PORT=Number(process.env.PORT||3000);
 const STATIC=new Map([['/','index.html'],['/index.html','index.html'],['/manifest.json','manifest.json'],['/sw.js','sw.js'],['/assets/logo.svg','assets/logo.svg'],['/css/app.css','css/app.css'],...['app','page-dashboard','page-download-link','page-downloaded','page-history','page-settings','page-pricing','page-support'].map(n=>[`/js/${n}.js`,`js/${n}.js`])]);
 const MIME={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml'};
-const API=/^\/api\/(health|catalog|me|auth\/(google|callback|logout)|support\/compose|purchase|transactions|jobs(?:\/[a-zA-Z0-9-]+\/cancel)?|connections(?:\/[a-z]+)?|settings|sessions(?:\/[a-f0-9]{64})?|account\/export|files\/[a-zA-Z0-9-]+)$/;
+const CHECKOUT_ID='[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}';
+const API_ROUTES=[
+ ['GET',/^\/api\/(?:health|catalog|me|credits|credit-transactions|auth\/(?:google|apple|callback|apple\/callback)|support\/compose|jobs|connections|sessions|account\/export)$/],
+ ['POST',/^\/api\/(?:auth\/(?:logout|apple\/callback)|jobs|internal-checkouts|subscriptions\/purchase)$/],
+ ['PUT',/^\/api\/settings$/],
+ ['GET',new RegExp(`^/api/internal-checkouts/${CHECKOUT_ID}$`)],
+ ['POST',new RegExp(`^/api/internal-checkouts/${CHECKOUT_ID}/redeem$`)],
+ ['POST',/^\/api\/jobs\/[a-zA-Z0-9-]+\/cancel$/],
+ ['POST',/^\/api\/connections\/[a-z]+$/],
+ ['DELETE',/^\/api\/connections\/[a-z]+$/],
+ ['DELETE',/^\/api\/sessions\/[a-f0-9]{64}$/],
+ ['GET',/^\/api\/files\/[a-zA-Z0-9-]+$/],
+ ['HEAD',/^\/api\/files\/[a-zA-Z0-9-]+$/]
+];
+const allowedApi=(method,path)=>API_ROUTES.some(([verb,pattern])=>verb===method&&pattern.test(path));
 const OPEN_HOSTS=new Set(['mail.google.com','accounts.google.com','www.youtube.com','www.tiktok.com','www.facebook.com','www.instagram.com','www.douyin.com','passport.bilibili.com','www.kuaishou.com','www.xiaohongshu.com','x.com','vimeo.com','www.reddit.com','www.twitch.tv','www.dailymotion.com','www.pinterest.com']);
 function makeGateway(options={}) {
  const data=options.dataDir||DATA,root=options.root||ROOT,adminPort=Number(options.adminPort||process.env.VC_ADMIN_PORT||3891);
@@ -32,10 +46,12 @@ function makeGateway(options={}) {
     return execFile('rundll32.exe',['url.dll,FileProtocolHandler',target.href],{windowsHide:true,timeout:10000},err=>json(err?500:200,err?'Windows chưa mở được trình duyệt.':{ok:true}));
    }
    if(p.startsWith('/api/')) {
-    if(!API.test(p)||p!==url.pathname)return json(404,'API không tồn tại.');
+    if(!allowedApi(req.method,p)||p!==url.pathname)return json(404,'API không tồn tại.');
     if(!config)return json(503,'Hệ thống admin riêng chưa khởi động. Chạy run.bat hoặc run-admin.bat.');
-    const headers={...req.headers,host:`localhost:${adminPort}`,'x-vc-gateway':config.gatewayKey};
-    for(const key of Object.keys(headers))if(key.startsWith('x-forwarded-')||key==='forwarded')delete headers[key];
+    const headers={host:`localhost:${adminPort}`,'x-vc-gateway':config.gatewayKey};
+    for(const key of ['origin','x-vc-csrf','idempotency-key','content-type','content-length','accept','user-agent','range'])if(req.headers[key]!==undefined)headers[key]=req.headers[key];
+    const publicCookies=String(req.headers.cookie||'').split(';').map(part=>part.trim()).filter(part=>/^(?:vc_session|vc_oauth|vc_apple_link)=/.test(part)).join('; ');
+    if(publicCookies)headers.cookie=publicCookies;
     const upstream=http.request({hostname:'127.0.0.1',port:adminPort,path:req.url,method:req.method,headers},response=>{res.writeHead(response.statusCode,{...response.headers,'cache-control':'no-store'});response.pipe(res);});
     upstream.setTimeout(p.startsWith('/api/files/')?300000:60000,()=>upstream.destroy(new Error('timeout')));
     upstream.on('error',()=>res.headersSent?res.destroy():json(503,'Không kết nối được admin riêng. Kiểm tra run-admin.bat.'));
