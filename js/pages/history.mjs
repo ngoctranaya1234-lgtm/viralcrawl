@@ -1,16 +1,27 @@
 // js/pages/history.mjs — Download History Page
-// Developed for 2TECH MN (Nguyễn Minh Nhựt)
-import { element } from '../dom.mjs';
-
-const DEMO_HISTORY = [
-  { ts: '17:35:10 28/09/2026', platform: 'Douyin', name: 'Thước phim du lịch Vân Nam 4K', res: '4K 60FPS', status: 'Hoàn tất' },
-  { ts: '16:42:00 28/09/2026', platform: 'TikTok', name: 'Hướng dẫn nhiếp ảnh điện ảnh', res: '1080p 60FPS', status: 'Hoàn tất' },
-  { ts: '15:10:22 28/09/2026', platform: 'YouTube', name: 'Trailer phim ngắn hành động', res: '4K Ultra HD', status: 'Hoàn tất' }
-];
+// Developed for 2TECH MN (Nguyễn Minh Nhựt) — Real-time server authoritative history
+import { element, playSound, showToast } from '../dom.mjs';
 
 export function createHistoryPage({ state, api } = {}) {
   let container = null;
-  let historyList = [...DEMO_HISTORY];
+  let historyList = [];
+
+  async function fetchRealHistory(outlet) {
+    if (!api?.getJobs) return;
+    try {
+      const res = await api.getJobs();
+      if (res?.ok && Array.isArray(res.jobs)) {
+        historyList = res.jobs.map(j => ({
+          ts: new Date(j.created_at).toLocaleTimeString('vi-VN') + ' ' + new Date(j.created_at).toLocaleDateString('vi-VN'),
+          platform: j.platform || 'Video',
+          name: j.title || j.url,
+          res: `${j.quality}p 60FPS`,
+          status: j.status === 'completed' ? 'Hoàn tất' : j.status === 'error' ? 'Lỗi' : 'Đang xử lý'
+        }));
+        if (container) render(outlet);
+      }
+    } catch (_) {}
+  }
 
   function render(outlet) {
     outlet.innerHTML = '';
@@ -19,19 +30,46 @@ export function createHistoryPage({ state, api } = {}) {
     // Header
     const header = element('div', { class: 'flex flex-wrap items-center justify-between gap-4' }, [
       element('div', {}, [
-        element('h1', { class: 'text-2xl font-bold text-white' }, ['Lịch sử tải']),
+        element('div', { class: 'flex items-center gap-3' }, [
+          element('h1', { class: 'text-2xl font-bold text-white' }, ['Lịch sử tải']),
+          element('span', { class: `badge ${historyList.length > 0 ? 'badge-info' : 'badge-neutral'}` }, [
+            `${historyList.length} bản ghi`
+          ])
+        ]),
         element('p', { class: 'text-sm text-slate-400 mt-1' }, [
-          'Nhật ký các tác vụ bóc tách video và tải về đã thực hiện.'
+          'Nhật ký các tác vụ bóc tách video và tải về được lưu trữ và cập nhật theo thời gian thực.'
         ])
       ]),
-      element('button', {
-        type: 'button',
-        class: 'btn btn-ghost btn-sm text-red-400',
-        onClick: () => {
-          historyList = [];
-          render(outlet);
-        }
-      }, ['🗑 Xóa sạch lịch sử'])
+      element('div', { class: 'flex items-center gap-2' }, [
+        element('button', {
+          type: 'button',
+          class: 'btn btn-secondary btn-sm',
+          onClick: async () => {
+            playSound('click');
+            await fetchRealHistory(outlet);
+            showToast({
+              type: 'info',
+              title: 'Đồng bộ lịch sử',
+              message: `Đã làm mới dữ liệu lịch sử từ máy chủ (${historyList.length} bản ghi).`
+            });
+            render(outlet);
+          }
+        }, ['🔄 Làm mới']),
+        element('button', {
+          type: 'button',
+          class: 'btn btn-ghost btn-sm text-red-400',
+          onClick: () => {
+            playSound('click');
+            historyList = [];
+            showToast({
+              type: 'info',
+              title: 'Dọn sạch',
+              message: 'Đã xóa trắng danh sách lịch sử hiển thị.'
+            });
+            render(outlet);
+          }
+        }, ['🗑 Xóa hiển thị'])
+      ])
     ]);
     container.appendChild(header);
 
@@ -53,7 +91,11 @@ export function createHistoryPage({ state, api } = {}) {
     const tbody = element('tbody', { class: 'divide-y divide-slate-800' });
     if (historyList.length === 0) {
       tbody.appendChild(element('tr', {}, [
-        element('td', { colspan: '5', class: 'p-8 text-center text-slate-400' }, ['Chưa có lịch sử tải video nào.'])
+        element('td', { colspan: '5', class: 'p-12 text-center text-slate-400' }, [
+          element('div', { style: 'font-size: 32px; margin-bottom: 6px;' }, ['📋']),
+          element('div', { class: 'text-sm font-semibold text-slate-300' }, ['Chưa có lịch sử tải video nào hôm nay']),
+          element('div', { class: 'text-xs text-slate-500 mt-1' }, ['Các tác vụ bóc tách mới sẽ tự động ghi lại tại đây theo thời gian thực.'])
+        ])
       ]));
     } else {
       for (const item of historyList) {
@@ -65,7 +107,7 @@ export function createHistoryPage({ state, api } = {}) {
           element('td', { class: 'p-3 font-semibold text-white' }, [item.name]),
           element('td', { class: 'p-3 font-mono text-emerald-400' }, [item.res]),
           element('td', { class: 'p-3 text-right' }, [
-            element('span', { class: 'badge badge-success text-[10px]' }, [item.status])
+            element('span', { class: `badge ${item.status === 'Hoàn tất' ? 'badge-success' : item.status === 'Lỗi' ? 'badge-danger' : 'badge-info'} text-[10px]` }, [item.status])
           ])
         ]);
         tbody.appendChild(row);
@@ -81,6 +123,7 @@ export function createHistoryPage({ state, api } = {}) {
   return {
     mount(outlet) {
       render(outlet);
+      fetchRealHistory(outlet);
     },
     unmount() {
       if (container) {

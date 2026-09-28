@@ -119,6 +119,21 @@ export function createApiClient({
       return request('/api/auth/logout', { method: 'POST' });
     },
 
+    async getJobs() {
+      return request('/api/jobs', { method: 'GET' });
+    },
+
+    async enqueueJobs({ urls, quality = '2160' }) {
+      return request('/api/jobs', {
+        method: 'POST',
+        body: JSON.stringify({ urls, quality })
+      });
+    },
+
+    async cancelJob(id) {
+      return request(`/api/jobs/${encodeURIComponent(id)}/cancel`, { method: 'POST' });
+    },
+
     async getSupportCompose({ subject = '', contact = '', message = '' } = {}) {
       const query = new URLSearchParams({ subject, contact, message }).toString();
       return request(`/api/support/compose?${query}`, { method: 'GET' });
