@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME='2techmn-public-v4';
+const CACHE_NAME='2techmn-public-v5';
 const ASSETS=[
   './index.html',
   './manifest.json',
@@ -9,14 +9,12 @@ const ASSETS=[
   './js/app-state.mjs',
   './js/dom.mjs',
   './js/router.mjs',
-  './js/app.js',
-  './js/page-dashboard.js',
-  './js/page-download-link.js',
-  './js/page-downloaded.js',
-  './js/page-history.js',
-  './js/page-settings.js',
-  './js/page-pricing.js',
-  './js/page-support.js',
+  './js/checkout-themes.mjs',
+  './js/pages/dashboard.mjs',
+  './js/pages/pricing.mjs',
+  './js/pages/settings.mjs',
+  './js/pages/support.mjs',
+  './js/pages/unavailable.mjs',
   './assets/logo.svg'
 ];
 const assetPaths=new Set(ASSETS.map(p=>new URL(p,self.registration.scope).pathname));

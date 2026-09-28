@@ -3,6 +3,21 @@ import { createApiClient } from './api-client.mjs';
 import { createAppState } from './app-state.mjs';
 import { createRouter } from './router.mjs';
 import { createAccessibleDialog, element } from './dom.mjs';
+import { createDashboardPage } from './pages/dashboard.mjs';
+import { createPricingPage } from './pages/pricing.mjs';
+import { createSupportPage } from './pages/support.mjs';
+import { createSettingsPage } from './pages/settings.mjs';
+import { createUnavailablePage } from './pages/unavailable.mjs';
+
+const PAGE_TITLES = {
+  dashboard: 'Tải ngay',
+  'download-link': 'Tải video bằng link',
+  downloaded: 'File đã tải',
+  history: 'Lịch sử tải',
+  settings: 'Cài đặt',
+  support: 'Gửi câu hỏi',
+  pricing: 'Gói Cước & Tín Dụng'
+};
 
 export async function bootstrapApp() {
   const api = createApiClient();
@@ -14,38 +29,49 @@ export async function bootstrapApp() {
     const userBalanceEl = document.getElementById('userBalance');
     const userAvatarEl = document.getElementById('userAvatar');
     const btnLogin = document.getElementById('btnLogin');
-
-    if (!userNameEl || !userBalanceEl || !btnLogin) return;
+    const headerBalanceAmount = document.getElementById('headerBalanceAmount');
 
     if (snapshot.phase === 'ready' && snapshot.user) {
-      userNameEl.textContent = snapshot.user.name || snapshot.user.email || 'Thành viên 2TECH';
       const credits = snapshot.credits?.availableCredits ?? 0;
-      userBalanceEl.textContent = `${credits.toLocaleString('vi-VN')} credit`;
-      userBalanceEl.style.color = 'var(--success, #10b981)';
+      const formattedCredits = `${credits.toLocaleString('vi-VN')} credit`;
+
+      if (userNameEl) userNameEl.textContent = snapshot.user.name || snapshot.user.email || 'Thành viên 2TECH';
+      if (userBalanceEl) {
+        userBalanceEl.textContent = formattedCredits;
+        userBalanceEl.style.color = 'var(--success, #10b981)';
+      }
+      if (headerBalanceAmount) headerBalanceAmount.textContent = formattedCredits;
 
       if (userAvatarEl) {
         userAvatarEl.textContent = (snapshot.user.name || snapshot.user.email || 'U')[0].toUpperCase();
       }
 
-      btnLogin.textContent = 'Đăng xuất';
-      btnLogin.title = 'Đăng xuất tài khoản';
-      btnLogin.onclick = async () => {
-        await state.logout();
-      };
+      if (btnLogin) {
+        btnLogin.textContent = 'Đăng xuất';
+        btnLogin.title = 'Đăng xuất tài khoản';
+        btnLogin.onclick = async () => {
+          await state.logout();
+        };
+      }
     } else {
-      userNameEl.textContent = 'Chưa đăng nhập';
-      userBalanceEl.textContent = '0 credit';
-      userBalanceEl.style.color = 'var(--text-muted, #94a3b8)';
+      if (userNameEl) userNameEl.textContent = 'Chưa đăng nhập';
+      if (userBalanceEl) {
+        userBalanceEl.textContent = '0 credit';
+        userBalanceEl.style.color = 'var(--text-muted, #94a3b8)';
+      }
+      if (headerBalanceAmount) headerBalanceAmount.textContent = '0 credit';
 
       if (userAvatarEl) {
         userAvatarEl.textContent = '?';
       }
 
-      btnLogin.textContent = 'Đăng nhập';
-      btnLogin.title = 'Đăng nhập với Google hoặc Apple';
-      btnLogin.onclick = () => {
-        showLoginModal(api);
-      };
+      if (btnLogin) {
+        btnLogin.textContent = 'Đăng nhập';
+        btnLogin.title = 'Đăng nhập với Google hoặc Apple';
+        btnLogin.onclick = () => {
+          showLoginModal(api);
+        };
+      }
     }
   }
 
@@ -75,12 +101,79 @@ export async function bootstrapApp() {
   state.subscribe(renderUserHeader);
 
   // Setup client routing
-  const contentOutlet = document.querySelector('.main-content') || document.getElementById('content') || document.body;
+  const contentOutlet = document.getElementById('mainContent') || document.querySelector('.main-content') || document.body;
+
+  const routes = {
+    dashboard: ({ outlet }) => {
+      const page = createDashboardPage({ state, api });
+      page.mount(outlet);
+      return () => page.unmount();
+    },
+    'download-link': ({ outlet }) => {
+      const page = createUnavailablePage({
+        title: 'Tải video bằng link',
+        reason: 'Tính năng tải bằng liên kết trực tiếp yêu cầu backend Node.js v24 và yt-dlp đang chạy.'
+      });
+      page.mount(outlet);
+      return () => page.unmount();
+    },
+    downloaded: ({ outlet }) => {
+      const page = createUnavailablePage({
+        title: 'File đã tải',
+        reason: 'Danh sách tệp tải về yêu cầu kết nối với thư mục lưu trữ cục bộ của backend.'
+      });
+      page.mount(outlet);
+      return () => page.unmount();
+    },
+    history: ({ outlet }) => {
+      const page = createUnavailablePage({
+        title: 'Lịch sử tải',
+        reason: 'Lịch sử tải về được lưu trữ trên cơ sở dữ liệu SQLite của backend máy chủ.'
+      });
+      page.mount(outlet);
+      return () => page.unmount();
+    },
+    settings: ({ outlet }) => {
+      const page = createSettingsPage({ state, api });
+      page.mount(outlet);
+      return () => page.unmount();
+    },
+    support: ({ outlet }) => {
+      const page = createSupportPage({ state, api });
+      page.mount(outlet);
+      return () => page.unmount();
+    },
+    pricing: ({ outlet }) => {
+      const page = createPricingPage({
+        state,
+        api,
+        dialogs: { createAccessibleDialog },
+        now: () => Date.now(),
+        reducedMotion: () => state.getPreference('motion') === 'reduced'
+      });
+      page.mount(outlet);
+      return () => page.unmount();
+    }
+  };
+
   const router = createRouter({
     outlet: contentOutlet,
-    routes: {},
+    routes,
     defaultRoute: 'dashboard'
   });
+
+  // Update page title when navigating
+  const originalNavigate = router.navigate;
+  router.navigate = async (target, params) => {
+    await originalNavigate(target, params);
+    const titleEl = document.getElementById('pageTitle');
+    const route = router.getCurrentRoute();
+    if (titleEl && route && PAGE_TITLES[route]) {
+      titleEl.textContent = PAGE_TITLES[route];
+    }
+  };
+
+  router.start();
 
   // Wire sidebar & mobile navigation buttons
   document.querySelectorAll('[data-page]').forEach(btn => {
@@ -92,6 +185,27 @@ export async function bootstrapApp() {
       }
     });
   });
+
+  // Wire mute toggle
+  const btnMute = document.getElementById('btnMute');
+  if (btnMute) {
+    btnMute.addEventListener('click', () => {
+      const current = state.getPreference('muted') === 'true';
+      state.setPreference('muted', current ? 'false' : 'true');
+      btnMute.setAttribute('aria-pressed', current ? 'false' : 'true');
+    });
+  }
+
+  // Uptime counter
+  const startTime = Date.now();
+  setInterval(() => {
+    const uptimeEl = document.getElementById('footerUptime');
+    if (!uptimeEl) return;
+    const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+    const m = Math.floor(elapsedSec / 60);
+    const s = elapsedSec % 60;
+    uptimeEl.textContent = `${m}m ${s}s`;
+  }, 1000);
 
   // Start state bootstrap
   await state.bootstrap();

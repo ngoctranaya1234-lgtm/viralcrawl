@@ -62,8 +62,9 @@ export function createRouter({
     }
 
     // Update active state on navigation elements if present
-    document.querySelectorAll('[data-route]').forEach(el => {
-      const isMatch = el.getAttribute('data-route') === routeName;
+    document.querySelectorAll('[data-route], [data-page]').forEach(el => {
+      const target = el.getAttribute('data-route') || el.getAttribute('data-page');
+      const isMatch = target === routeName;
       el.classList.toggle('active', isMatch);
       el.setAttribute('aria-current', isMatch ? 'page' : 'false');
     });

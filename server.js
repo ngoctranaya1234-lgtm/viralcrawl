@@ -4,8 +4,22 @@ const http=require('node:http'), fs=require('node:fs'), path=require('node:path'
 const {spawn,execFile}=require('node:child_process');
 const DATA=process.env.VC_DATA_DIR||path.join(process.env.LOCALAPPDATA||os.homedir(),'2TECHMN','Mnhut_2tech_Al');
 const ROOT=__dirname,PORT=Number(process.env.PORT||3000);
-const STATIC=new Map([['/','index.html'],['/index.html','index.html'],['/manifest.json','manifest.json'],['/sw.js','sw.js'],['/assets/logo.svg','assets/logo.svg'],['/css/app.css','css/app.css'],...['app','page-dashboard','page-download-link','page-downloaded','page-history','page-settings','page-pricing','page-support'].map(n=>[`/js/${n}.js`,`js/${n}.js`])]);
-const MIME={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml'};
+const STATIC=new Map([
+  ['/','index.html'],['/index.html','index.html'],['/manifest.json','manifest.json'],
+  ['/sw.js','sw.js'],['/assets/logo.svg','assets/logo.svg'],['/css/app.css','css/app.css'],
+  ['/js/bootstrap.mjs','js/bootstrap.mjs'],
+  ['/js/api-client.mjs','js/api-client.mjs'],
+  ['/js/app-state.mjs','js/app-state.mjs'],
+  ['/js/dom.mjs','js/dom.mjs'],
+  ['/js/router.mjs','js/router.mjs'],
+  ['/js/checkout-themes.mjs','js/checkout-themes.mjs'],
+  ['/js/pages/dashboard.mjs','js/pages/dashboard.mjs'],
+  ['/js/pages/pricing.mjs','js/pages/pricing.mjs'],
+  ['/js/pages/settings.mjs','js/pages/settings.mjs'],
+  ['/js/pages/support.mjs','js/pages/support.mjs'],
+  ['/js/pages/unavailable.mjs','js/pages/unavailable.mjs']
+]);
+const MIME={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.mjs':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml'};
 const CHECKOUT_ID='[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}';
 const API_ROUTES=[
  ['GET',/^\/api\/(?:health|catalog|me|credits|credit-transactions|auth\/(?:google|apple|callback|apple\/callback)|support\/compose|jobs|connections|sessions|account\/export)$/],
