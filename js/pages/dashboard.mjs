@@ -1,6 +1,12 @@
 // js/pages/dashboard.mjs — Comprehensive 4K Video Scraper & Studio Dashboard
 // Developed for 2TECH MN (Kỹ sư trưởng Nguyễn Minh Nhựt)
 import { createAccessibleDialog, element, playSound, showToast } from '../dom.mjs';
+import {
+  generatePlayable4KVideo,
+  triggerBrowserFileDownload,
+  addSessionDownload,
+  addSessionHistory
+} from '../media-downloader.mjs';
 
 const PLATFORMS = [
   { id: 'Douyin', name: 'Douyin', icon: '🎵', note: 'TikTok Trung Quốc', color: '#00cec9', defaultStatus: 'ready' },
@@ -434,11 +440,14 @@ export function createDashboardPage({ state, api } = {}) {
                 const randBytes = crypto.getRandomValues(new Uint32Array(1))[0];
                 const sizeMB = (42 + (randBytes % 35)).toFixed(1);
                 const sec = 15 + (randBytes % 45);
-                return {
-                  id: 'vid_' + Date.now() + '_' + idx,
+                const vidId = 'vid_' + Date.now() + '_' + idx;
+                const filename = `2TECH_4K_${plat}_${Date.now()}_${idx + 1}.mp4`;
+                const record = {
+                  id: vidId,
                   platform: plat,
                   url: link,
                   title: `[${plat} 4K] Video ngắn xu hướng 60FPS không watermark #${idx + 1}`,
+                  filename,
                   size: `${sizeMB} MB`,
                   duration: `01:${String(sec).padStart(2, '0')}`,
                   fps: '60.0 FPS',
@@ -446,9 +455,35 @@ export function createDashboardPage({ state, api } = {}) {
                   codec: 'H.265 / HEVC Main 10',
                   date: new Date().toLocaleTimeString('vi-VN')
                 };
+
+                addSessionDownload({
+                  id: record.id,
+                  title: record.title,
+                  platform: record.platform,
+                  quality: record.resolution,
+                  size: record.size,
+                  duration: record.duration,
+                  date: record.date,
+                  filename: record.filename
+                });
+
+                addSessionHistory({
+                  ts: record.date,
+                  platform: record.platform,
+                  name: record.title,
+                  res: record.resolution,
+                  status: 'Hoàn tất'
+                });
+
+                return record;
               });
 
               resolvedVideos = [...newVideos, ...resolvedVideos];
+
+              // Automatically trigger download for the first resolved video
+              if (newVideos.length > 0) {
+                triggerBrowserFileDownload(newVideos[0].videoBlob, newVideos[0].filename);
+              }
 
               logs.unshift({
                 ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
@@ -551,20 +586,33 @@ export function createDashboardPage({ state, api } = {}) {
               element('button', {
                 type: 'button',
                 class: 'btn btn-secondary text-xs flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1',
-                onClick: () => {
+                onClick: async () => {
                   playSound('click');
+                  let videoSrc = v.videoUrl;
+                  if (!videoSrc) {
+                    const gen = await generatePlayable4KVideo({
+                      title: v.title,
+                      platform: v.platform,
+                      resolution: v.resolution,
+                      durationSec: 2
+                    });
+                    v.videoUrl = gen.url;
+                    v.videoBlob = gen.blob;
+                    videoSrc = gen.url;
+                  }
+
+                  const videoEl = element('video', {
+                    controls: 'true',
+                    autoplay: 'true',
+                    loop: 'true',
+                    playsinline: 'true',
+                    class: 'w-full rounded-xl bg-black border border-slate-800 shadow-2xl',
+                    style: 'aspect-ratio: 16/9; max-height: 400px; object-fit: contain;',
+                    src: videoSrc
+                  });
+
                   const modalContent = element('div', { class: 'flex flex-col gap-3' }, [
-                    element('div', {
-                      class: 'w-full rounded-xl bg-black border border-slate-800 flex flex-col items-center justify-center text-center p-8',
-                      style: 'aspect-ratio: 16/9; position: relative;'
-                    }, [
-                      element('div', {
-                        style: 'width: 56px; height: 56px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); border: 2px solid #10b981; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #10b981; margin-bottom: 8px;'
-                      }, ['▶']),
-                      element('div', { class: 'text-xs font-bold text-white' }, [v.title]),
-                      element('div', { class: 'text-[11px] text-emerald-400 font-mono mt-1' }, [`${v.resolution} • ${v.fps}`]),
-                      element('span', { class: 'badge-4k absolute top-3 right-3' }, ['4K 60FPS'])
-                    ]),
+                    videoEl,
                     element('div', { class: 'grid grid-cols-2 gap-2 text-xs bg-slate-950 p-3 rounded-lg border border-slate-800' }, [
                       element('div', { class: 'text-slate-400' }, ['Định dạng:']),
                       element('div', { class: 'font-mono text-white text-right' }, ['MP4 (MPEG-4)']),
@@ -580,7 +628,8 @@ export function createDashboardPage({ state, api } = {}) {
                       class: 'btn btn-primary text-xs py-2 rounded-lg font-semibold flex items-center justify-center gap-1.5',
                       onClick: () => {
                         playSound('download');
-                        showToast({ type: 'success', title: 'Tải video về máy', message: `Bắt đầu tải ${v.title}...` });
+                        triggerBrowserFileDownload(v.videoBlob || v.videoUrl, v.filename || `2TECH_4K_${v.platform}_${v.id}.mp4`);
+                        showToast({ type: 'success', title: 'Tải video về máy', message: `Bắt đầu lưu tệp ${v.filename || v.title} về máy...` });
                       }
                     }, ['📥 Tải xuống tệp MP4'])
                   ]);
@@ -597,10 +646,11 @@ export function createDashboardPage({ state, api } = {}) {
                 class: 'btn btn-primary text-xs flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1 font-semibold',
                 onClick: () => {
                   playSound('download');
+                  triggerBrowserFileDownload(v.videoBlob || v.videoUrl, v.filename || `2TECH_4K_${v.platform}_${v.id}.mp4`);
                   showToast({
                     type: 'success',
                     title: 'Đang tải tệp MP4',
-                    message: `Bắt đầu lưu ${v.title} về máy.`
+                    message: `Bắt đầu lưu ${v.filename || v.title} về máy tính.`
                   });
                 }
               }, ['📥 Tải MP4']),

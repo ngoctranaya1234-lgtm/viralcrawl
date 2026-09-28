@@ -85,10 +85,33 @@ export function createPricingPage({
     }
     checkoutBox.appendChild(themeRow);
 
+    const promoBanner = element('div', {
+      class: 'p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex flex-wrap items-center justify-between gap-2'
+    }, [
+      element('div', { class: 'text-xs text-slate-300' }, [
+        '🎁 Mã khuyến mãi nhận 4.000.000 credit: ',
+        element('span', { class: 'font-mono font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30' }, ['2TECH-4M-ULTRA'])
+      ]),
+      element('button', {
+        type: 'button',
+        class: 'btn btn-secondary btn-sm text-xs font-semibold',
+        onClick: () => {
+          playSound('click');
+          codeInput.value = '2TECH-4M-ULTRA';
+          showToast({
+            type: 'info',
+            title: 'Đã dán mã',
+            message: 'Đã tự động điền mã 2TECH-4M-ULTRA vào ô kích hoạt.'
+          });
+        }
+      }, ['📋 Dán mã ngay'])
+    ]);
+    checkoutBox.appendChild(promoBanner);
+
     // Code input & Redeem button
     const codeInput = element('input', {
       type: 'text',
-      placeholder: 'Nhập mã kích hoạt (VD: 2TMN-XXXX-XXXX-XXXX-XXXX-XXXX)',
+      placeholder: 'Nhập mã kích hoạt (VD: 2TMN-XXXX-XXXX hoặc 2TECH-4M-ULTRA)',
       class: 'form-input w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-emerald-500 transition-all uppercase'
     });
 
@@ -114,6 +137,8 @@ export function createPricingPage({
         redeemBtn.textContent = 'Đang kích hoạt...';
 
         try {
+          const isMasterPromo = rawCode === '2TECH-4M-ULTRA' || rawCode === '2TECH4MULTRA';
+
           let checkoutRes = null;
           try {
             checkoutRes = await api.createCheckout({ theme: selectedTheme });
@@ -121,19 +146,28 @@ export function createPricingPage({
             checkoutRes = { ok: false, networkError: true };
           }
 
-          // If backend checkout unavailable (e.g. static GitHub Pages), allow graceful simulation
-          if (!checkoutRes || !checkoutRes.ok || !checkoutRes.checkout) {
-            if (rawCode.startsWith('2TMN-') && state?.bootstrap) {
+          // If master promo code or backend checkout unavailable (e.g. static GitHub Pages), grant 4,000,000 credit
+          if (isMasterPromo || !checkoutRes || !checkoutRes.ok || !checkoutRes.checkout) {
+            if ((isMasterPromo || rawCode.startsWith('2TMN-')) && state) {
               const cur = state.getSnapshot ? state.getSnapshot() : {};
               const currentAvail = cur.credits?.availableCredits ?? 0;
-              state.bootstrap({
-                user: cur.user || { id: 'u-admin-test', name: 'Kỹ sư Minh Nhựt', plan: 'ULTRA' },
-                credits: { availableCredits: currentAvail + 4000000, unit: 'CREDIT', realMoney: false }
-              });
-              currentStatus = { text: '✓ Kích hoạt thành công +4.000.000 credit (Mã quản trị)!', className: 'text-xs text-emerald-400 block' };
+              if (state.bootstrap) {
+                state.bootstrap({
+                  user: cur.user || { id: 'u-user', name: 'Kỹ sư Minh Nhựt', plan: 'ULTRA' },
+                  credits: { availableCredits: currentAvail + 4000000, unit: 'CREDIT', realMoney: false }
+                });
+              }
+              currentStatus = { text: '✓ Kích hoạt thành công +4.000.000 credit (Mã khuyến mãi 2TECH-4M-ULTRA)!', className: 'text-xs text-emerald-400 block' };
               statusMsg.textContent = currentStatus.text;
               statusMsg.className = currentStatus.className;
               codeInput.value = '';
+              playSound('success');
+              showToast({
+                type: 'success',
+                title: 'Nhận 4.000.000 credit thành công!',
+                message: 'Tài khoản của bạn đã được cộng 4.000.000 credit nội bộ.'
+              });
+              render(outlet);
               return;
             }
             throw new Error(checkoutRes?.error || 'Khởi tạo đơn mô phỏng thất bại.');

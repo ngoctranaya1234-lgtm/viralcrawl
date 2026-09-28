@@ -1,23 +1,33 @@
 // js/pages/history.mjs — Download History Page
 // Developed for 2TECH MN (Nguyễn Minh Nhựt) — Real-time server authoritative history
 import { element, playSound, showToast } from '../dom.mjs';
+import { getSessionHistory, clearSessionHistory } from '../media-downloader.mjs';
 
 export function createHistoryPage({ state, api } = {}) {
   let container = null;
   let historyList = [];
 
+  function mergeSessionWithServer(serverItems = []) {
+    const sessionItems = getSessionHistory();
+    return [...sessionItems, ...serverItems];
+  }
+
   async function fetchRealHistory(outlet) {
+    historyList = mergeSessionWithServer([]);
+    if (container) render(outlet);
+
     if (!api?.getJobs) return;
     try {
       const res = await api.getJobs();
       if (res?.ok && Array.isArray(res.jobs)) {
-        historyList = res.jobs.map(j => ({
+        const mapped = res.jobs.map(j => ({
           ts: new Date(j.created_at).toLocaleTimeString('vi-VN') + ' ' + new Date(j.created_at).toLocaleDateString('vi-VN'),
           platform: j.platform || 'Video',
           name: j.title || j.url,
           res: `${j.quality}p 60FPS`,
           status: j.status === 'completed' ? 'Hoàn tất' : j.status === 'error' ? 'Lỗi' : 'Đang xử lý'
         }));
+        historyList = mergeSessionWithServer(mapped);
         if (container) render(outlet);
       }
     } catch (_) {}
@@ -50,7 +60,7 @@ export function createHistoryPage({ state, api } = {}) {
             showToast({
               type: 'info',
               title: 'Đồng bộ lịch sử',
-              message: `Đã làm mới dữ liệu lịch sử từ máy chủ (${historyList.length} bản ghi).`
+              message: `Đã làm mới dữ liệu lịch sử (${historyList.length} bản ghi).`
             });
             render(outlet);
           }
@@ -60,6 +70,7 @@ export function createHistoryPage({ state, api } = {}) {
           class: 'btn btn-ghost btn-sm text-red-400',
           onClick: () => {
             playSound('click');
+            clearSessionHistory();
             historyList = [];
             showToast({
               type: 'info',
@@ -93,7 +104,7 @@ export function createHistoryPage({ state, api } = {}) {
       tbody.appendChild(element('tr', {}, [
         element('td', { colspan: '5', class: 'p-12 text-center text-slate-400' }, [
           element('div', { style: 'font-size: 32px; margin-bottom: 6px;' }, ['📋']),
-          element('div', { class: 'text-sm font-semibold text-slate-300' }, ['Chưa có lịch sử tải video nào hôm nay']),
+          element('div', { class: 'text-sm font-semibold text-slate-300' }, ['Chưa có lịch sử tải video nào']),
           element('div', { class: 'text-xs text-slate-500 mt-1' }, ['Các tác vụ bóc tách mới sẽ tự động ghi lại tại đây theo thời gian thực.'])
         ])
       ]));

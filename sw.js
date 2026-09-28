@@ -18,6 +18,7 @@ const ASSETS=[
   './js/pages/settings.mjs',
   './js/pages/support.mjs',
   './js/pages/unavailable.mjs',
+  './js/media-downloader.mjs',
   './assets/logo.svg'
 ];
 const assetPaths=new Set(ASSETS.map(p=>new URL(p,self.registration.scope).pathname));

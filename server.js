@@ -20,7 +20,8 @@ const STATIC=new Map([
   ['/js/pages/pricing.mjs','js/pages/pricing.mjs'],
   ['/js/pages/settings.mjs','js/pages/settings.mjs'],
   ['/js/pages/support.mjs','js/pages/support.mjs'],
-  ['/js/pages/unavailable.mjs','js/pages/unavailable.mjs']
+  ['/js/pages/unavailable.mjs','js/pages/unavailable.mjs'],
+  ['/js/media-downloader.mjs','js/media-downloader.mjs']
 ]);
 const MIME={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.mjs':'application/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml'};
 const CHECKOUT_ID='[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}';

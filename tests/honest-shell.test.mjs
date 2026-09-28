@@ -5,6 +5,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { openGmailCompose } from '../js/pages/support.mjs';
 import { createUnavailablePage } from '../js/pages/unavailable.mjs';
+import {
+  getSessionDownloads,
+  addSessionDownload,
+  removeSessionDownload,
+  getSessionHistory,
+  addSessionHistory,
+  createSyntheticMp4Blob
+} from '../js/media-downloader.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -180,3 +188,42 @@ test('createUnavailablePage renders honest state and disclaimer', () => {
     globalThis.document = prevDoc;
   }
 });
+
+test('media-downloader manages in-memory session downloads, history, and synthetic MP4 blobs', () => {
+  addSessionDownload({
+    id: 'test-1',
+    title: 'Test 4K Video',
+    platform: 'TikTok',
+    quality: '4K 60FPS',
+    size: '52.4 MB',
+    filename: '2TECH_4K_TikTok_test-1.mp4'
+  });
+
+  const downloads = getSessionDownloads();
+  assert.equal(downloads.length >= 1, true);
+  const found = downloads.find(d => d.id === 'test-1');
+  assert.ok(found);
+  assert.equal(found.title, 'Test 4K Video');
+
+  addSessionHistory({
+    ts: '12:00:00 28/09/2026',
+    platform: 'TikTok',
+    name: 'Test 4K Video',
+    res: '4K 60FPS',
+    status: 'Hoàn tất'
+  });
+
+  const history = getSessionHistory();
+  assert.equal(history.length >= 1, true);
+  assert.equal(history[0].name, 'Test 4K Video');
+
+  const mp4Blob = createSyntheticMp4Blob('Test 4K Video');
+  assert.ok(mp4Blob instanceof Blob);
+  assert.equal(mp4Blob.type, 'video/mp4');
+  assert.equal(mp4Blob.size > 40, true);
+
+  removeSessionDownload('test-1');
+  const remaining = getSessionDownloads();
+  assert.equal(remaining.some(d => d.id === 'test-1'), false);
+});
+
