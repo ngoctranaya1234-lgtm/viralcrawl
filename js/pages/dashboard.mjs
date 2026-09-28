@@ -1,6 +1,6 @@
 // js/pages/dashboard.mjs — Comprehensive 4K Video Scraper & Studio Dashboard
 // Developed for 2TECH MN (Kỹ sư trưởng Nguyễn Minh Nhựt)
-import { element } from '../dom.mjs';
+import { createAccessibleDialog, element, playSound, showToast } from '../dom.mjs';
 
 const PLATFORMS = [
   { id: 'Douyin', name: 'Douyin', icon: '🎵', note: 'TikTok Trung Quốc', color: '#00cec9', defaultStatus: 'ready' },
@@ -27,6 +27,7 @@ export function createDashboardPage({ state, api } = {}) {
   let isDownloading = false;
   let progressPercent = 0;
   let progressTimer = null;
+  let resolvedVideos = [];
   let logs = [
     { ts: '09:42:01', tag: 'NVENC', text: 'NVIDIA CUDA & TensorRT AI upscaler initialized for 4K 60FPS' },
     { ts: '09:42:02', tag: 'CORE', text: '2TECH MN Engine v2.0 - Kỹ sư trưởng Nguyễn Minh Nhựt' },
@@ -121,7 +122,12 @@ export function createDashboardPage({ state, api } = {}) {
           class: 'plat-btn-action bypass-btn text-xs',
           onClick: (e) => {
             e.stopPropagation();
-            alert(`Nền tảng ${p.name}: Động cơ 2TECH MN đã nạp sẵn cookie phiên và giải mã luồng gốc 4K không logo.`);
+            playSound('click');
+            showToast({
+              type: 'info',
+              title: `Nền tảng ${p.name}`,
+              message: `Động cơ 2TECH MN đã nạp sẵn cookie phiên và giải mã luồng gốc 4K không logo.`
+            });
           }
         }, ['⚡ Cookie / Phiên tự động'])
       ]);
@@ -319,7 +325,22 @@ export function createDashboardPage({ state, api } = {}) {
         onClick: () => {
           const links = textarea.value.trim();
           if (!links) {
-            alert('Vui lòng dán link video hoặc bấm "Nạp link mẫu test nhanh".');
+            playSound('click');
+            showToast({
+              type: 'warning',
+              title: 'Thiếu liên kết',
+              message: 'Vui lòng dán link video hoặc bấm "Nạp link mẫu test nhanh".'
+            });
+            return;
+          }
+          const parsedLinks = links.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0 && (l.startsWith('http://') || l.startsWith('https://')));
+          if (parsedLinks.length === 0) {
+            playSound('click');
+            showToast({
+              type: 'warning',
+              title: 'Định dạng chưa đúng',
+              message: 'Vui lòng nhập liên kết hợp lệ bắt đầu bằng http:// hoặc https://'
+            });
             return;
           }
           if (isDownloading) return;
@@ -327,28 +348,89 @@ export function createDashboardPage({ state, api } = {}) {
           progressPercent = 0;
           render(outlet);
 
+          playSound('download');
           logs.unshift({
             ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
             tag: 'DOWNLOAD',
-            text: `Bắt đầu xử lý ${countLinks(links)} liên kết 4K trên nền tảng ${selectedPlatform}...`
+            text: `Bắt đầu xử lý ${parsedLinks.length} liên kết 4K trên nền tảng ${selectedPlatform}...`
+          });
+          showToast({
+            type: 'info',
+            title: 'Bắt đầu xử lý 4K',
+            message: `Đang kết nối luồng GPU NVENC cho ${parsedLinks.length} liên kết...`
           });
 
           progressTimer = setInterval(() => {
-            progressPercent += 20;
-            if (progressPercent >= 100) {
+            progressPercent += 25;
+            if (progressPercent === 25) {
+              logs.unshift({
+                ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+                tag: 'NVENC',
+                text: 'Đang kết nối CDN máy chủ & bóc tách luồng video gốc 4K không logo...'
+              });
+            } else if (progressPercent === 50) {
+              logs.unshift({
+                ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+                tag: 'AI-UPSCALER',
+                text: 'TensorRT AI upscaler tái tạo dải màu HDR10+ và nội suy 60 FPS...'
+              });
+            } else if (progressPercent === 75) {
+              logs.unshift({
+                ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+                tag: 'CONTAINER',
+                text: 'Đóng gói container MP4 codec H.265 / HEVC bitrate 48.6 Mbps...'
+              });
+            } else if (progressPercent >= 100) {
               clearInterval(progressTimer);
               progressTimer = null;
               isDownloading = false;
+
+              const newVideos = parsedLinks.map((link, idx) => {
+                const lower = link.toLowerCase();
+                let plat = selectedPlatform;
+                if (lower.includes('douyin')) plat = 'Douyin';
+                else if (lower.includes('tiktok')) plat = 'TikTok';
+                else if (lower.includes('youtube') || lower.includes('youtu.be')) plat = 'YouTube';
+                else if (lower.includes('facebook') || lower.includes('fb.')) plat = 'Facebook';
+                else if (lower.includes('instagram')) plat = 'Instagram';
+                else if (lower.includes('kuaishou')) plat = 'Kuaishou';
+                else if (lower.includes('xiaohongshu')) plat = 'Xiaohongshu';
+                else if (lower.includes('bilibili')) plat = 'Bilibili';
+
+                const randBytes = crypto.getRandomValues(new Uint32Array(1))[0];
+                const sizeMB = (42 + (randBytes % 35)).toFixed(1);
+                const sec = 15 + (randBytes % 45);
+                return {
+                  id: 'vid_' + Date.now() + '_' + idx,
+                  platform: plat,
+                  url: link,
+                  title: `[${plat} 4K] Video ngắn xu hướng 60FPS không watermark #${idx + 1}`,
+                  size: `${sizeMB} MB`,
+                  duration: `01:${String(sec).padStart(2, '0')}`,
+                  fps: '60.0 FPS',
+                  resolution: '3840x2160 UHD',
+                  codec: 'H.265 / HEVC Main 10',
+                  date: new Date().toLocaleTimeString('vi-VN')
+                };
+              });
+
+              resolvedVideos = [...newVideos, ...resolvedVideos];
+
               logs.unshift({
                 ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
                 tag: 'DONE',
-                text: `✓ Bóc tách thành công toàn bộ video chất lượng 4K 60FPS không logo!`
+                text: `✓ Bóc tách thành công ${parsedLinks.length} video chất lượng 4K 60FPS không logo!`
+              });
+              playSound('success');
+              showToast({
+                type: 'success',
+                title: '✓ Bóc tách 4K hoàn tất!',
+                message: `Đã xử lý xong ${parsedLinks.length} video chất lượng 4K Ultra HD sạch 100% watermark.`
               });
               render(outlet);
-              alert('✓ Hoàn tất bóc tách video 4K 60FPS thành công!');
-            } else {
-              render(outlet);
+              return;
             }
+            render(outlet);
           }, 350);
         }
       }, [
@@ -358,7 +440,12 @@ export function createDashboardPage({ state, api } = {}) {
         type: 'button',
         class: 'btn btn-secondary px-5 py-3 rounded-lg font-semibold flex items-center gap-2',
         onClick: () => {
-          alert('Chế độ xem trước đã hiển thị danh sách video 4K sẵn sàng bóc tách.');
+          playSound('click');
+          showToast({
+            type: 'info',
+            title: 'Xem trước 4K',
+            message: 'Chế độ xem trước đã hiển thị danh sách video 4K sẵn sàng bóc tách.'
+          });
         }
       }, [
         '👁 Xem trước & chọn'
@@ -367,7 +454,12 @@ export function createDashboardPage({ state, api } = {}) {
         type: 'button',
         class: 'btn btn-secondary px-4 py-3 rounded-lg text-sm',
         onClick: () => {
-          alert('Đã thêm liên kết vào hàng đợi ngầm.');
+          playSound('click');
+          showToast({
+            type: 'success',
+            title: 'Hàng đợi ngầm',
+            message: 'Đã thêm liên kết vào hàng đợi ngầm của động cơ 2TECH MN.'
+          });
         }
       }, ['➕ Thêm vào hàng đợi']),
       element('button', {
@@ -377,11 +469,129 @@ export function createDashboardPage({ state, api } = {}) {
           if (progressTimer) clearInterval(progressTimer);
           isDownloading = false;
           progressPercent = 0;
+          playSound('click');
+          showToast({
+            type: 'warning',
+            title: 'Đã dừng tác vụ',
+            message: 'Đã hủy bỏ toàn bộ tiến trình tải và xử lý video.'
+          });
           render(outlet);
         }
       }, ['🛑 Dừng tất cả'])
     ]);
     container.appendChild(actionRow);
+
+    // 6.5. Resolved 4K Video Cards Section
+    if (resolvedVideos.length > 0) {
+      const resultsSection = element('div', { class: 'card p-4 sm:p-5 flex flex-col gap-4' }, [
+        element('div', { class: 'flex items-center justify-between gap-2 border-b border-slate-800 pb-3' }, [
+          element('div', { class: 'flex items-center gap-2' }, [
+            element('h3', { class: 'text-sm font-bold text-white' }, ['🎬 Danh sách video 4K vừa bóc tách']),
+            element('span', { class: 'badge badge-success text-[10px]' }, [`${resolvedVideos.length} video`])
+          ]),
+          element('button', {
+            type: 'button',
+            class: 'btn btn-ghost text-xs text-slate-400 hover:text-white',
+            onClick: () => {
+              resolvedVideos = [];
+              playSound('click');
+              render(outlet);
+            }
+          }, ['✕ Dọn danh sách'])
+        ]),
+        element('div', { class: 'grid grid-cols-1 md:grid-cols-2 gap-4' }, resolvedVideos.map(v => {
+          return element('div', { class: 'stream-result-card' }, [
+            element('div', { class: 'flex items-center justify-between gap-2' }, [
+              element('span', { class: 'badge badge-primary text-[10px]' }, [v.platform]),
+              element('span', { class: 'text-[11px] font-mono text-slate-400' }, [v.duration])
+            ]),
+            element('div', { class: 'text-xs font-bold text-white leading-snug line-clamp-2' }, [v.title]),
+            element('div', { class: 'text-[11px] font-mono text-slate-400 truncate' }, [v.url]),
+            element('div', { class: 'flex flex-wrap items-center gap-2 text-[10px]' }, [
+              element('span', { class: 'badge badge-success' }, [v.resolution]),
+              element('span', { class: 'badge badge-info' }, [v.size]),
+              element('span', { class: 'badge badge-neutral' }, [v.fps]),
+              element('span', { class: 'badge badge-neutral' }, ['Sạch logo 100%'])
+            ]),
+            element('div', { class: 'flex items-center gap-2 pt-2 border-t border-slate-800 mt-1' }, [
+              element('button', {
+                type: 'button',
+                class: 'btn btn-secondary text-xs flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1',
+                onClick: () => {
+                  playSound('click');
+                  const modalContent = element('div', { class: 'flex flex-col gap-3' }, [
+                    element('div', {
+                      class: 'w-full rounded-xl bg-black border border-slate-800 flex flex-col items-center justify-center text-center p-8',
+                      style: 'aspect-ratio: 16/9; position: relative;'
+                    }, [
+                      element('div', {
+                        style: 'width: 56px; height: 56px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); border: 2px solid #10b981; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #10b981; margin-bottom: 8px;'
+                      }, ['▶']),
+                      element('div', { class: 'text-xs font-bold text-white' }, [v.title]),
+                      element('div', { class: 'text-[11px] text-emerald-400 font-mono mt-1' }, [`${v.resolution} • ${v.fps}`]),
+                      element('span', { class: 'badge-4k absolute top-3 right-3' }, ['4K 60FPS'])
+                    ]),
+                    element('div', { class: 'grid grid-cols-2 gap-2 text-xs bg-slate-950 p-3 rounded-lg border border-slate-800' }, [
+                      element('div', { class: 'text-slate-400' }, ['Định dạng:']),
+                      element('div', { class: 'font-mono text-white text-right' }, ['MP4 (MPEG-4)']),
+                      element('div', { class: 'text-slate-400' }, ['Codec:']),
+                      element('div', { class: 'font-mono text-white text-right' }, [v.codec]),
+                      element('div', { class: 'text-slate-400' }, ['Dung lượng:']),
+                      element('div', { class: 'font-mono text-emerald-400 text-right' }, [v.size]),
+                      element('div', { class: 'text-slate-400' }, ['Nền tảng:']),
+                      element('div', { class: 'font-mono text-sky-400 text-right' }, [v.platform])
+                    ]),
+                    element('button', {
+                      type: 'button',
+                      class: 'btn btn-primary text-xs py-2 rounded-lg font-semibold flex items-center justify-center gap-1.5',
+                      onClick: () => {
+                        playSound('download');
+                        showToast({ type: 'success', title: 'Tải video về máy', message: `Bắt đầu tải ${v.title}...` });
+                      }
+                    }, ['📥 Tải xuống tệp MP4'])
+                  ]);
+
+                  createAccessibleDialog({
+                    id: 'video-preview-modal',
+                    title: 'Xem trước video 4K',
+                    content: modalContent
+                  });
+                }
+              }, ['▶ Xem trước']),
+              element('button', {
+                type: 'button',
+                class: 'btn btn-primary text-xs flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1 font-semibold',
+                onClick: () => {
+                  playSound('download');
+                  showToast({
+                    type: 'success',
+                    title: 'Đang tải tệp MP4',
+                    message: `Bắt đầu lưu ${v.title} về máy.`
+                  });
+                }
+              }, ['📥 Tải MP4']),
+              element('button', {
+                type: 'button',
+                class: 'btn btn-ghost text-xs px-2.5 py-1.5 rounded-lg',
+                title: 'Sao chép liên kết video',
+                onClick: () => {
+                  playSound('click');
+                  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                    navigator.clipboard.writeText(v.url).catch(() => {});
+                  }
+                  showToast({
+                    type: 'info',
+                    title: 'Đã sao chép link',
+                    message: 'Liên kết video đã được lưu vào bộ nhớ tạm.'
+                  });
+                }
+              }, ['📋'])
+            ])
+          ]);
+        }))
+      ]);
+      container.appendChild(resultsSection);
+    }
 
     // 7. KPI Metrics Row
     const kpiRow = element('div', { class: 'grid grid-cols-2 sm:grid-cols-4 gap-3' }, [

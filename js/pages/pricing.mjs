@@ -1,6 +1,6 @@
 // js/pages/pricing.mjs — Honest virtual-credit pricing & simulated checkout UI
 import { CHECKOUT_THEMES, SIMULATION_BANNER_TEXT } from '../checkout-themes.mjs';
-import { element, text } from '../dom.mjs';
+import { element, playSound, showToast, text } from '../dom.mjs';
 
 export function formatCredits(credits) {
   const num = Number(credits || 0);
@@ -214,7 +214,12 @@ export function createPricingPage({
         onClick: async () => {
           if (isCurrent || isSubmitting) return;
           if (availableCredits < plan.price) {
-            alert(`Tín dụng không đủ (${formatCredits(availableCredits)} / cần ${formatCredits(plan.price)}). Vui lòng nhập mã kích hoạt nội bộ.`);
+            playSound('click');
+            showToast({
+              type: 'warning',
+              title: 'Tín dụng không đủ',
+              message: `Số dư (${formatCredits(availableCredits)}) không đủ để kích hoạt gói ${plan.name} (${formatCredits(plan.price)}). Vui lòng đổi thêm mã kích hoạt.`
+            });
             return;
           }
 
@@ -243,7 +248,12 @@ export function createPricingPage({
                   user: { ...(cur.user || {}), plan: plan.id },
                   credits: { availableCredits: Math.max(0, currentAvail - plan.price), unit: 'CREDIT', realMoney: false }
                 });
-                alert(`✓ Nâng cấp lên ${plan.name} thành công!`);
+                playSound('success');
+                showToast({
+                  type: 'success',
+                  title: 'Kích hoạt thành công!',
+                  message: `✓ Nâng cấp lên gói ${plan.name} thành công!`
+                });
                 return;
               }
               throw new Error(res?.error || 'Nâng cấp gói thất bại.');
@@ -251,9 +261,19 @@ export function createPricingPage({
 
             if (state.refreshUser) await state.refreshUser();
             if (state.refreshCredits) await state.refreshCredits();
-            alert(`✓ Nâng cấp lên ${plan.name} thành công!`);
+            playSound('success');
+            showToast({
+              type: 'success',
+              title: 'Kích hoạt thành công!',
+              message: `✓ Nâng cấp lên gói ${plan.name} thành công!`
+            });
           } catch (err) {
-            alert(`✕ Lỗi: ${err.message}`);
+            playSound('click');
+            showToast({
+              type: 'error',
+              title: 'Lỗi giao dịch',
+              message: err.message || 'Không thể nâng cấp gói cước.'
+            });
           } finally {
             isSubmitting = false;
             buyBtn.textContent = isCurrent ? 'Gói Hiện Tại' : 'Kích Hoạt Gói';

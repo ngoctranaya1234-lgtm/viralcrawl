@@ -1651,11 +1651,29 @@ img, video { max-width: 100%; display: block; }
   100% { transform: rotate(360deg); }
 }
 
-.google-acc-card:hover {
-  background: #f8fafd !important;
-  border-color: #1a73e8 !important;
-  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.15);
+.google-acc-card {
+  background: #141726 !important;
+  border: 1px solid #2a334d !important;
+  color: #f1f5f9 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.google-acc-card:hover {
+  background: #1e243a !important;
+  border-color: #4285f4 !important;
+  box-shadow: 0 4px 16px rgba(66, 133, 244, 0.25) !important;
+}
+
+.google-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(66, 133, 244, 0.2);
+  border-top-color: #4285f4;
+  border-radius: 50%;
+  animation: spinGoogle 0.7s linear infinite;
+  margin: 0 auto;
+}
+
 
 .pricing-card-interactive {
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2157,5 +2175,31 @@ input::placeholder, textarea::placeholder {
   font-weight: 600;
 }
 
+/* Stream Result Card (4K Videos) */
+.stream-result-card {
+  background: #101322;
+  border: 1px solid #1e2640;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
+.stream-result-card:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(16, 185, 129, 0.1);
+  transform: translateY(-2px);
+}
 
+#app-toasts {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}

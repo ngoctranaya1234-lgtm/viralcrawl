@@ -1,6 +1,6 @@
 // js/pages/downloaded.mjs — Downloaded Videos Library Page
 // Developed for 2TECH MN (Nguyễn Minh Nhựt)
-import { element } from '../dom.mjs';
+import { createAccessibleDialog, element, playSound, showToast } from '../dom.mjs';
 
 const DEMO_ITEMS = [
   { id: 'v1', title: 'Top 10 Thước Phim Động Vật Hoang Dã 4K 60FPS', platform: 'YouTube', quality: '4K 60FPS', size: '142.5 MB', duration: '03:45', date: '28/09/2026' },
@@ -31,7 +31,12 @@ export function createDownloadedPage({ state, api } = {}) {
         type: 'button',
         class: 'btn btn-secondary btn-sm',
         onClick: () => {
-          alert('Đã đồng bộ lại thư mục lưu trữ video cục bộ.');
+          playSound('click');
+          showToast({
+            type: 'info',
+            title: 'Đồng bộ thư viện',
+            message: 'Đã làm mới danh mục tệp video đã tải.'
+          });
         }
       }, ['🔄 Làm mới thư viện'])
     ]);
@@ -58,13 +63,42 @@ export function createDownloadedPage({ state, api } = {}) {
           element('button', {
             type: 'button',
             class: 'btn btn-secondary btn-sm flex-1 text-xs',
-            onClick: () => alert(`Đang mở xem video: ${item.title}`)
+            onClick: () => {
+              playSound('click');
+              const previewBox = element('div', { class: 'flex flex-col gap-3' }, [
+                element('div', {
+                  class: 'w-full rounded-xl bg-black border border-slate-800 flex flex-col items-center justify-center p-8 text-center',
+                  style: 'aspect-ratio: 16/9;'
+                }, [
+                  element('div', {
+                    style: 'width: 48px; height: 48px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); border: 2px solid #10b981; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #10b981; margin-bottom: 8px;'
+                  }, ['▶']),
+                  element('div', { class: 'text-xs font-bold text-white' }, [item.title]),
+                  element('div', { class: 'text-[11px] text-emerald-400 font-mono mt-1' }, [`${item.quality} • ${item.duration}`])
+                ]),
+                element('div', { class: 'flex justify-between items-center text-xs text-slate-400' }, [
+                  element('span', {}, [`Nền tảng: ${item.platform}`]),
+                  element('span', {}, [`Dung lượng: ${item.size}`])
+                ])
+              ]);
+              createAccessibleDialog({
+                id: 'preview-player-modal',
+                title: 'Xem video',
+                content: previewBox
+              });
+            }
           }, ['▶️ Xem video']),
           element('button', {
             type: 'button',
             class: 'btn btn-ghost btn-sm text-red-400 text-xs',
             onClick: () => {
+              playSound('click');
               items = items.filter(i => i.id !== item.id);
+              showToast({
+                type: 'info',
+                title: 'Đã xóa tệp',
+                message: `Đã xóa "${item.title}" khỏi thư viện.`
+              });
               render(outlet);
             }
           }, ['🗑 Xóa'])

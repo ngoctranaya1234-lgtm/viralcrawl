@@ -1,6 +1,6 @@
 // js/pages/download-link.mjs — Direct URL Video & Stream Downloader
 // Developed for 2TECH MN (Kỹ sư trưởng Nguyễn Minh Nhựt)
-import { element } from '../dom.mjs';
+import { element, playSound, showToast } from '../dom.mjs';
 
 const SUPPORTED_PLATFORMS = [
   { name: 'TikTok', icon: '📱', color: '#00cec9', note: 'TikTok Quốc Tế' },
@@ -149,13 +149,24 @@ export function createDownloadLinkPage({ state, api } = {}) {
       class: 'btn btn-gradient btn-lg w-full font-bold text-sm shadow-lg',
       onClick: () => {
         if (!linkTextarea.value.trim()) {
-          alert('Vui lòng dán link video.');
+          playSound('click');
+          showToast({
+            type: 'warning',
+            title: 'Thiếu liên kết',
+            message: 'Vui lòng dán link video cần tải.'
+          });
           return;
         }
         if (isDownloading) return;
         isDownloading = true;
         progress = 0;
         render(outlet);
+        playSound('download');
+        showToast({
+          type: 'info',
+          title: 'Đang xử lý luồng',
+          message: 'Bắt đầu bóc tách video 4K 60FPS không watermark...'
+        });
 
         progressInterval = setInterval(() => {
           progress += 25;
@@ -163,8 +174,13 @@ export function createDownloadLinkPage({ state, api } = {}) {
             clearInterval(progressInterval);
             progressInterval = null;
             isDownloading = false;
+            playSound('success');
+            showToast({
+              type: 'success',
+              title: 'Tải video thành công!',
+              message: 'Đã bóc tách thành công video 4K 60FPS không watermark vào thư viện tệp!'
+            });
             render(outlet);
-            alert('✓ Đã tải thành công video 4K 60FPS không watermark vào thư viện tệp!');
           } else {
             render(outlet);
           }

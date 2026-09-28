@@ -1,5 +1,5 @@
 // js/pages/support.mjs — Honest support page with direct Gmail compose flow
-import { element } from '../dom.mjs';
+import { element, playSound, showToast } from '../dom.mjs';
 
 export async function openGmailCompose({
   api = null,
@@ -98,7 +98,12 @@ export function createSupportPage({ state, api } = {}) {
         const message = messageInput.value.trim();
 
         if (!subject || !message) {
-          alert('Vui lòng nhập chủ đề và nội dung cần hỗ trợ.');
+          playSound('click');
+          showToast({
+            type: 'warning',
+            title: 'Thiếu thông tin',
+            message: 'Vui lòng nhập chủ đề và nội dung cần hỗ trợ.'
+          });
           return;
         }
 

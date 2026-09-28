@@ -1,5 +1,5 @@
 // js/pages/settings.mjs — Honest settings page with server-authoritative account info
-import { element } from '../dom.mjs';
+import { element, playSound, showToast } from '../dom.mjs';
 
 export function createSettingsPage({ state, api } = {}) {
   let container = null;
@@ -48,7 +48,12 @@ export function createSettingsPage({ state, api } = {}) {
           onClick: () => {
             const current = state.getPreference('motion') === 'reduced';
             state.setPreference('motion', current ? 'normal' : 'reduced');
-            alert(`Đã đổi chế độ chuyển động: ${current ? 'Bình thường' : 'Giảm chuyển động'}`);
+            playSound('click');
+            showToast({
+              type: 'info',
+              title: 'Cài đặt giao diện',
+              message: `Đã đổi chế độ chuyển động: ${current ? 'Bình thường' : 'Giảm chuyển động'}`
+            });
           }
         }, ['Chuyển Đổi'])
       ])
