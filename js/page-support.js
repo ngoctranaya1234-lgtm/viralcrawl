@@ -69,22 +69,22 @@ window.Pages['support'] = {
               <!-- FAQ 2 -->
               <div class="card p-4 cursor-pointer hover:border-gray-700 faq-item">
                 <div class="flex justify-between items-center">
-                  <span class="text-sm fw-600 text-white">2. Bật tăng tốc GPU NVIDIA NVENC như thế nào để xuất video siêu tốc?</span>
+                  <span class="text-sm fw-600 text-white">2. Làm thế nào để tải video chất lượng 4K 60FPS hoặc bóc tách riêng file nhạc MP3?</span>
                   <span class="text-muted faq-toggle text-sm">▼</span>
                 </div>
                 <div class="faq-content text-xs text-muted mt-2 pt-2 border-t border-gray-800 leading-relaxed" style="display:none;">
-                  Vào mục <strong>Cài đặt -> Phần cứng & GPU Encoder</strong>, chọn <strong>NVIDIA NVENC H.264</strong>. Phần mềm sẽ kích hoạt nhân phần cứng của card đồ họa rời (GTX 1060 trở lên, RTX series) để encode video trong vài giây thay vì dùng CPU gây chậm máy.
+                  Trong trang <strong>Tải video bằng link</strong> hoặc <strong>Tải ngay</strong>, bạn chọn độ phân giải <strong>4K 60FPS (2160p Ultra HD)</strong> hoặc định dạng <strong>MP3 Audio 320kbps</strong>. Động cơ bóc tách tự động phân tích luồng cao nhất từ CDN gốc và bóc tách âm thanh chuẩn phòng thu, sạch 100% watermark.
                 </div>
               </div>
 
               <!-- FAQ 3 -->
               <div class="card p-4 cursor-pointer hover:border-gray-700 faq-item">
                 <div class="flex justify-between items-center">
-                  <span class="text-sm fw-600 text-white">3. Tính năng AI Vocal Remover giữ lại âm thanh gì trong video?</span>
+                  <span class="text-sm fw-600 text-white">3. Hệ thống hỗ trợ những nền tảng nào và có tải được hàng loạt không?</span>
                   <span class="text-muted faq-toggle text-sm">▼</span>
                 </div>
                 <div class="faq-content text-xs text-muted mt-2 pt-2 border-t border-gray-800 leading-relaxed" style="display:none;">
-                  Mnhut 2tech Al sử dụng mô hình trí tuệ nhân tạo nhận diện phổ âm thanh để bóc tách triệt để tiếng nói (vocal lời thoại), trong khi bảo toàn 100% tiếng nhạc nền gốc, tiếng động vật, bước chân, tiếng gió và các hiệu ứng âm thanh môi trường xung quanh.
+                  Mnhut 2tech Al hỗ trợ hơn 10 nền tảng mạng xã hội: TikTok, Douyin, YouTube Shorts, Facebook, Instagram Reels, Xiaohongshu (RedNote), Kuaishou, Bilibili, Honggo... Bạn có thể dán danh sách hàng chục đến 200 đường dẫn cùng lúc để tải hàng loạt theo hạn mức gói cước.
                 </div>
               </div>
 

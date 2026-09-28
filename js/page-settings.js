@@ -64,13 +64,15 @@ window.Pages['settings'] = {
       FREE: 'Miễn Phí (FREE)',
       START: 'Gói START (Cơ Bản)',
       PRO: 'Gói PRO (Chuyên Nghiệp)',
-      UNLIMITED: 'Gói UNLIMITED (Không Giới Hạn)'
+      UNLIMITED: 'Gói STUDIO (Không Giới Hạn)',
+      ULTRA: 'Gói ULTRA VIP (Cao Cấp Nhất)'
     };
     const planBadges = {
       FREE: 'badge-neutral',
       START: 'badge-info',
       PRO: 'badge-accent',
-      UNLIMITED: 'badge-success'
+      UNLIMITED: 'badge-warning',
+      ULTRA: 'badge-success'
     };
 
     const planDisplayName = planNames[planKey] || planKey;

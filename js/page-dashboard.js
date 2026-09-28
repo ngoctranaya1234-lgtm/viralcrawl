@@ -625,20 +625,33 @@ https://honggo.com/drama/ep123"></textarea>
       return ['Bilibili', 'Honggo'].includes(p);
     });
 
+    const limits = {
+      FREE: 5,
+      START: 10,
+      PRO: 50,
+      UNLIMITED: 100,
+      ULTRA: 200
+    };
+    const maxAllowed = limits[plan] || 5;
+    if (urls.length > maxAllowed) {
+      App.notify('warning', 'Vượt quá số lượng mỗi lần', `Gói ${plan} chỉ cho phép cào tối đa ${maxAllowed} video/lần. Vui lòng rút gọn danh sách hoặc nâng cấp gói.`);
+      return false;
+    }
+
     if (plan === 'FREE') {
       if (hasUnlimited) {
-        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Nền tảng này yêu cầu gói UNLIMITED. Hãy dùng số dư 2.000.000đ để kích hoạt gói!');
+        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Nền tảng này yêu cầu gói UNLIMITED hoặc ULTRA. Hãy dùng số dư 2.500.000đ để kích hoạt gói!');
         App.navigate('pricing');
         return false;
       }
       if (hasDouyinOrPro || urls.length > 5) {
-        App.notify('warning', 'Cần nâng cấp gói PRO', 'Tải Douyin / Xiaohongshu hoặc tải hàng loạt trên 5 video yêu cầu gói PRO trở lên. Hãy dùng số dư để nâng cấp!');
+        App.notify('warning', 'Cần nâng cấp gói PRO', 'Tải Douyin / Xiaohongshu hoặc tải hàng loạt trên 5 video yêu cầu gói PRO trở lên. Hãy dùng số dư 2.500.000đ để nâng cấp!');
         App.navigate('pricing');
         return false;
       }
     } else if (plan === 'START') {
       if (hasUnlimited) {
-        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Nền tảng này yêu cầu gói UNLIMITED.');
+        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Nền tảng này yêu cầu gói UNLIMITED trở lên.');
         App.navigate('pricing');
         return false;
       }
@@ -866,23 +879,37 @@ https://honggo.com/drama/ep123"></textarea>
         }
       } catch (e) {}
 
+      const hasDirect = !!(resolved && resolved.downloadUrl && resolved.downloadUrl.startsWith('http'));
       const finalRecord = {
         id: item.id || ('v_' + Date.now() + '_' + i),
         title: (resolved && resolved.title) ? resolved.title : item.title,
         url: item.url || '',
-        downloadUrl: (resolved && resolved.downloadUrl) ? resolved.downloadUrl : item.url,
+        downloadUrl: hasDirect ? resolved.downloadUrl : null,
         platform: item.plat || (resolved && resolved.platform) || 'Web',
         size: (resolved && resolved.size) ? resolved.size : '58.2 MB',
         duration: (resolved && resolved.duration) ? resolved.duration : '01:30',
         author: (resolved && resolved.author) ? resolved.author : '@creator',
-        quality: '4K 60FPS Ultra',
+        quality: (resolved && resolved.quality) ? resolved.quality : '4K 60FPS Ultra',
         format: 'MP4',
         removeWatermark: true,
         thumb: (resolved && resolved.cover) ? resolved.cover : '#10b981',
-        status: 'ready',
+        status: hasDirect ? 'ready' : 'queued',
         downloadDate: new Date().toISOString(),
         date: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
       };
+
+      // Tự động đẩy vào hàng đợi backend daemon nếu đang kết nối local
+      try {
+        const csrf = App.csrfToken || '';
+        await fetch('/api/jobs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(csrf ? { 'x-vc-csrf': csrf } : {})
+          },
+          body: JSON.stringify({ urls: [item.url], quality: '2160' })
+        });
+      } catch (_) {}
 
       App.store.downloadedVideos.unshift(finalRecord);
       App.store.downloadHistory.unshift({
@@ -890,7 +917,7 @@ https://honggo.com/drama/ep123"></textarea>
         action: 'Tải 4K 60FPS',
         details: finalRecord.title,
         time: finalRecord.downloadDate,
-        status: 'Thành công'
+        status: hasDirect ? 'Thành công' : 'Đã xếp hàng'
       });
 
       this.logTerminal(`<span class="log-time">[${new Date().toLocaleTimeString('vi-VN')}]</span> <span class="log-success">[4K 60FPS] Đã bóc tách thành công: ${finalRecord.title}</span>`);
@@ -1190,27 +1217,109 @@ https://honggo.com/drama/ep123"></textarea>
     });
 
     // ── Save Cookie Button ──
-    btnSaveCookie?.addEventListener('click', () => {
+    btnSaveCookie?.addEventListener('click', async () => {
       const cookieVal = document.getElementById('modalCookieInput')?.value.trim();
       if (!cookieVal) {
         App.notify('error', 'Thiếu dữ liệu', 'Vui lòng nhập chuỗi Cookie tài khoản.');
         return;
       }
 
+      const formattedCookie = this.parseCookieToNetscape(cookieVal, platform);
+
       App.store.platformConnections[platform] = {
-        cookie: cookieVal,
+        cookie: formattedCookie,
+        rawInput: cookieVal,
         status: 'online',
         method: 'cookie',
         updatedAt: new Date().toISOString()
       };
       App.saveStore();
+
+      // Nếu đang chạy kết nối cục bộ với Gateway / Backend SQLite, đồng bộ lên DB
+      try {
+        const platSlug = platform.toLowerCase();
+        await fetch(`/api/connections/${platSlug}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(App.csrfToken ? { 'x-vc-csrf': App.csrfToken } : {})
+          },
+          body: JSON.stringify({ cookies: formattedCookie })
+        });
+      } catch (_) {}
       
       this.renderPlatforms();
       App.playSound('success');
-      App.notify('success', 'Đã lưu Cookie', `Kết nối tài khoản ${platform} thành công.`);
-      this.logTerminal(`<span class="log-time">[${new Date().toLocaleTimeString('vi-VN')}]</span> <span class="log-success">✓ Đã nạp Cookie xác thực nền tảng ${platform}.</span>`);
+      App.notify('success', 'Đã lưu Cookie', `Kết nối tài khoản ${platform} thành công (Chuẩn hóa Netscape).`);
+      this.logTerminal(`<span class="log-time">[${new Date().toLocaleTimeString('vi-VN')}]</span> <span class="log-success">✓ Đã nạp Cookie xác thực nền tảng ${platform} (Chuẩn Netscape 7 cột).</span>`);
       App.closeModal();
     });
+  },
+
+  // ── Helper chuyển đổi mọi định dạng Cookie sang Netscape 7 cột chuẩn ──
+  parseCookieToNetscape(rawInput, platformName) {
+    if (!rawInput || typeof rawInput !== 'string') return '';
+    const clean = rawInput.trim();
+    if (!clean) return '';
+
+    // Nếu đã là định dạng Netscape (có 7 cột phân cách bằng tab)
+    const lines = clean.replace(/\r/g, '').split('\n').map(l => l.trim()).filter(Boolean);
+    const hasTabs = lines.some(l => !l.startsWith('#') && l.split('\t').length === 7);
+    if (hasTabs) {
+      return clean.startsWith('#') ? clean : '# Netscape HTTP Cookie File\n' + clean;
+    }
+
+    const domainMap = {
+      douyin: 'douyin.com',
+      tiktok: 'tiktok.com',
+      youtube: 'youtube.com',
+      facebook: 'facebook.com',
+      instagram: 'instagram.com',
+      bilibili: 'bilibili.com',
+      kuaishou: 'kuaishou.com',
+      xiaohongshu: 'xiaohongshu.com',
+      rednote: 'xiaohongshu.com',
+      honggo: 'hongguo.com'
+    };
+    const platKey = (platformName || '').toLowerCase();
+    const domain = '.' + (domainMap[platKey] || (platKey + '.com'));
+    const oneYearLater = Math.floor(Date.now() / 1000) + (365 * 24 * 3600);
+
+    // Xử lý nếu người dùng dán JSON từ Cookie-Editor extension
+    if (clean.startsWith('[') && clean.endsWith(']')) {
+      try {
+        const arr = JSON.parse(clean);
+        if (Array.isArray(arr) && arr.length > 0) {
+          const out = ['# Netscape HTTP Cookie File'];
+          for (const item of arr) {
+            if (!item.name || item.value === undefined) continue;
+            const cDom = item.domain || domain;
+            const cPath = item.path || '/';
+            const cSecure = item.secure ? 'TRUE' : 'FALSE';
+            const cExp = item.expirationDate ? Math.floor(item.expirationDate) : oneYearLater;
+            const cPrefix = item.httpOnly ? '#HttpOnly_' : '';
+            out.push(`${cPrefix}${cDom}\tTRUE\t${cPath}\t${cSecure}\t${cExp}\t${item.name}\t${item.value}`);
+          }
+          if (out.length > 1) return out.join('\n') + '\n';
+        }
+      } catch (_) {}
+    }
+
+    // Xử lý chuỗi Header dạng: name=val; name2=val2;
+    const pairs = clean.split(';').map(s => s.trim()).filter(Boolean);
+    const out = ['# Netscape HTTP Cookie File'];
+    for (const p of pairs) {
+      const idx = p.indexOf('=');
+      if (idx > 0) {
+        const name = p.slice(0, idx).trim();
+        const val = p.slice(idx + 1).trim();
+        if (name && val) {
+          out.push(`${domain}\tTRUE\t/\tTRUE\t${oneYearLater}\t${name}\t${val}`);
+        }
+      }
+    }
+    if (out.length > 1) return out.join('\n') + '\n';
+    return clean;
   },
 
   initTerminal() {

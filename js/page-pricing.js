@@ -328,32 +328,32 @@ window.Pages['pricing'] = {
     const sUltra = document.getElementById('subUltra');
 
     if (cycle === 'month') {
-      if (pStart) pStart.innerHTML = '399.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (pStart) pStart.innerHTML = '149.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
       if (sStart) sStart.textContent = 'Gói tháng tiêu chuẩn';
-      if (pPro) pPro.innerHTML = '599.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (pPro) pPro.innerHTML = '249.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
       if (sPro) sPro.textContent = 'Gói tháng tiêu chuẩn';
-      if (pUnlim) pUnlim.innerHTML = '799.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (pUnlim) pUnlim.innerHTML = '329.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
       if (sUnlim) sUnlim.textContent = 'Gói tháng tiêu chuẩn';
-      if (pUltra) pUltra.innerHTML = '999.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (pUltra) pUltra.innerHTML = '499.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
       if (sUltra) sUltra.textContent = 'Gói tháng tiêu chuẩn';
     } else if (cycle === 'halfyear') {
-      if (pStart) pStart.innerHTML = '199.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
-      if (sStart) sStart.textContent = 'Tổng 1.194.000đ / 6 tháng (Tiết kiệm 50%)';
-      if (pPro) pPro.innerHTML = '399.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
-      if (sPro) sPro.textContent = 'Tổng 2.394.000đ / 6 tháng (Tiết kiệm 50%)';
-      if (pUnlim) pUnlim.innerHTML = '499.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
-      if (sUnlim) sUnlim.textContent = 'Tổng 2.994.000đ / 6 tháng (Tiết kiệm 50%)';
-      if (pUltra) pUltra.innerHTML = '649.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
-      if (sUltra) sUltra.textContent = 'Tổng 3.894.000đ / 6 tháng (Tiết kiệm 50%)';
+      if (pStart) pStart.innerHTML = '134.100đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (sStart) sStart.textContent = 'Tổng 804.600đ / 6 tháng (Tiết kiệm 10%)';
+      if (pPro) pPro.innerHTML = '224.100đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (sPro) sPro.textContent = 'Tổng 1.344.600đ / 6 tháng (Tiết kiệm 10%)';
+      if (pUnlim) pUnlim.innerHTML = '296.100đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (sUnlim) sUnlim.textContent = 'Tổng 1.776.600đ / 6 tháng (Tiết kiệm 10%)';
+      if (pUltra) pUltra.innerHTML = '449.100đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (sUltra) sUltra.textContent = 'Tổng 2.694.600đ / 6 tháng (Tiết kiệm 10%)';
     } else { // year
-      if (pStart) pStart.innerHTML = '149.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
-      if (sStart) sStart.textContent = 'Thanh toán 1 năm: 1.788.000đ (Dùng 13 tháng)';
-      if (pPro) pPro.innerHTML = '249.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
-      if (sPro) sPro.textContent = 'Thanh toán 1 năm: 2.988.000đ (Dùng 13 tháng)';
-      if (pUnlim) pUnlim.innerHTML = '329.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
-      if (sUnlim) sUnlim.textContent = 'Thanh toán 1 năm: 3.948.000đ (Dùng 13 tháng)';
-      if (pUltra) pUltra.innerHTML = '499.000đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
-      if (sUltra) sUltra.textContent = 'Thanh toán 1 năm: 5.988.000đ (Dùng 13 tháng)';
+      if (pStart) pStart.innerHTML = '119.200đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (sStart) sStart.textContent = 'Thanh toán 1 năm: 1.430.400đ (Tiết kiệm 20%)';
+      if (pPro) pPro.innerHTML = '199.200đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (sPro) sPro.textContent = 'Thanh toán 1 năm: 2.390.400đ (Tiết kiệm 20%)';
+      if (pUnlim) pUnlim.innerHTML = '263.200đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (sUnlim) sUnlim.textContent = 'Thanh toán 1 năm: 3.158.400đ (Tiết kiệm 20%)';
+      if (pUltra) pUltra.innerHTML = '399.200đ<span class="text-xs text-muted font-sans font-normal">/tháng</span>';
+      if (sUltra) sUltra.textContent = 'Thanh toán 1 năm: 4.790.400đ (Tiết kiệm 20%)';
     }
 
     if (App && typeof App.playSound === 'function') {
@@ -362,23 +362,12 @@ window.Pages['pricing'] = {
   },
 
   getPrice(planKey) {
-    const key = planKey.toLowerCase();
-    if (this.currentCycle === 'month') {
-      if (key === 'start') return 399000;
-      if (key === 'pro') return 599000;
-      if (key === 'unlimited') return 799000;
-      return 999000; // ultra
-    } else if (this.currentCycle === 'halfyear') {
-      if (key === 'start') return 1194000;
-      if (key === 'pro') return 2394000;
-      if (key === 'unlimited') return 2994000;
-      return 3894000; // ultra
-    } else {
-      if (key === 'start') return 1788000;
-      if (key === 'pro') return 2988000;
-      if (key === 'unlimited') return 3948000;
-      return 5988000; // ultra
-    }
+    const key = planKey.toUpperCase();
+    const months = this.currentCycle === 'month' ? 1 : this.currentCycle === 'halfyear' ? 6 : 12;
+    const baseRates = { START: 149000, PRO: 249000, UNLIMITED: 329000, ULTRA: 499000 };
+    const monthlyRate = baseRates[key] || 149000;
+    const discount = months === 12 ? 0.20 : months === 6 ? 0.10 : 0;
+    return Math.round(monthlyRate * months * (1 - discount));
   },
 
   buyPlan(planKey, planName, isRenewal = false) {
@@ -396,7 +385,7 @@ window.Pages['pricing'] = {
     const priceStr = price.toLocaleString('vi-VN');
     const balanceStr = balance.toLocaleString('vi-VN');
     const remainStr = (balance - price).toLocaleString('vi-VN');
-    const cycleLabels = { month: '1 Tháng', halfyear: '6 Tháng', year: '1 Năm (+1 Tháng tặng)' };
+    const cycleLabels = { month: '1 Tháng', halfyear: '6 Tháng', year: '1 Năm' };
 
     const modalHtml = `
       <div class="flex flex-col gap-4 text-sm" style="max-width:440px;margin:0 auto;color:#f4f4f5;">
@@ -440,33 +429,59 @@ window.Pages['pricing'] = {
     App.openModal(modalHtml);
   },
 
-  confirmBuy(planKey, price, isRenewal = false) {
-    const balance = App.store?.balance || 0;
-    if (balance < price) {
-      App.notify('error', 'Số dư không đủ!');
-      App.closeModal();
-      return;
+  async confirmBuy(planKey, price, isRenewal = false) {
+    const months = this.currentCycle === 'month' ? 1 : this.currentCycle === 'halfyear' ? 6 : 12;
+    const reqKey = 'vc_buy_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10);
+
+    // Try server-side purchase via backend SQLite API
+    let syncedWithBackend = false;
+    try {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        const csrfToken = App.store?.csrf || '';
+        const res = await fetch('/api/purchase', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-vc-csrf': csrfToken,
+            'idempotency-key': reqKey
+          },
+          body: JSON.stringify({ plan: planKey, months })
+        });
+        if (res.ok) {
+          const result = await res.json();
+          if (result && result.user) {
+            App.store.balance = result.user.balance;
+            App.store.plan = result.user.plan;
+            App.store.planExpiry = result.user.planExpiry ? new Date(result.user.planExpiry).toISOString() : null;
+            syncedWithBackend = true;
+          }
+        }
+      }
+    } catch (_) {}
+
+    // Fallback if client-only or offline mode
+    if (!syncedWithBackend) {
+      const balance = App.store?.balance || 0;
+      if (balance < price) {
+        App.notify('error', 'Số dư không đủ!');
+        App.closeModal();
+        return;
+      }
+      App.store.balance = balance - price;
+      App.store.plan = planKey;
+      
+      const daysToAdd = months === 1 ? 30 : months === 6 ? 180 : 365;
+      const curExpiry = App.store.planExpiry ? new Date(App.store.planExpiry).getTime() : 0;
+      const baseTime = (isRenewal && curExpiry > Date.now()) ? curExpiry : Date.now();
+      App.store.planExpiry = new Date(baseTime + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
     }
 
-    // Deduct balance
-    App.store.balance = balance - price;
-    App.store.plan = planKey;
-    
-    // Calculate expiry date
-    let daysToAdd = 30; // month
-    if (this.currentCycle === 'halfyear') daysToAdd = 180;
-    if (this.currentCycle === 'year') daysToAdd = 365 + 30; // 13 months
-
-    const curExpiry = App.store.planExpiry ? new Date(App.store.planExpiry).getTime() : 0;
-    const baseTime = (isRenewal && curExpiry > Date.now()) ? curExpiry : Date.now();
-    App.store.planExpiry = new Date(baseTime + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
-
-    // Record transaction
+    // Record transaction in history
     App.store.downloadHistory = App.store.downloadHistory || [];
     App.store.downloadHistory.unshift({
       id: 'tx_' + Date.now(),
       action: (isRenewal ? 'Gia hạn gói ' : 'Nâng cấp gói ') + planKey,
-      details: `Thanh toán ${price.toLocaleString('vi-VN')}đ (Thời hạn: +${daysToAdd} ngày)`,
+      details: `Thanh toán ${price.toLocaleString('vi-VN')}đ (${months} tháng)${syncedWithBackend ? ' • Đã lưu SQLite' : ''}`,
       time: new Date().toISOString(),
       status: 'Thành công'
     });
@@ -961,13 +976,19 @@ window.Pages['pricing'] = {
         <!-- Balance Notice -->
         <div class="bg-surface p-3 rounded-lg border border-gray-800 flex justify-between items-center">
           <div>
-            <div class="text-xs text-muted">Số dư ví khả dụng hiện tại:</div>
+            <div class="text-xs text-muted">Số dư ví hiện tại:</div>
             <div class="text-lg fw-700 font-mono text-success">${balanceStr}đ</div>
+            <div class="text-xs text-muted mt-0.5">Khả dụng chuyển khoản: <strong class="text-accent font-mono">${Math.max(0, balance - 2500000).toLocaleString('vi-VN')}đ</strong></div>
           </div>
           <div class="text-right">
             <span class="badge badge-accent" style="font-size:10px;">⚡ Napas 24/7 Tức thì</span>
             <div class="text-xs text-muted mt-1" style="font-size:10px;">Phí giao dịch: <strong class="text-success">0đ</strong></div>
           </div>
+        </div>
+
+        <!-- Promotional Credit Notice -->
+        <div class="p-2.5 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 leading-relaxed">
+          ℹ️ <strong>Lưu ý tín dụng:</strong> Số dư khuyến mãi 2.500.000đ ($100 USD) được cấp khi đăng ký là tín dụng nội bộ dùng riêng để kích hoạt và gia hạn các gói VIP (START, PRO, UNLIMITED, ULTRA), không áp dụng rút tiền mặt.
         </div>
 
         <!-- Form Fields -->
@@ -1099,6 +1120,12 @@ window.Pages['pricing'] = {
       return;
     }
     const currentBalance = App.store?.balance || 0;
+    const promotionalCredit = 2500000;
+    const withdrawable = Math.max(0, currentBalance - promotionalCredit);
+    if (amount > withdrawable) {
+      if (App.notify) App.notify('warning', 'Tín dụng không thể rút', `Số dư của bạn gồm ${promotionalCredit.toLocaleString('vi-VN')}đ Tín dụng Khuyến mãi chỉ dùng để kích hoạt/gia hạn các gói VIP (START, PRO, UNLIMITED, ULTRA), không thể rút tiền mặt. Hãy nạp thêm tiền qua VietQR nếu muốn chuyển khoản.`);
+      return;
+    }
     if (amount > currentBalance) {
       if (App.notify) App.notify('error', 'Số dư không đủ', `Số dư hiện tại (${currentBalance.toLocaleString('vi-VN')}đ) không đủ để chuyển ${amount.toLocaleString('vi-VN')}đ.`);
       return;

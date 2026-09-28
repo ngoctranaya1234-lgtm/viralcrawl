@@ -70,20 +70,7 @@ window.VideoResolver = {
       }
     }
 
-    // 3. Local Backend API (nếu chạy server.js cục bộ)
-    try {
-      const localRes = await fetch(`/api/resolve?url=${encodeURIComponent(cleanUrl)}&quality=${quality}`, {
-        headers: { 'Accept': 'application/json' }
-      });
-      if (localRes.ok) {
-        const data = await localRes.json();
-        if (data && data.downloadUrl) return data;
-      }
-    } catch (_) {
-      // Local backend not reachable, proceed to direct stream resolver
-    }
-
-    // 4. Trình phân giải thông minh chuẩn hóa định dạng (Direct Stream Fallback)
+    // 3. Trình phân giải thông minh chuẩn hóa định dạng (Direct Stream Fallback)
     const streamData = this.generateDirectDownloadDescriptor(cleanUrl, plat, quality);
     return streamData;
   },
@@ -181,30 +168,38 @@ window.VideoResolver = {
 
     return {
       success: true,
+      hasDirectStream: false,
       platform: plat,
-      title: `${plat} — ${slug.slice(0, 25)} [4K 60FPS Sạch Logo]`,
+      title: `${plat} — ${slug.slice(0, 30)}`,
       author: `@${plat.toLowerCase()}_creator`,
       duration: '01:25',
       cover: '',
       quality: qLabel,
-      downloadUrl: url, // Link gốc hoặc direct stream
+      downloadUrl: null, // Không trả về link web raw giả làm download stream
+      originalUrl: url,
       size: estSize,
-      isDirect: true
+      isDirect: false,
+      needsBackend: true,
+      message: 'Cần backend yt-dlp hoặc nạp Cookie để bóc tách stream nền tảng này'
     };
   },
 
   /**
    * Kích hoạt tải file video về máy tính hoặc điện thoại ngay lập tức
-   * @param {string} downloadUrl - URL tải file
+   * @param {string} downloadUrl - URL tải file stream thực tế
    * @param {string} fileName - Tên file lưu
    */
   triggerDownload(downloadUrl, fileName = 'video_4k_2techmn.mp4') {
-    if (!downloadUrl) return;
+    if (!downloadUrl || typeof downloadUrl !== 'string') return false;
 
-    // Kiểm tra nếu là data URL hoặc cùng origin, dùng blob
-    const isBlobOrData = downloadUrl.startsWith('blob:') || downloadUrl.startsWith('data:');
-    
-    // Tạo link ẩn và kích hoạt click
+    // Ngăn chặn tải link web thô dưới dạng file mp4
+    const isWebPage = /(tiktok\.com\/@|youtube\.com\/watch|youtu\.be\/|facebook\.com\/|instagram\.com\/p\/|douyin\.com\/video\/|xiaohongshu\.com\/explore)/i.test(downloadUrl);
+    if (isWebPage) {
+      console.warn('Không thể tải trực tiếp URL trang web:', downloadUrl);
+      return false;
+    }
+
+    // Tạo link ẩn và kích hoạt click tải về
     const a = document.createElement('a');
     a.href = downloadUrl;
     a.download = fileName;
@@ -212,7 +207,8 @@ window.VideoResolver = {
     a.rel = 'noopener noreferrer';
     document.body.appendChild(a);
     a.click();
-    setTimeout(() => a.remove(), 200);
+    setTimeout(() => a.remove(), 250);
+    return true;
   },
 
   /**

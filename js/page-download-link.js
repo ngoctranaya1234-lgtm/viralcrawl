@@ -550,20 +550,34 @@ window.Pages['download-link'] = {
       return ['Bilibili', 'Honggo'].includes(p);
     });
 
+    // 2.1 Kiểm tra hạn mức gói cước (Batch & Platform VIP Gating)
+    const planLimits = {
+      FREE: { batch: 5, daily: 5 },
+      START: { batch: 10, daily: 50 },
+      PRO: { batch: 50, daily: 250 },
+      UNLIMITED: { batch: 100, daily: 1000 },
+      ULTRA: { batch: 200, daily: 5000 }
+    };
+    const curLimit = planLimits[currentPlan] || planLimits.FREE;
+    if (urls.length > curLimit.batch) {
+      App.notify('warning', 'Vượt quá số lượng mỗi lần', `Gói ${currentPlan} chỉ nhận tối đa ${curLimit.batch} video/lượt. Vui lòng rút gọn danh sách hoặc nâng cấp gói.`);
+      return;
+    }
+
     if (currentPlan === 'FREE') {
       if (hasUnlimitedPlat) {
-        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Các nền tảng Bilibili/Honggo yêu cầu gói UNLIMITED. Hãy dùng số dư 2.000.000đ để nâng cấp!');
+        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Các nền tảng Bilibili/Honggo yêu cầu gói UNLIMITED hoặc ULTRA. Hãy dùng số dư 2.500.000đ để kích hoạt gói!');
         App.navigate('pricing');
         return;
       }
       if (hasDouyinOrPro || urls.length > 5) {
-        App.notify('warning', 'Cần nâng cấp gói PRO', 'Tải Douyin, Xiaohongshu hoặc tải trên 5 video cùng lúc yêu cầu gói PRO trở lên. Hãy dùng số dư để nâng cấp!');
+        App.notify('warning', 'Cần nâng cấp gói PRO', 'Tải Douyin, Xiaohongshu hoặc tải trên 5 video cùng lúc yêu cầu gói PRO trở lên. Hãy dùng số dư 2.500.000đ để kích hoạt gói!');
         App.navigate('pricing');
         return;
       }
     } else if (currentPlan === 'START') {
       if (hasUnlimitedPlat) {
-        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Nền tảng này yêu cầu gói UNLIMITED.');
+        App.notify('warning', 'Cần nâng cấp gói UNLIMITED', 'Nền tảng này yêu cầu gói UNLIMITED trở lên.');
         App.navigate('pricing');
         return;
       }
@@ -631,11 +645,16 @@ window.Pages['download-link'] = {
 
       const finalTitle = (resolvedData && resolvedData.title) ? resolvedData.title : this.extractTitleFromUrl(url, platform.name);
       const finalQuality = (resolvedData && resolvedData.quality) ? resolvedData.quality : quality.toUpperCase() + ' 60FPS';
-      const downloadUrl = (resolvedData && resolvedData.downloadUrl) ? resolvedData.downloadUrl : url;
+      const hasDirectStream = !!(resolvedData && resolvedData.downloadUrl && resolvedData.downloadUrl.startsWith('http'));
+      const downloadUrl = hasDirectStream ? resolvedData.downloadUrl : null;
       const duration = (resolvedData && resolvedData.duration) ? resolvedData.duration : '01:15';
       const size = (resolvedData && resolvedData.size) ? resolvedData.size : '52.4 MB';
 
-      this.log('info', `[${i + 1}/${total}] Đã bóc tách 4K: "${finalTitle}" [${finalQuality}]`);
+      if (hasDirectStream) {
+        this.log('success', `[${i + 1}/${total}] Đã bóc tách luồng trực tiếp 4K: "${finalTitle}" [${finalQuality}]`);
+      } else {
+        this.log('info', `[${i + 1}/${total}] Đã ghi nhận link vào danh sách: "${finalTitle}"`);
+      }
 
       // Tạo object bản ghi video
       const record = {
@@ -651,16 +670,29 @@ window.Pages['download-link'] = {
         format: format,
         removeWatermark: removeWatermark,
         thumb: (resolvedData && resolvedData.cover) ? resolvedData.cover : platform.color,
-        status: 'ready', // Trạng thái sẵn sàng tải ngay
+        status: hasDirectStream ? 'ready' : 'queued',
         createdAt: new Date().toISOString(),
         date: new Date().toLocaleDateString('vi-VN') + ' ' + new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
       };
 
-      // Nếu chỉ có 1 link và có downloadUrl trực tiếp, kích hoạt tải ngay
-      if (urls.length === 1 && downloadUrl && downloadUrl.startsWith('http') && window.VideoResolver) {
-        window.VideoResolver.triggerDownload(downloadUrl, `${finalTitle.replace(/[\\/:*?"<>|]/g, '_')}.mp4`);
-        this.log('success', `Đã kích hoạt tải file video 4K trực tiếp về máy!`);
+      // Nếu chỉ có 1 link và có stream trực tiếp, kích hoạt tải ngay
+      if (urls.length === 1 && hasDirectStream && window.VideoResolver) {
+        const ok = window.VideoResolver.triggerDownload(downloadUrl, `${finalTitle.replace(/[\\/:*?"<>|]/g, '_')}.mp4`);
+        if (ok) this.log('success', `Đã kích hoạt tải file video 4K trực tiếp về máy!`);
       }
+
+      // Tự động đẩy vào hàng đợi backend daemon nếu đang kết nối local
+      try {
+        const csrf = App.csrfToken || '';
+        await fetch('/api/jobs', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(csrf ? { 'x-vc-csrf': csrf } : {})
+          },
+          body: JSON.stringify({ urls: [url], quality: quality === 'audio' ? 'audio' : quality.replace('p', '') })
+        });
+      } catch (_) {}
 
       queuedItems.push(record);
       addedCount++;

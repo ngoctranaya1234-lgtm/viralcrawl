@@ -419,6 +419,8 @@ const App = {
       const res = await fetch('/api/me', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
+        this.backendConnected = true;
+        if (data.csrf) this.csrfToken = data.csrf;
         if (data && data.user) {
           const u = data.user;
           this.store.user = {
@@ -1054,20 +1056,27 @@ const App = {
   },
 
   generateLogLines(count) {
-    const platforms = ['Douyin', 'TikTok', 'YouTube', 'Xiaohongshu', 'Kuaishou', 'Bilibili', 'Honggo'];
     const lines = [];
-    for (let i = 0; i < count; i++) {
-      const plat = platforms[Math.floor(Math.random() * platforms.length)];
-      const id = Math.random().toString(36).substring(2, 10);
-      const size = (Math.random() * 30 + 5).toFixed(1);
+    const list = Array.isArray(this.store?.downloadedVideos) ? this.store.downloadedVideos : [];
+    if (list.length > 0) {
+      const take = list.slice(0, Math.min(count, list.length));
+      for (let i = take.length - 1; i >= 0; i--) {
+        const v = take[i];
+        const timePart = v.date ? (v.date.includes(' ') ? v.date.split(' ')[1] : v.date) : 'Vừa xong';
+        lines.push(
+          `<span class="log-time">[${timePart}]</span> <span class="log-info">[${v.platform || '4K'}]</span> Đã ghi nhận video <span class="log-url">${(v.title || '').slice(0, 32)}</span> — ${v.size || 'HD'} (${v.quality || '4K'})`
+        );
+      }
+    } else {
       const now = new Date();
-      now.setSeconds(now.getSeconds() - (count - i) * 4);
-      const time = now.toLocaleTimeString('vi-VN');
       lines.push(
-        `<span class="log-time">[${time}]</span> <span class="log-info">[${plat}]</span> Tải xong video <span class="log-url">#${id}</span> — ${size} MB (1080p không logo)`
+        `<span class="log-time">[${now.toLocaleTimeString('vi-VN')}]</span> <span class="log-info">[Hệ thống]</span> Khởi động động cơ bóc tách 4K Mnhut 2tech Al v2.0.`
+      );
+      lines.push(
+        `<span class="log-time">[${now.toLocaleTimeString('vi-VN')}]</span> <span class="log-info">[Mạng lưới]</span> Hỗ trợ TikTok, Douyin, YouTube, Facebook, Instagram, Xiaohongshu, Bilibili...`
       );
     }
-    lines.push(`<span class="log-time">[${new Date().toLocaleTimeString('vi-VN')}]</span> <span class="log-success">✓ Sẵn sàng nhận lệnh mới. Dịch vụ AI Cloud 2TECH MN kết nối ổn định.</span>`);
+    lines.push(`<span class="log-time">[${new Date().toLocaleTimeString('vi-VN')}]</span> <span class="log-success">✓ Sẵn sàng nhận lệnh mới. Dịch vụ AI Engine 2TECH MN kết nối ổn định.</span>`);
     return lines.join('\n');
   },
 
