@@ -2,7 +2,7 @@
 // Developed for 2TECH MN (Kỹ sư trưởng Nguyễn Minh Nhựt)
 import { createAccessibleDialog, element, playSound, showToast } from '../dom.mjs';
 import {
-  generatePlayable4KVideo,
+  resolveCleanVideo,
   triggerBrowserFileDownload,
   addSessionDownload,
   addSessionHistory
@@ -20,10 +20,9 @@ const PLATFORMS = [
 ];
 
 const SAMPLE_LINKS = [
-  'https://www.tiktok.com/@natgeo/video/7382910398471234567',
-  'https://v.douyin.com/iRoLkd1/',
+  'https://www.tiktok.com/@scout2015/video/6718335390845095173',
   'https://youtube.com/shorts/5kM3N2_4K90',
-  'https://www.facebook.com/reel/102938475647382'
+  'https://www.tiktok.com/@tuankietsigma08/video/7382910398471234567'
 ];
 
 export function createDashboardPage({ state, api } = {}) {
@@ -362,7 +361,7 @@ export function createDashboardPage({ state, api } = {}) {
       element('button', {
         type: 'button',
         class: 'btn btn-gradient btn-lg px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg',
-        onClick: () => {
+        onClick: async () => {
           const links = textarea.value.trim();
           if (!links) {
             playSound('click');
@@ -385,122 +384,135 @@ export function createDashboardPage({ state, api } = {}) {
           }
           if (isDownloading) return;
           isDownloading = true;
-          progressPercent = 0;
+          progressPercent = 15;
           render(outlet);
 
           playSound('download');
           logs.unshift({
             ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
             tag: 'DOWNLOAD',
-            text: `Bắt đầu xử lý ${parsedLinks.length} liên kết 4K trên nền tảng ${selectedPlatform}...`
+            text: `Bắt đầu xử lý bóc tách ${parsedLinks.length} liên kết trên nền tảng ${selectedPlatform}...`
           });
           showToast({
             type: 'info',
             title: 'Bắt đầu xử lý 4K',
-            message: `Đang kết nối luồng GPU NVENC cho ${parsedLinks.length} liên kết...`
+            message: `Đang kết nối bóc tách ${parsedLinks.length} liên kết sạch watermark 100%...`
           });
 
-          progressTimer = setInterval(() => {
-            progressPercent += 25;
-            if (progressPercent === 25) {
-              logs.unshift({
-                ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
-                tag: 'NVENC',
-                text: 'Đang kết nối CDN máy chủ & bóc tách luồng video gốc 4K không logo...'
-              });
-            } else if (progressPercent === 50) {
-              logs.unshift({
-                ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
-                tag: 'AI-UPSCALER',
-                text: 'TensorRT AI upscaler tái tạo dải màu HDR10+ và nội suy 60 FPS...'
-              });
-            } else if (progressPercent === 75) {
-              logs.unshift({
-                ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
-                tag: 'CONTAINER',
-                text: 'Đóng gói container MP4 codec H.265 / HEVC bitrate 48.6 Mbps...'
-              });
-            } else if (progressPercent >= 100) {
-              clearInterval(progressTimer);
-              progressTimer = null;
-              isDownloading = false;
+          // Trigger real backend job if available
+          if (api?.enqueueJobs) {
+            try {
+              await api.enqueueJobs({ urls: parsedLinks, quality: '2160' });
+            } catch (_) {}
+          }
 
-              const newVideos = parsedLinks.map((link, idx) => {
-                const lower = link.toLowerCase();
-                let plat = selectedPlatform;
-                if (lower.includes('douyin')) plat = 'Douyin';
-                else if (lower.includes('tiktok')) plat = 'TikTok';
-                else if (lower.includes('youtube') || lower.includes('youtu.be')) plat = 'YouTube';
-                else if (lower.includes('facebook') || lower.includes('fb.')) plat = 'Facebook';
-                else if (lower.includes('instagram')) plat = 'Instagram';
-                else if (lower.includes('kuaishou')) plat = 'Kuaishou';
-                else if (lower.includes('xiaohongshu')) plat = 'Xiaohongshu';
-                else if (lower.includes('bilibili')) plat = 'Bilibili';
+          const newVideos = [];
 
-                const randBytes = crypto.getRandomValues(new Uint32Array(1))[0];
-                const sizeMB = (42 + (randBytes % 35)).toFixed(1);
-                const sec = 15 + (randBytes % 45);
-                const vidId = 'vid_' + Date.now() + '_' + idx;
-                const filename = `2TECH_4K_${plat}_${Date.now()}_${idx + 1}.mp4`;
-                const record = {
-                  id: vidId,
-                  platform: plat,
+          for (let i = 0; i < parsedLinks.length; i++) {
+            const link = parsedLinks[i];
+            const currentPercent = Math.min(90, Math.round(20 + ((i + 1) / parsedLinks.length) * 70));
+            progressPercent = currentPercent;
+            render(outlet);
+
+            logs.unshift({
+              ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+              tag: 'NVENC',
+              text: `[${i + 1}/${parsedLinks.length}] Đang bóc tách luồng video gốc không logo: ${link.slice(0, 45)}...`
+            });
+
+            if (i > 0) {
+              await new Promise(r => setTimeout(r, 1200));
+            }
+
+            try {
+              const res = await resolveCleanVideo(link, '4k');
+              if (res && res.success && res.downloadUrl) {
+                const vidRecord = {
+                  id: res.id || ('vid_' + Date.now() + '_' + i),
+                  platform: res.platform,
                   url: link,
-                  title: `[${plat} 4K] Video ngắn xu hướng 60FPS không watermark #${idx + 1}`,
-                  filename,
-                  size: `${sizeMB} MB`,
-                  duration: `01:${String(sec).padStart(2, '0')}`,
+                  title: res.title,
+                  filename: res.filename,
+                  size: res.size,
+                  duration: res.duration,
                   fps: '60.0 FPS',
-                  resolution: '3840x2160 UHD',
-                  codec: 'H.265 / HEVC Main 10',
-                  date: new Date().toLocaleTimeString('vi-VN')
+                  resolution: res.quality,
+                  codec: res.codec || 'H.264 / AAC (Tương thích 100%)',
+                  date: new Date().toLocaleTimeString('vi-VN'),
+                  videoUrl: res.downloadUrl,
+                  cover: res.cover
                 };
 
+                newVideos.push(vidRecord);
+
                 addSessionDownload({
-                  id: record.id,
-                  title: record.title,
-                  platform: record.platform,
-                  quality: record.resolution,
-                  size: record.size,
-                  duration: record.duration,
-                  date: record.date,
-                  filename: record.filename
+                  id: vidRecord.id,
+                  title: vidRecord.title,
+                  platform: vidRecord.platform,
+                  quality: vidRecord.resolution,
+                  size: vidRecord.size,
+                  duration: vidRecord.duration,
+                  date: vidRecord.date,
+                  filename: vidRecord.filename,
+                  videoUrl: vidRecord.videoUrl,
+                  cover: vidRecord.cover
                 });
 
                 addSessionHistory({
-                  ts: record.date,
-                  platform: record.platform,
-                  name: record.title,
-                  res: record.resolution,
+                  ts: vidRecord.date,
+                  platform: vidRecord.platform,
+                  name: vidRecord.title,
+                  res: vidRecord.resolution,
                   status: 'Hoàn tất'
                 });
 
-                return record;
-              });
+                logs.unshift({
+                  ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+                  tag: 'DONE',
+                  text: `✓ [4K SẠCH LOGO] Bóc tách thành công: ${res.title}`
+                });
 
-              resolvedVideos = [...newVideos, ...resolvedVideos];
-
-              // Automatically trigger download for the first resolved video
-              if (newVideos.length > 0) {
-                triggerBrowserFileDownload(newVideos[0].videoBlob, newVideos[0].filename);
+                // Automatically trigger browser file download for the first resolved video!
+                if (i === 0) {
+                  await triggerBrowserFileDownload(res.downloadUrl, res.filename);
+                }
+              } else {
+                logs.unshift({
+                  ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
+                  tag: 'WARNING',
+                  text: `✕ [LỖI BÓC TÁCH] ${res?.error || 'Không thể lấy luồng video'}`
+                });
               }
-
+            } catch (err) {
               logs.unshift({
                 ts: new Date().toLocaleTimeString('vi-VN', { hour12: false }),
-                tag: 'DONE',
-                text: `✓ Bóc tách thành công ${parsedLinks.length} video chất lượng 4K 60FPS không logo!`
+                tag: 'ERROR',
+                text: `✕ Lỗi xử lý luồng: ${err.message}`
               });
-              playSound('success');
-              showToast({
-                type: 'success',
-                title: '✓ Bóc tách 4K hoàn tất!',
-                message: `Đã xử lý xong ${parsedLinks.length} video chất lượng 4K Ultra HD sạch 100% watermark.`
-              });
-              render(outlet);
-              return;
             }
-            render(outlet);
-          }, 350);
+          }
+
+          progressPercent = 100;
+          isDownloading = false;
+
+          if (newVideos.length > 0) {
+            resolvedVideos = [...newVideos, ...resolvedVideos];
+            playSound('success');
+            showToast({
+              type: 'success',
+              title: '✓ Bóc tách 4K hoàn tất!',
+              message: `Đã bóc tách thành công ${newVideos.length} video sạch 100% watermark và tự động lưu ${newVideos[0].filename} về máy!`
+            });
+          } else {
+            playSound('click');
+            showToast({
+              type: 'error',
+              title: 'Không thể bóc tách',
+              message: 'Không tìm thấy video hợp lệ từ các liên kết đã nhập. Vui lòng kiểm tra lại liên kết.'
+            });
+          }
+
+          render(outlet);
         }
       }, [
         '⚡ Bóc tách & Tải ngay 4K'
@@ -569,7 +581,17 @@ export function createDashboardPage({ state, api } = {}) {
           }, ['✕ Dọn danh sách'])
         ]),
         element('div', { class: 'grid grid-cols-1 md:grid-cols-2 gap-4' }, resolvedVideos.map(v => {
-          return element('div', { class: 'stream-result-card' }, [
+          return element('div', { class: 'stream-result-card flex flex-col gap-2' }, [
+            v.cover ? element('div', {
+              class: 'w-full rounded-lg overflow-hidden border border-slate-800 bg-black aspect-video flex items-center justify-center'
+            }, [
+              element('img', {
+                src: v.cover,
+                alt: v.title,
+                class: 'w-full h-full object-cover',
+                loading: 'lazy'
+              })
+            ]) : null,
             element('div', { class: 'flex items-center justify-between gap-2' }, [
               element('span', { class: 'badge badge-primary text-[10px]' }, [v.platform]),
               element('span', { class: 'text-[11px] font-mono text-slate-400' }, [v.duration])
@@ -586,19 +608,16 @@ export function createDashboardPage({ state, api } = {}) {
               element('button', {
                 type: 'button',
                 class: 'btn btn-secondary text-xs flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1',
-                onClick: async () => {
+                onClick: () => {
                   playSound('click');
-                  let videoSrc = v.videoUrl;
+                  const videoSrc = v.videoUrl;
                   if (!videoSrc) {
-                    const gen = await generatePlayable4KVideo({
-                      title: v.title,
-                      platform: v.platform,
-                      resolution: v.resolution,
-                      durationSec: 2
+                    showToast({
+                      type: 'warning',
+                      title: 'Chưa có luồng',
+                      message: 'Video chưa có đường dẫn trực tiếp.'
                     });
-                    v.videoUrl = gen.url;
-                    v.videoBlob = gen.blob;
-                    videoSrc = gen.url;
+                    return;
                   }
 
                   const videoEl = element('video', {
@@ -628,7 +647,7 @@ export function createDashboardPage({ state, api } = {}) {
                       class: 'btn btn-primary text-xs py-2 rounded-lg font-semibold flex items-center justify-center gap-1.5',
                       onClick: () => {
                         playSound('download');
-                        triggerBrowserFileDownload(v.videoBlob || v.videoUrl, v.filename || `2TECH_4K_${v.platform}_${v.id}.mp4`);
+                        triggerBrowserFileDownload(v.videoUrl || v.videoBlob, v.filename || `2TECH_4K_${v.platform}_${v.id}.mp4`);
                         showToast({ type: 'success', title: 'Tải video về máy', message: `Bắt đầu lưu tệp ${v.filename || v.title} về máy...` });
                       }
                     }, ['📥 Tải xuống tệp MP4'])
@@ -646,7 +665,7 @@ export function createDashboardPage({ state, api } = {}) {
                 class: 'btn btn-primary text-xs flex-1 py-1.5 rounded-lg flex items-center justify-center gap-1 font-semibold',
                 onClick: () => {
                   playSound('download');
-                  triggerBrowserFileDownload(v.videoBlob || v.videoUrl, v.filename || `2TECH_4K_${v.platform}_${v.id}.mp4`);
+                  triggerBrowserFileDownload(v.videoUrl || v.videoBlob, v.filename || `2TECH_4K_${v.platform}_${v.id}.mp4`);
                   showToast({
                     type: 'success',
                     title: 'Đang tải tệp MP4',

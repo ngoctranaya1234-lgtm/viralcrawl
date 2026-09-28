@@ -78,7 +78,7 @@ function makeGateway(options={}) {
    const file=STATIC.get(p);if(!file)return json(404,'Không tìm thấy.');
    if(!['GET','HEAD'].includes(req.method)){res.setHeader('Allow','GET, HEAD');return json(405,'Phương thức không được phép.');}
    const absolute=path.join(root,file);if(!fs.existsSync(absolute)||!fs.statSync(absolute).isFile())return json(404,'Không tìm thấy.');
-   res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';");
+   res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; media-src 'self' blob: https:; connect-src 'self' https:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self';");
    res.setHeader('Content-Type',MIME[path.extname(file)]||'application/octet-stream');if(p==='/sw.js')res.setHeader('Service-Worker-Allowed','/');
    if(req.method==='HEAD')return res.end();const stream=fs.createReadStream(absolute);stream.on('error',()=>res.headersSent?res.destroy():json(500,'Không đọc được tập tin.'));stream.pipe(res);
   }catch{if(!res.headersSent)json(500,'Gateway chưa xử lý được yêu cầu.');else res.destroy();}

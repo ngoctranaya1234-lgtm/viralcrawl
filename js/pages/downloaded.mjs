@@ -158,7 +158,7 @@ export function createDownloadedPage({ state, api } = {}) {
                 class: 'btn btn-secondary btn-sm flex-1 text-xs font-semibold flex items-center justify-center gap-1',
                 onClick: () => {
                   playSound('download');
-                  triggerBrowserFileDownload(item.videoBlob || item.videoUrl, item.filename || `${item.title}.mp4`);
+                  triggerBrowserFileDownload(item.videoUrl || item.videoBlob, item.filename || `${item.title}.mp4`);
                   showToast({
                     type: 'success',
                     title: 'Đang tải tệp MP4',
@@ -230,7 +230,7 @@ export function createDownloadedPage({ state, api } = {}) {
           class: 'btn btn-primary btn-sm flex items-center gap-1.5 font-bold',
           onClick: () => {
             playSound('download');
-            triggerBrowserFileDownload(item.videoBlob || item.videoUrl, item.filename || `${item.title}.mp4`);
+            triggerBrowserFileDownload(item.videoUrl || item.videoBlob, item.filename || `${item.title}.mp4`);
             showToast({
               type: 'success',
               title: 'Tải tệp MP4',

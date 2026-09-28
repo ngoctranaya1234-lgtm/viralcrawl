@@ -2,7 +2,7 @@
 // Developed for 2TECH MN (Kỹ sư trưởng Nguyễn Minh Nhựt)
 import { createAccessibleDialog, element, playSound, showToast } from '../dom.mjs';
 import {
-  generatePlayable4KVideo,
+  resolveCleanVideo,
   triggerBrowserFileDownload,
   addSessionDownload,
   addSessionHistory
@@ -99,9 +99,9 @@ export function createDownloadLinkPage({ state, api } = {}) {
           type: 'button',
           class: 'btn btn-secondary btn-sm',
           onClick: () => {
-            currentInputText = 'https://www.tiktok.com/@natgeo/video/7382910398471234567\nhttps://v.douyin.com/iRoLkd1/\nhttps://youtube.com/shorts/5kM3N2_4K90';
+            currentInputText = 'https://www.tiktok.com/@scout2015/video/6718335390845095173';
             linkTextarea.value = currentInputText;
-            linkCountBadge.textContent = '3 liên kết';
+            linkCountBadge.textContent = '1 liên kết';
           }
         }, ['📋 Dán mẫu test']),
         element('button', {
@@ -224,86 +224,94 @@ export function createDownloadLinkPage({ state, api } = {}) {
           } catch (_) {}
         }
 
-        // Simultaneously prepare real playable video
-        const firstUrl = validUrls[0];
-        const platform = detectPlatform(firstUrl);
-        const randBytes = crypto.getRandomValues(new Uint32Array(2));
-        const videoTitle = `[${platform} 4K] Video gốc sạch 100% watermark #${(randBytes[0] % 900) + 100}`;
-        const sizeMB = (45 + (randBytes[1] % 25)).toFixed(1);
+        progress = 25;
+        render(outlet);
 
-        const videoPromise = generatePlayable4KVideo({
-          title: videoTitle,
-          platform,
-          resolution: '4K 60FPS Ultra HD',
-          durationSec: 2
+        // Simultaneously resolve the video link using the real extraction engine
+        const firstUrl = validUrls[0];
+        const qualitySelect = document.getElementById('qualitySelect')?.value || '4k';
+
+        let resolveResult;
+        try {
+          progress = 50;
+          render(outlet);
+          resolveResult = await resolveCleanVideo(firstUrl, qualitySelect);
+        } catch (err) {
+          resolveResult = { success: false, error: err.message };
+        }
+
+        if (!resolveResult || !resolveResult.success) {
+          isDownloading = false;
+          progress = 0;
+          render(outlet);
+          playSound('click');
+          showToast({
+            type: 'error',
+            title: 'Lỗi bóc tách video',
+            message: resolveResult?.error || 'Không thể bóc tách luồng video từ liên kết này. Vui lòng kiểm tra lại liên kết.'
+          });
+          return;
+        }
+
+        progress = 85;
+        render(outlet);
+
+        const filename = resolveResult.filename || `2TECH_4K_${resolveResult.platform}_${Date.now()}.mp4`;
+
+        // 1. Physically trigger browser file download to user's computer (fetching real binary MP4 stream)
+        await triggerBrowserFileDownload(resolveResult.downloadUrl, filename);
+
+        progress = 100;
+        isDownloading = false;
+
+        // 2. Build resolved record with authentic video metadata
+        const newRecord = {
+          id: resolveResult.id || ('dl_' + Date.now()),
+          platform: resolveResult.platform,
+          url: firstUrl,
+          title: resolveResult.title,
+          filename,
+          size: resolveResult.size,
+          duration: resolveResult.duration,
+          resolution: resolveResult.quality,
+          codec: resolveResult.codec || 'H.264 / AAC',
+          date: new Date().toLocaleTimeString('vi-VN') + ' ' + new Date().toLocaleDateString('vi-VN'),
+          videoUrl: resolveResult.downloadUrl,
+          cover: resolveResult.cover
+        };
+
+        resolvedResults.unshift(newRecord);
+
+        // 3. Add to shared session storage so "File đã tải" and "Lịch sử tải" update immediately
+        addSessionDownload({
+          id: newRecord.id,
+          title: newRecord.title,
+          platform: newRecord.platform,
+          quality: newRecord.resolution,
+          size: newRecord.size,
+          duration: newRecord.duration,
+          date: newRecord.date,
+          videoUrl: newRecord.videoUrl,
+          cover: newRecord.cover,
+          filename: newRecord.filename
         });
 
-        progressInterval = setInterval(async () => {
-          progress += 25;
-          if (progress >= 100) {
-            clearInterval(progressInterval);
-            progressInterval = null;
+        addSessionHistory({
+          ts: newRecord.date,
+          platform: newRecord.platform,
+          name: newRecord.title,
+          res: newRecord.resolution,
+          status: 'Hoàn tất'
+        });
 
-            const videoResult = await videoPromise;
-            isDownloading = false;
+        playSound('success');
+        showToast({
+          type: 'success',
+          title: '✓ Tải video thành công!',
+          message: `Đã tự động lưu ${filename} về máy tính của bạn và thêm vào Thư viện tệp!`
+        });
 
-            const filename = `2TECH_4K_${platform}_${Date.now()}.mp4`;
-
-            // 1. Physically trigger browser file download to user's computer!
-            triggerBrowserFileDownload(videoResult.blob, filename);
-
-            // 2. Build resolved record
-            const newRecord = {
-              id: 'dl_' + Date.now(),
-              platform,
-              url: firstUrl,
-              title: videoTitle,
-              filename,
-              size: `${sizeMB} MB`,
-              duration: '01:30',
-              resolution: '4K 60FPS Ultra HD',
-              codec: 'HEVC / H.265 Main 10',
-              date: new Date().toLocaleTimeString('vi-VN') + ' ' + new Date().toLocaleDateString('vi-VN'),
-              videoUrl: videoResult.url,
-              videoBlob: videoResult.blob
-            };
-
-            resolvedResults.unshift(newRecord);
-
-            // 3. Add to shared session storage so "File đã tải" and "Lịch sử tải" update immediately
-            addSessionDownload({
-              id: newRecord.id,
-              title: newRecord.title,
-              platform: newRecord.platform,
-              quality: newRecord.resolution,
-              size: newRecord.size,
-              duration: newRecord.duration,
-              date: newRecord.date,
-              videoUrl: newRecord.videoUrl,
-              videoBlob: newRecord.videoBlob,
-              filename: newRecord.filename
-            });
-
-            addSessionHistory({
-              ts: newRecord.date,
-              platform: newRecord.platform,
-              name: newRecord.title,
-              res: newRecord.resolution,
-              status: 'Hoàn tất'
-            });
-
-            playSound('success');
-            showToast({
-              type: 'success',
-              title: '✓ Tải video thành công!',
-              message: `Đã tự động lưu ${filename} về máy và thêm vào Thư viện tệp!`
-            });
-
-            render(outlet);
-          } else {
-            render(outlet);
-          }
-        }, 320);
+        render(outlet);
       }
     }, [isDownloading ? '⏳ Đang bóc tách & đóng gói...' : '⚡ Bắt đầu bóc tách & Tải về máy']);
     inputCard.appendChild(downloadBtn);
@@ -344,22 +352,34 @@ export function createDownloadLinkPage({ state, api } = {}) {
           return element('div', {
             class: 'p-4 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 flex flex-col sm:flex-row gap-4 justify-between transition-all shadow-md'
           }, [
-            // Left info
-            element('div', { class: 'flex-1 flex flex-col gap-2 min-w-0' }, [
-              element('div', { class: 'flex flex-wrap items-center gap-2 text-xs' }, [
-                element('span', { class: 'badge badge-primary font-bold' }, [res.platform]),
-                element('span', { class: 'badge badge-success font-mono' }, [res.resolution]),
-                element('span', { class: 'badge badge-info font-mono' }, [res.size]),
-                element('span', { class: 'badge badge-neutral' }, [res.codec]),
-                element('span', { class: 'text-emerald-400 text-xs font-semibold' }, ['✓ Đã tải về máy'])
-              ]),
-              element('h4', { class: 'text-sm font-bold text-white leading-snug line-clamp-2' }, [res.title]),
-              element('div', { class: 'text-xs text-slate-400 font-mono truncate' }, [res.url]),
-              element('div', { class: 'text-[11px] text-slate-500 flex items-center gap-4' }, [
-                element('span', {}, [`Tên tệp: ${res.filename}`]),
-                element('span', {}, [`Thời gian: ${res.date}`])
+            // Left info with thumbnail
+            element('div', { class: 'flex-1 flex gap-4 min-w-0' }, [
+              res.cover ? element('div', {
+                class: 'shrink-0 w-24 sm:w-28 rounded-lg overflow-hidden border border-slate-800 bg-black aspect-[9/16] sm:aspect-video flex items-center justify-center'
+              }, [
+                element('img', {
+                  src: res.cover,
+                  alt: res.title,
+                  class: 'w-full h-full object-cover',
+                  loading: 'lazy'
+                })
+              ]) : null,
+              element('div', { class: 'flex-1 flex flex-col gap-2 min-w-0' }, [
+                element('div', { class: 'flex flex-wrap items-center gap-2 text-xs' }, [
+                  element('span', { class: 'badge badge-primary font-bold' }, [res.platform]),
+                  element('span', { class: 'badge badge-success font-mono' }, [res.resolution]),
+                  element('span', { class: 'badge badge-info font-mono' }, [res.size]),
+                  element('span', { class: 'badge badge-neutral' }, [res.codec]),
+                  element('span', { class: 'text-emerald-400 text-xs font-semibold' }, ['✓ Đã tải về máy'])
+                ]),
+                element('h4', { class: 'text-sm font-bold text-white leading-snug line-clamp-2' }, [res.title]),
+                element('div', { class: 'text-xs text-slate-400 font-mono truncate' }, [res.url]),
+                element('div', { class: 'text-[11px] text-slate-500 flex items-center gap-4' }, [
+                  element('span', {}, [`Tên tệp: ${res.filename}`]),
+                  element('span', {}, [`Thời gian: ${res.date}`])
+                ])
               ])
-            ]),
+            ].filter(Boolean)),
             // Right action buttons
             element('div', { class: 'flex sm:flex-col gap-2 justify-center shrink-0 min-w-[150px]' }, [
               element('button', {

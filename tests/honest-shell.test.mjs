@@ -11,7 +11,10 @@ import {
   removeSessionDownload,
   getSessionHistory,
   addSessionHistory,
-  createSyntheticMp4Blob
+  createSyntheticMp4Blob,
+  identifyPlatform,
+  resolveCleanVideo,
+  triggerBrowserFileDownload
 } from '../js/media-downloader.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -225,5 +228,34 @@ test('media-downloader manages in-memory session downloads, history, and synthet
   removeSessionDownload('test-1');
   const remaining = getSessionDownloads();
   assert.equal(remaining.some(d => d.id === 'test-1'), false);
+});
+
+test('identifyPlatform correctly classifies supported social video services', () => {
+  assert.equal(identifyPlatform('https://www.tiktok.com/@user/video/12345'), 'TikTok');
+  assert.equal(identifyPlatform('https://vt.tiktok.com/ZS2VqU1H8/'), 'TikTok');
+  assert.equal(identifyPlatform('https://v.douyin.com/iRoLkd1/'), 'Douyin');
+  assert.equal(identifyPlatform('https://www.youtube.com/watch?v=aqz-KE-bpKQ'), 'YouTube');
+  assert.equal(identifyPlatform('https://youtu.be/5kM3N2_4K90'), 'YouTube');
+  assert.equal(identifyPlatform('https://www.facebook.com/reel/102938475647382'), 'Facebook');
+  assert.equal(identifyPlatform('https://www.instagram.com/reel/C123456789/'), 'Instagram');
+  assert.equal(identifyPlatform('https://www.xiaohongshu.com/discovery/item/123'), 'Xiaohongshu');
+});
+
+test('resolveCleanVideo rejects empty input honestly and handles errors safely', async () => {
+  const emptyRes = await resolveCleanVideo('');
+  assert.equal(emptyRes.success, false);
+  assert.ok(emptyRes.error);
+
+  const invalidRes = await resolveCleanVideo('https://unknown-service.com/video/123');
+  assert.equal(invalidRes.success, false);
+  assert.ok(invalidRes.error);
+});
+
+test('triggerBrowserFileDownload safely rejects null/undefined sources without creating corrupt files', async () => {
+  const result = await triggerBrowserFileDownload(null);
+  assert.equal(result, false);
+
+  const undefResult = await triggerBrowserFileDownload(undefined);
+  assert.equal(undefResult, false);
 });
 
