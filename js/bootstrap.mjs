@@ -17,7 +17,7 @@ const PAGE_TITLES = {
   'download-link': 'Tải video bằng link',
   downloaded: 'File đã tải',
   history: 'Lịch sử tải',
-  settings: 'Cài đặt',
+  settings: 'Bảng Điều Khiển Admin & Cài Đặt',
   support: 'Gửi câu hỏi',
   pricing: 'Gói Cước & Tín Dụng'
 };
@@ -163,16 +163,16 @@ export async function bootstrapApp() {
       accountsListEl = element('div', { class: 'flex flex-col gap-2.5' }, [
         element('div', {
           class: 'google-acc-card p-3 rounded-xl cursor-pointer flex items-center gap-3',
-          onClick: () => performGoogleLogin('Nguyễn Minh Nhựt', 'nhut@2techmn.com')
+          onClick: () => performGoogleLogin('Kỹ sư Nguyễn Minh Nhựt (Admin)', 'nhutnguyen06092021@gmail.com')
         }, [
           element('div', {
             style: 'width:38px;height:38px;border-radius:50%;background:#10b981;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex-shrink:0;'
           }, ['N']),
           element('div', { class: 'flex-1 min-w-0 text-left' }, [
-            element('div', { class: 'text-xs font-bold text-white' }, ['Nguyễn Minh Nhựt']),
-            element('div', { class: 'text-[11px] text-slate-400 font-mono truncate' }, ['nhut@2techmn.com'])
+            element('div', { class: 'text-xs font-bold text-white' }, ['Kỹ sư Nguyễn Minh Nhựt (Admin)']),
+            element('div', { class: 'text-[11px] text-slate-400 font-mono truncate' }, ['nhutnguyen06092021@gmail.com'])
           ]),
-          element('span', { class: 'badge badge-success text-[10px]' }, ['Chính thức'])
+          element('span', { class: 'badge badge-success text-[10px]' }, ['Admin Chính thức'])
         ]),
         element('div', {
           class: 'google-acc-card p-3 rounded-xl cursor-pointer flex items-center gap-3',

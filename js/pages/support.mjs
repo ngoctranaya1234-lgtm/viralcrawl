@@ -6,7 +6,7 @@ export async function openGmailCompose({
   desktopOpen = null,
   windowRef = (typeof window !== 'undefined' ? window : null),
   fields = {},
-  supportEmail = 'support@2tech.mn'
+  supportEmail = 'nhutnguyen06092021@gmail.com'
 } = {}) {
   const sanitize = (val) => String(val || '').replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '').trim();
   const subject = sanitize(fields.subject);
@@ -16,7 +16,7 @@ export async function openGmailCompose({
   if (!subject) throw new Error('Tiêu đề không được để trống.');
   if (!message) throw new Error('Nội dung không được để trống.');
 
-  const bodyText = `Người liên hệ: ${contact}\n\nNội dung:\n${message}\n\n---\nỨng dụng: Mnhut 2tech Al 4K Studio (2TECH MN - Nguyễn Minh Nhựt)`;
+  const bodyText = `Người liên hệ: ${contact}\n\nNội dung:\n${message}\n\n---\nỨng dụng: Mnhut 2tech Al 4K Studio (Kỹ sư Admin: Nguyễn Minh Nhựt - nhutnguyen06092021@gmail.com)`;
   const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(supportEmail)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
 
   if (typeof desktopOpen === 'function') {
@@ -58,7 +58,8 @@ export function createSupportPage({ state, api } = {}) {
     const header = element('div', { class: 'flex flex-col gap-1' }, [
       element('h2', { class: 'text-lg font-bold text-white flex items-center gap-2' }, ['💬 Trung Tâm Hỗ Trợ & Góp Ý']),
       element('p', { class: 'text-xs text-slate-400' }, [
-        'Kỹ sư trưởng Nguyễn Minh Nhựt • Đơn vị 2TECH MN. Tin nhắn của bạn sẽ được chuyển thẳng tới Gmail hỗ trợ chính thức.'
+        'Kỹ sư trưởng Nguyễn Minh Nhựt • Đơn vị 2TECH MN. Tin nhắn của bạn sẽ được chuyển thẳng tới Gmail cá nhân của Admin: ',
+        element('strong', { class: 'text-emerald-400 font-mono' }, ['nhutnguyen06092021@gmail.com'])
       ])
     ]);
     container.appendChild(header);
@@ -85,7 +86,7 @@ export function createSupportPage({ state, api } = {}) {
 
     const notice = element('p', { class: 'text-[11px] text-slate-400 leading-relaxed' }, [
       'ℹ️ Bấm nút gửi bên dưới sẽ mở màn hình soạn thảo Gmail với người nhận là ',
-      element('strong', { class: 'text-emerald-400' }, ['support@2tech.mn']),
+      element('strong', { class: 'text-emerald-400 font-mono' }, ['nhutnguyen06092021@gmail.com']),
       '. Hệ thống cam kết không lưu trữ hay rò rỉ dữ liệu cá nhân của bạn.'
     ]);
 
@@ -108,10 +109,11 @@ export function createSupportPage({ state, api } = {}) {
         }
 
         await openGmailCompose({
-          fields: { contact, subject, message }
+          fields: { contact, subject, message },
+          supportEmail: 'nhutnguyen06092021@gmail.com'
         });
       }
-    }, ['Mở Gmail Soạn Thư Gửi 2TECH']);
+    }, ['Mở Gmail Soạn Thư Gửi Admin']);
 
     formBox.appendChild(contactInput);
     formBox.appendChild(subjectInput);

@@ -157,7 +157,7 @@ export function createPricingPage({
                 const currentAvail = cur.credits?.availableCredits ?? 0;
                 newBalance = currentAvail + 4000000;
                 await state.bootstrap({
-                  user: cur.user || { id: 'u-user', name: 'Kỹ sư Minh Nhựt', email: 'nhut@2techmn.com', plan: 'ULTRA' },
+                  user: cur.user || { id: 'u-user', name: 'Kỹ sư Minh Nhựt (Admin)', email: 'nhutnguyen06092021@gmail.com', plan: 'ULTRA' },
                   credits: { availableCredits: newBalance, unit: 'CREDIT', realMoney: false }
                 });
               }
@@ -325,7 +325,7 @@ export function createPricingPage({
               const currentAvail = cur.credits?.availableCredits ?? 0;
               const newCredits = Math.max(0, currentAvail - plan.price);
               const updatedUser = {
-                ...(cur.user || { id: 'u-user', name: 'Kỹ sư Minh Nhựt', email: 'nhut@2techmn.com' }),
+                ...(cur.user || { id: 'u-user', name: 'Kỹ sư Minh Nhựt (Admin)', email: 'nhutnguyen06092021@gmail.com' }),
                 plan: plan.id,
                 entitlement: { endsAt: new Date(Date.now() + 30 * 86400000).toISOString() }
               };

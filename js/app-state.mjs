@@ -191,8 +191,8 @@ export function createAppState({
     };
     const updatedUser = state.user || sessionState?.user || {
       id: 'u-user',
-      name: 'Kỹ sư Minh Nhựt',
-      email: 'nhut@2techmn.com',
+      name: 'Kỹ sư Minh Nhựt (Admin)',
+      email: 'nhutnguyen06092021@gmail.com',
       plan: 'ULTRA',
       entitlement: { endsAt: new Date(Date.now() + 30 * 86400000).toISOString() }
     };
