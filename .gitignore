@@ -22,3 +22,5 @@ admin-password.txt
 *.pem
 *.key
 docs/reference-frames/
+test-results/
+playwright-report/

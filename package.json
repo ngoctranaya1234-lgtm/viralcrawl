@@ -1,0 +1,17 @@
+{
+  "name": "2techmn-public-gateway",
+  "version": "2.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js tests/*.test.mjs",
+    "test:e2e": "playwright test",
+    "verify:public": "node scripts/verify-public-safety.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}

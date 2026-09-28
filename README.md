@@ -13,18 +13,20 @@ Tool tải video bằng link, quản lý công việc/file tải, kết nối n�
 5. Cấu hình email nhận hỗ trợ. Gmail mở thư soạn sẵn; người dùng tự nhấn Gửi.
 6. Cài yt-dlp/FFmpeg bằng installer của admin đã kiểm tra SHA256 từ bản phát hành chính chủ. Không chạy lệnh tải script rồi thực thi trực tiếp.
 
-## Tài khoản và bảng giá
+## Tài khoản và điểm tín dụng ảo nội bộ
 
-Google xác minh lần đăng ký đầu tiên sẽ cấp **2.000.000 đồng tín dụng nội bộ**, chỉ dùng mua gói trong tool, không rút hoặc quy đổi tiền mặt. Những lần đăng nhập tiếp theo không cấp lại. Máy chủ lưu sổ giao dịch và kiểm tra quyền cho từng công việc.
+Người dùng xác thực lần đầu tiên qua tài khoản Google hoặc Apple chính thức sẽ nhận được **2.500.000 credit** và **1 tháng trải nghiệm dùng thử gói ULTRA** (tính chính xác theo thời gian máy chủ). Điểm tín dụng ảo chỉ dùng để kích hoạt các gói tính năng bên trong phần mềm, **hoàn toàn không phải tiền thật, không thể rút, không thể chuyển khoản hay quy đổi ra tiền mặt/ngoại tệ**. Các lần đăng nhập tiếp theo không cấp lại phần thưởng này.
 
-| Gói | Giá/tháng | Video/ngày | Link/lần | Chất lượng tối đa | Đồng thời |
+Ngoài ra, người dùng có thể kích hoạt thêm **4.000.000 credit** bằng mã cấp quyền một lần (thời hạn 7 ngày) do quản trị viên phát hành.
+
+| Gói Dịch Vụ | Giá Điểm Ảo / tháng | Video / ngày | Link / lần | Độ phân giải tối đa | Xử lý đồng thời |
 | --- | ---: | ---: | ---: | --- | ---: |
-| Miễn phí | 0 | 5 | 1 | 720p | 1 |
-| Start | 149.000 | 50 | 10 | 1080p | 2 |
-| Pro | 249.000 | 250 | 50 | 2160p | 3 |
-| Studio | 329.000 | 1.000 | 100 | 2160p | 4 |
+| Miễn Phí (FREE) | 0 credit | 10 | 1 | 1080p | 1 luồng |
+| Khởi Đầu (START) | 500.000 credit | 30 | 5 | 2K (1440p) | 2 luồng |
+| Chuyên Nghiệp (PRO) | 1.500.000 credit | 100 | 20 | 4K 60FPS không logo | 3 luồng |
+| ULTRA VIP (ULTRA) | 4.000.000 credit | Không giới hạn | 50 | 4K 60FPS đa luồng | 4 luồng |
 
-Kỳ 6 tháng giảm 10%, kỳ 12 tháng giảm 20%. Mua cùng gói gia hạn từ ngày hết hạn hiện tại; nâng gói áp dụng từ lúc mua, không tự động tính hoàn tiền gói cũ. Chọn gói thấp hơn khi gói đang dùng hết hạn. Chất lượng thực tế phụ thuộc video nguồn và bộ tải; không tự tạo 4K hay cam kết 60 FPS.
+Mọi giao diện thanh toán đều là **mô phỏng nội bộ** (gồm 7 chủ đề trực quan) mang tính chất minh họa thao tác, có gắn biển cảnh báo cố định và không thu thập bất kỳ thông tin nhạy cảm nào (số thẻ, CVV, OTP hay tài khoản ngân hàng). Mua cùng gói gia hạn từ ngày hết hạn hiện tại; nâng gói áp dụng từ lúc mua. Chất lượng thực tế phụ thuộc video nguồn và bộ tải; không tự tạo 4K khi video gốc độ phân giải thấp.
 
 ## Nền tảng và dữ liệu riêng
 

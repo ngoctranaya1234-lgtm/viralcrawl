@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Mnhut 2tech Al">
   <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./css/app.css?v=2.6">
+  <link rel="stylesheet" href="./css/app.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2310b981'/><text x='16' y='22' text-anchor='middle' fill='white' font-size='18' font-weight='bold'>4K</text></svg>">
 </head>
 <body>
@@ -30,7 +30,7 @@
       <div id="userAvatar" style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;">?</div>
       <div style="flex:1;min-width:0;">
         <div id="userName" style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Chưa đăng nhập</div>
-        <div id="userBalance" style="font-size:11px;color:var(--success);font-family:var(--font-mono);">0đ</div>
+        <div id="userBalance" style="font-size:11px;color:var(--success);font-family:var(--font-mono);">0 credit</div>
       </div>
       <button class="btn btn-sm btn-ghost" id="btnLogin" title="Đăng nhập" aria-label="Đăng nhập" style="font-size:11px;padding:4px 10px;">Đăng nhập</button>
     </div>
@@ -53,7 +53,7 @@
       <button class="sidebar-item" data-page="downloaded" aria-label="File đã tải" title="File đã tải">
         <span class="icon"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
         File đã tải
-        <span class="sidebar-badge" id="badgeDownloaded">8</span>
+        <span class="sidebar-badge" id="badgeDownloaded" style="display:none;">0</span>
       </button>
 
       <button class="sidebar-item" data-page="history" aria-label="Lịch sử tải" title="Lịch sử tải">
@@ -72,9 +72,9 @@
           Gửi câu hỏi
         </button>
 
-        <button class="sidebar-item" data-page="pricing" aria-label="Gói Cước & Ví Tiền" title="Gói Cước & Ví Tiền">
+        <button class="sidebar-item" data-page="pricing" aria-label="Gói Cước & Tín Dụng" title="Gói Cước & Tín Dụng">
           <span class="icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-          Gói Cước & Ví Tiền
+          Gói Cước & Tín Dụng
         </button>
       </div>
     </nav>
@@ -82,19 +82,22 @@
 
   <!-- ═══ HEADER ═══ -->
   <header class="app-header">
-    <div class="flex items-center gap-2 min-w-0">
+    <div class="flex items-center gap-3">
+      <button class="btn btn-icon btn-ghost btn-sm" id="menuToggle" aria-label="Menu" title="Menu" style="display:none;">
+        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
       <h1 class="header-title" id="pageTitle">Tải ngay</h1>
     </div>
     <div class="header-actions">
-      <div class="badge badge-accent font-bold" id="btnDeviceMode" style="cursor:pointer;" title="Bấm để đổi chế độ giao diện (Auto / Apple iOS / Android / Desktop)">
-        <span id="deviceIcon">🍏</span> <span id="deviceText" class="font-mono text-xs">Apple iOS</span>
+      <div class="badge badge-neutral" id="btnDeviceMode" style="cursor:pointer;" title="Bấm để đổi chế độ giao diện (Auto / iOS / Android / Desktop)">
+        <span id="deviceIcon">📱</span> <span id="deviceText" class="font-mono text-xs">Auto Detect</span>
       </div>
       <span class="badge-4k">4K 60FPS</span>
       <button class="btn btn-ghost btn-sm" id="btnMute" aria-label="Tắt âm thanh" title="Tắt âm thanh">
         <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
       </button>
-      <div class="badge badge-neutral" id="headerBalance" style="cursor:pointer;" onclick="App.navigate('pricing')" title="Số dư tài khoản">
-        <span style="font-size:11px;">💰</span> <span id="headerBalanceAmount" class="font-mono" style="font-size:11px;">0đ</span>
+      <div class="badge badge-neutral" id="headerBalance" style="cursor:pointer;" data-page="pricing" title="Số dư tài khoản">
+        <span style="font-size:11px;">💎</span> <span id="headerBalanceAmount" class="font-mono" style="font-size:11px;">0 credit</span>
       </div>
       <div class="badge badge-success"><span class="badge-dot green"></span> Sẵn sàng</div>
     </div>
@@ -153,15 +156,15 @@
   <button class="mobile-nav-item" data-page="downloaded" title="Thư viện video">
     <span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
     <span class="mobile-nav-label">Thư viện</span>
-    <span class="mobile-nav-badge" id="mobileBadgeCount">0</span>
+    <span class="mobile-nav-badge" id="mobileBadgeCount" style="display:none;">0</span>
   </button>
   <button class="mobile-nav-item" data-page="settings" title="Cài đặt">
     <span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
     <span class="mobile-nav-label">Cài đặt</span>
   </button>
-  <button class="mobile-nav-item" data-page="pricing" title="Gói cước & Ví tiền">
+  <button class="mobile-nav-item" data-page="pricing" title="Gói cước & Tín dụng">
     <span class="mobile-nav-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
-    <span class="mobile-nav-label">Gói & Ví</span>
+    <span class="mobile-nav-label">Gói cước</span>
   </button>
 </nav>
 
@@ -173,27 +176,6 @@
 </div>
 
 <!-- ═══ SCRIPTS ═══ -->
-<script src="./js/engine-resolver.js?v=2.6"></script>
-<script src="./js/app.js?v=2.6"></script>
-<script src="./js/page-dashboard.js?v=2.6"></script>
-<script src="./js/page-download-link.js?v=2.6"></script>
-<script src="./js/page-downloaded.js?v=2.6"></script>
-<script src="./js/page-history.js?v=2.6"></script>
-<script src="./js/page-settings.js?v=2.6"></script>
-<script src="./js/page-pricing.js?v=2.6"></script>
-<script src="./js/page-support.js?v=2.6"></script>
-<script>
-  // Boot the application once all page scripts are loaded
-  document.addEventListener('DOMContentLoaded', () => {
-    App.init();
-
-    // Register PWA Service Worker for Mobile (Android & iOS)
-    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-      navigator.serviceWorker.register('./sw.js').then(() => {
-        console.log('PWA Service Worker registered successfully.');
-      }).catch(err => console.warn('SW registration skipped:', err));
-    }
-  });
-</script>
+<script type="module" src="./js/bootstrap.mjs"></script>
 </body>
 </html>

@@ -8,11 +8,12 @@
 
 **Tech Stack:** Node.js 24, `node:sqlite`, Windows PowerShell, vanilla HTML/CSS/JavaScript, `node:test`, Playwright Chromium, Git/Git Credential Manager, GitHub Actions/Pages.
 
-**Spec:** `docs/superpowers/specs/2026-09-27-layered-productionization-design.md`
+**Spec:** `docs/superpowers/specs/2026-09-27-internal-credit-checkout-design.md`, `docs/superpowers/specs/2026-09-27-layered-productionization-design.md`
 
 ## Global Constraints
 
 - Plans 1 and 2 are green before this plan begins.
+- Virtual credits (`{ unit: 'CREDIT', realMoney: false, withdrawable: false }`) are the sole entitlement currency; no real payment, currency symbols, or financial gateways are ever introduced.
 - `D:\TOOL\admin-panel` remains local-only with no Git remote; its source, secrets, DB, cookies, media, and logs never enter `D:\TOOL\viralcrawl` history.
 - Admin and public services bind `127.0.0.1` by default; no firewall, tunnel, public reverse proxy, or production payment gateway is created.
 - Plan 1 has already standardized `%LOCALAPPDATA%\2TECHMN\Mnhut_2tech_Al`; every hardening and release check verifies both services still receive that explicit `VC_DATA_DIR`.

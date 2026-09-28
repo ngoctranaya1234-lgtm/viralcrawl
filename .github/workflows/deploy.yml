@@ -18,14 +18,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
       - name: Syntax check public JavaScript
         run: |
-          for file in js/*.js server.js sw.js; do node --check "$file"; done
-      - name: Stage public assets only
+          for file in js/*.mjs js/pages/*.mjs server.js sw.js; do node --check "$file"; done
+      - name: Run unit tests
+        run: npm test
+      - name: Verify public safety release gate
+        run: npm run verify:public
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run E2E release gate smoke tests
+        run: npm run test:e2e
+      - name: Stage public assets only from explicit allowlist
         run: |
           mkdir _site
           cp index.html manifest.json sw.js _site/
-          cp -r css js assets _site/
+          mkdir -p _site/css _site/assets _site/js/pages
+          cp css/*.css _site/css/
+          cp assets/* _site/assets/
+          cp js/*.mjs _site/js/
+          cp js/pages/*.mjs _site/js/pages/
           touch _site/.nojekyll
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
