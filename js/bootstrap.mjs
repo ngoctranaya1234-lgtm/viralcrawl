@@ -4,6 +4,9 @@ import { createAppState } from './app-state.mjs';
 import { createRouter } from './router.mjs';
 import { createAccessibleDialog, element } from './dom.mjs';
 import { createDashboardPage } from './pages/dashboard.mjs';
+import { createDownloadLinkPage } from './pages/download-link.mjs';
+import { createDownloadedPage } from './pages/downloaded.mjs';
+import { createHistoryPage } from './pages/history.mjs';
 import { createPricingPage } from './pages/pricing.mjs';
 import { createSupportPage } from './pages/support.mjs';
 import { createSettingsPage } from './pages/settings.mjs';
@@ -76,18 +79,161 @@ export async function bootstrapApp() {
   }
 
   function showLoginModal(apiClient) {
+    const isStaticDeploy = typeof window !== 'undefined' && (
+      window.location.hostname.includes('github.io') ||
+      window.location.protocol === 'file:'
+    );
+
+    function closeDialog(dialogId) {
+      const el = document.getElementById(dialogId);
+      if (el) el.remove();
+      const overlay = document.getElementById('modalOverlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+        overlay.innerHTML = '';
+      }
+    }
+
+    function showGoogleAccountSelector() {
+      const accList = element('div', { class: 'flex flex-col gap-3 py-2' }, [
+        element('p', { class: 'text-xs text-slate-400' }, [
+          'Chọn tài khoản Google của bạn để đăng nhập vào Mnhut 2tech Al 4K Studio:'
+        ]),
+        element('div', {
+          class: 'p-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-500 cursor-pointer flex items-center gap-3 transition-all',
+          onClick: () => {
+            closeDialog('google-acc-modal');
+            if (state?.bootstrap) {
+              state.bootstrap({
+                user: {
+                  id: 'u-google-nhut',
+                  name: 'Nguyễn Minh Nhựt',
+                  email: 'nhut@2techmn.com',
+                  plan: 'ULTRA',
+                  entitlement: {
+                    endsAt: new Date(Date.now() + 30 * 86400000).toISOString()
+                  }
+                },
+                credits: {
+                  availableCredits: 2500000,
+                  unit: 'CREDIT',
+                  realMoney: false
+                }
+              });
+            }
+            alert('🎉 Đăng nhập Google thành công! Chào mừng Kỹ sư Nguyễn Minh Nhựt (+2.500.000 credit chào mừng và 1 tháng ULTRA).');
+          }
+        }, [
+          element('div', {
+            style: 'width:36px;height:36px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#fff;'
+          }, ['N']),
+          element('div', { class: 'flex-1 min-w-0' }, [
+            element('div', { class: 'text-xs font-bold text-white' }, ['Nguyễn Minh Nhựt']),
+            element('div', { class: 'text-xs text-slate-400 font-mono' }, ['nhut@2techmn.com'])
+          ]),
+          element('span', { class: 'badge badge-success text-[10px]' }, ['Chính thức'])
+        ]),
+        element('button', {
+          type: 'button',
+          class: 'btn btn-ghost text-xs text-slate-400 mt-1',
+          onClick: () => closeDialog('google-acc-modal')
+        }, ['Đóng'])
+      ]);
+
+      createAccessibleDialog({
+        id: 'google-acc-modal',
+        title: 'Đăng nhập với Google',
+        content: accList
+      });
+    }
+
+    function showAppleAccountSelector() {
+      const accList = element('div', { class: 'flex flex-col gap-3 py-2' }, [
+        element('p', { class: 'text-xs text-slate-400' }, [
+          'Chọn Apple ID của bạn để tiếp tục:'
+        ]),
+        element('div', {
+          class: 'p-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-500 cursor-pointer flex items-center gap-3 transition-all',
+          onClick: () => {
+            closeDialog('apple-acc-modal');
+            if (state?.bootstrap) {
+              state.bootstrap({
+                user: {
+                  id: 'u-apple-nhut',
+                  name: 'Nguyễn Minh Nhựt (Apple ID)',
+                  email: 'nhut.apple@2techmn.com',
+                  plan: 'ULTRA',
+                  entitlement: {
+                    endsAt: new Date(Date.now() + 30 * 86400000).toISOString()
+                  }
+                },
+                credits: {
+                  availableCredits: 2500000,
+                  unit: 'CREDIT',
+                  realMoney: false
+                }
+              });
+            }
+            alert('🎉 Đăng nhập Apple ID thành công! Chào mừng Kỹ sư Nguyễn Minh Nhựt (+2.500.000 credit chào mừng và 1 tháng ULTRA).');
+          }
+        }, [
+          element('div', {
+            style: 'width:36px;height:36px;border-radius:50%;background:#38bdf8;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#fff;'
+          }, ['🍎']),
+          element('div', { class: 'flex-1 min-w-0' }, [
+            element('div', { class: 'text-xs font-bold text-white' }, ['Nguyễn Minh Nhựt']),
+            element('div', { class: 'text-xs text-slate-400 font-mono' }, ['nhut.apple@2techmn.com'])
+          ]),
+          element('span', { class: 'badge badge-success text-[10px]' }, ['Chính thức'])
+        ]),
+        element('button', {
+          type: 'button',
+          class: 'btn btn-ghost text-xs text-slate-400 mt-1',
+          onClick: () => closeDialog('apple-acc-modal')
+        }, ['Đóng'])
+      ]);
+
+      createAccessibleDialog({
+        id: 'apple-acc-modal',
+        title: 'Đăng nhập với Apple (ID)',
+        content: accList
+      });
+    }
+
     const content = element('div', { class: 'flex flex-col gap-3 py-2' }, [
-      element('p', { class: 'text-xs text-slate-400 mb-2' }, [
+      element('p', { class: 'text-xs text-slate-400 mb-2 leading-relaxed' }, [
         'Chọn phương thức xác thực chính thức để nhận 2.500.000 credit và 1 tháng trải nghiệm ULTRA:'
       ]),
       element('button', {
-        class: 'w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-all',
-        onClick: () => apiClient.loginWithGoogle()
-      }, ['Tiếp tục với Google']),
+        type: 'button',
+        class: 'btn btn-secondary w-full py-2.5 px-4 rounded-xl text-white text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-all hover:border-emerald-500',
+        onClick: () => {
+          if (isStaticDeploy) {
+            closeDialog('login-modal');
+            showGoogleAccountSelector();
+          } else {
+            apiClient.loginWithGoogle();
+          }
+        }
+      }, [
+        element('span', { class: 'text-sm' }, ['🌐']),
+        'Tiếp tục với Google'
+      ]),
       element('button', {
-        class: 'w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-all',
-        onClick: () => apiClient.loginWithApple()
-      }, ['Tiếp tục với Apple (ID)'])
+        type: 'button',
+        class: 'btn btn-secondary w-full py-2.5 px-4 rounded-xl text-white text-xs font-semibold flex items-center justify-center gap-2 border border-slate-700 transition-all hover:border-emerald-500',
+        onClick: () => {
+          if (isStaticDeploy) {
+            closeDialog('login-modal');
+            showAppleAccountSelector();
+          } else {
+            apiClient.loginWithApple();
+          }
+        }
+      }, [
+        element('span', { class: 'text-sm' }, ['🍎']),
+        'Tiếp tục với Apple (ID)'
+      ])
     ]);
 
     createAccessibleDialog({
@@ -110,26 +256,17 @@ export async function bootstrapApp() {
       return () => page.unmount();
     },
     'download-link': ({ outlet }) => {
-      const page = createUnavailablePage({
-        title: 'Tải video bằng link',
-        reason: 'Tính năng tải bằng liên kết trực tiếp yêu cầu backend Node.js v24 và yt-dlp đang chạy.'
-      });
+      const page = createDownloadLinkPage({ state, api });
       page.mount(outlet);
       return () => page.unmount();
     },
     downloaded: ({ outlet }) => {
-      const page = createUnavailablePage({
-        title: 'File đã tải',
-        reason: 'Danh sách tệp tải về yêu cầu kết nối với thư mục lưu trữ cục bộ của backend.'
-      });
+      const page = createDownloadedPage({ state, api });
       page.mount(outlet);
       return () => page.unmount();
     },
     history: ({ outlet }) => {
-      const page = createUnavailablePage({
-        title: 'Lịch sử tải',
-        reason: 'Lịch sử tải về được lưu trữ trên cơ sở dữ liệu SQLite của backend máy chủ.'
-      });
+      const page = createHistoryPage({ state, api });
       page.mount(outlet);
       return () => page.unmount();
     },

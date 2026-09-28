@@ -1978,4 +1978,184 @@ img, video { max-width: 100%; display: block; }
   100% { top: calc(100% - 9px); }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   DARK THEME BASE OVERRIDES & UTILITY CLASSES (PREVENT WHITE ELEMENTS)
+   ═══════════════════════════════════════════════════════════════ */
+button {
+  background-color: var(--bg-surface, #141624);
+  color: var(--text-primary, #e4e6f0);
+  border: 1px solid var(--border-default, #252840);
+  font-family: inherit;
+}
+
+input, select, textarea {
+  background-color: var(--bg-input, #10121c) !important;
+  color: var(--text-primary, #e4e6f0) !important;
+  border: 1px solid var(--border-default, #252840) !important;
+  font-family: inherit;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Surfaces */
+.bg-slate-950 { background-color: #08090f !important; }
+.bg-slate-900 { background-color: #0d111c !important; }
+.bg-slate-850 { background-color: #121624 !important; }
+.bg-slate-800 { background-color: #171d2d !important; }
+.bg-slate-700 { background-color: #21293e !important; }
+
+/* Borders */
+.border-slate-800 { border-color: #1e263a !important; }
+.border-slate-700 { border-color: #2b3652 !important; }
+.border-slate-600 { border-color: #3b496d !important; }
+
+/* Text colors */
+.text-slate-400 { color: #8893b2 !important; }
+.text-slate-300 { color: #cbd5e1 !important; }
+.text-slate-200 { color: #e2e8f0 !important; }
+.text-emerald-400 { color: #34d399 !important; }
+.text-emerald-300 { color: #6ee7b7 !important; }
+.text-cyan-400 { color: #22d3ee !important; }
+.text-amber-400 { color: #fbbf24 !important; }
+.text-amber-300 { color: #fcd34d !important; }
+.text-red-400 { color: #f87171 !important; }
+
+/* Emerald accents */
+.bg-emerald-600 { background-color: #059669 !important; color: #ffffff !important; }
+.bg-emerald-500 { background-color: #10b981 !important; color: #ffffff !important; }
+.bg-emerald-500\/20 { background-color: rgba(16, 185, 129, 0.2) !important; }
+.bg-emerald-500\/10 { background-color: rgba(16, 185, 129, 0.1) !important; }
+.border-emerald-500\/40 { border-color: rgba(16, 185, 129, 0.4) !important; }
+
+/* Amber warning banner */
+.bg-amber-500\/15 { background-color: rgba(245, 158, 11, 0.15) !important; }
+.border-amber-500\/30 { border-color: rgba(245, 158, 11, 0.3) !important; }
+
+/* Radii */
+.rounded-lg { border-radius: 8px !important; }
+.rounded-xl { border-radius: 12px !important; }
+.rounded-2xl { border-radius: 16px !important; }
+
+/* Simulation Banner */
+.simulation-banner {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+  color: #fbbf24 !important;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Theme selector buttons */
+.theme-btn {
+  background: #151a29 !important;
+  color: #94a3b8 !important;
+  border: 1px solid #232c42 !important;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-btn:hover {
+  background: #1b2337 !important;
+  color: #e2e8f0 !important;
+  border-color: #3b496d !important;
+}
+
+.theme-btn.active {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #6ee7b7 !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Plan catalog cards */
+.plan-catalog-card {
+  background: #141826 !important;
+  border: 1px solid #222a3e !important;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.plan-catalog-card:hover {
+  border-color: #384666 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.plan-catalog-card.current {
+  border-color: rgba(16, 185, 129, 0.5) !important;
+  background: linear-gradient(180deg, #161e2e 0%, #101926 100%) !important;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15) !important;
+}
+
+.plan-catalog-card.current::before {
+  content: 'GÓI HIỆN TẠI';
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.plan-catalog-card.ultra {
+  border-color: rgba(245, 158, 11, 0.4) !important;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.12) !important;
+}
+
+/* Terminal Log in Dashboard */
+.dash-terminal {
+  background: #080a10;
+  border: 1px solid #1a2133;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  line-height: 1.6;
+  color: #94a3b8;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.dash-terminal-line {
+  display: flex;
+  gap: 8px;
+}
+
+.dash-terminal-ts {
+  color: #475569;
+  user-select: none;
+}
+
+.dash-terminal-tag {
+  color: #10b981;
+  font-weight: 600;
+}
+
+
 
