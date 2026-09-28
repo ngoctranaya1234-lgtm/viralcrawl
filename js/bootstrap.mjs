@@ -109,24 +109,40 @@ export async function bootstrapApp() {
 
         setTimeout(() => {
           closeDialog('google-acc-modal');
-          if (state?.bootstrap) {
-            state.bootstrap({
-              user: {
-                id: 'u-google-' + Date.now(),
-                name,
-                email,
-                plan: 'ULTRA',
-                entitlement: {
-                  endsAt: new Date(Date.now() + 30 * 86400000).toISOString()
-                }
-              },
-              credits: {
-                availableCredits: 2500000,
-                unit: 'CREDIT',
-                realMoney: false
-              }
-            });
+          const newUser = {
+            id: 'u-google-' + Date.now(),
+            name,
+            email,
+            plan: 'ULTRA',
+            entitlement: {
+              endsAt: new Date(Date.now() + 30 * 86400000).toISOString()
+            }
+          };
+          const newCredits = {
+            availableCredits: 2500000,
+            unit: 'CREDIT',
+            realMoney: false
+          };
+          if (state?.setSessionUser) {
+            state.setSessionUser(newUser, newCredits);
+          } else if (state?.bootstrap) {
+            state.bootstrap({ user: newUser, credits: newCredits });
           }
+
+          const userBalanceEl = document.getElementById('userBalance');
+          const headerBalanceAmount = document.getElementById('headerBalanceAmount');
+          const userNameEl = document.getElementById('userName');
+          if (userBalanceEl) {
+            userBalanceEl.textContent = '2.500.000 credit';
+            userBalanceEl.style.color = '#10b981';
+          }
+          if (headerBalanceAmount) {
+            headerBalanceAmount.textContent = '2.500.000 credit';
+          }
+          if (userNameEl) {
+            userNameEl.textContent = name;
+          }
+
           playSound('success');
           showToast({
             type: 'success',
@@ -294,24 +310,40 @@ export async function bootstrapApp() {
 
         setTimeout(() => {
           closeDialog('apple-acc-modal');
-          if (state?.bootstrap) {
-            state.bootstrap({
-              user: {
-                id: 'u-apple-' + Date.now(),
-                name,
-                email,
-                plan: 'ULTRA',
-                entitlement: {
-                  endsAt: new Date(Date.now() + 30 * 86400000).toISOString()
-                }
-              },
-              credits: {
-                availableCredits: 2500000,
-                unit: 'CREDIT',
-                realMoney: false
-              }
-            });
+          const newUser = {
+            id: 'u-apple-' + Date.now(),
+            name,
+            email,
+            plan: 'ULTRA',
+            entitlement: {
+              endsAt: new Date(Date.now() + 30 * 86400000).toISOString()
+            }
+          };
+          const newCredits = {
+            availableCredits: 2500000,
+            unit: 'CREDIT',
+            realMoney: false
+          };
+          if (state?.setSessionUser) {
+            state.setSessionUser(newUser, newCredits);
+          } else if (state?.bootstrap) {
+            state.bootstrap({ user: newUser, credits: newCredits });
           }
+
+          const userBalanceEl = document.getElementById('userBalance');
+          const headerBalanceAmount = document.getElementById('headerBalanceAmount');
+          const userNameEl = document.getElementById('userName');
+          if (userBalanceEl) {
+            userBalanceEl.textContent = '2.500.000 credit';
+            userBalanceEl.style.color = '#10b981';
+          }
+          if (headerBalanceAmount) {
+            headerBalanceAmount.textContent = '2.500.000 credit';
+          }
+          if (userNameEl) {
+            userNameEl.textContent = name;
+          }
+
           playSound('success');
           showToast({
             type: 'success',

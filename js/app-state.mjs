@@ -65,7 +65,28 @@ export function createAppState({
       : null;
   }
 
-  async function bootstrap() {
+  let sessionState = null;
+
+  async function bootstrap(initial = null) {
+    if (initial && typeof initial === 'object') {
+      sessionState = {
+        user: initial.user || sessionState?.user || state.user,
+        credits: initial.credits || sessionState?.credits || state.credits,
+        catalog: initial.catalog || sessionState?.catalog || state.catalog
+      };
+      state = {
+        ...state,
+        phase: 'ready',
+        user: sessionState.user,
+        credits: sessionState.credits,
+        catalog: sessionState.catalog || state.catalog,
+        csrf: initial.csrf || state.csrf,
+        error: null
+      };
+      notify();
+      return;
+    }
+
     state = { ...state, phase: 'initializing', error: null };
     notify();
 
@@ -80,6 +101,17 @@ export function createAppState({
         meRes = await api.getMe();
       }
     } catch (err) {
+      if (sessionState && sessionState.user) {
+        state = {
+          ...state,
+          phase: 'ready',
+          user: sessionState.user,
+          credits: sessionState.credits,
+          error: null
+        };
+        notify();
+        return;
+      }
       state = { ...state, phase: 'offline', error: err?.message || 'bootstrap_failed' };
       notify();
       return;
@@ -95,6 +127,15 @@ export function createAppState({
         user: meRes.user,
         credits: meRes.credits || null,
         csrf: meRes.csrfToken || state.csrf,
+        error: null
+      };
+    } else if (sessionState && sessionState.user) {
+      state = {
+        ...state,
+        phase: 'ready',
+        catalog,
+        user: sessionState.user,
+        credits: sessionState.credits,
         error: null
       };
     } else if (meRes?.status === 401) {
@@ -125,41 +166,91 @@ export function createAppState({
     notify();
   }
 
+  function setSessionUser(user, credits) {
+    sessionState = {
+      user: user || sessionState?.user || state.user,
+      credits: credits || sessionState?.credits || state.credits
+    };
+    state = {
+      ...state,
+      phase: 'ready',
+      user: sessionState.user,
+      credits: sessionState.credits,
+      error: null
+    };
+    notify();
+  }
+
+  function addCredits(delta) {
+    const current = Number(state.credits?.availableCredits ?? (sessionState?.credits?.availableCredits ?? 0));
+    const newTotal = current + Number(delta);
+    const updatedCredits = {
+      availableCredits: newTotal,
+      unit: 'CREDIT',
+      realMoney: false
+    };
+    const updatedUser = state.user || sessionState?.user || {
+      id: 'u-user',
+      name: 'Kỹ sư Minh Nhựt',
+      email: 'nhut@2techmn.com',
+      plan: 'ULTRA',
+      entitlement: { endsAt: new Date(Date.now() + 30 * 86400000).toISOString() }
+    };
+    sessionState = {
+      user: updatedUser,
+      credits: updatedCredits
+    };
+    state = {
+      ...state,
+      phase: 'ready',
+      user: updatedUser,
+      credits: updatedCredits,
+      error: null
+    };
+    notify();
+    return newTotal;
+  }
+
   async function refreshUser() {
     if (!api.getMe) return;
-    const res = await api.getMe();
-    if (res.ok && res.user) {
-      state = {
-        ...state,
-        user: res.user,
-        credits: res.credits || state.credits,
-        csrf: res.csrfToken || state.csrf,
-        phase: 'ready'
-      };
-    } else if (res.status === 401) {
-      state = {
-        ...state,
-        user: null,
-        credits: null,
-        phase: 'unauthenticated'
-      };
-    }
-    notify();
+    try {
+      const res = await api.getMe();
+      if (res.ok && res.user) {
+        state = {
+          ...state,
+          user: res.user,
+          credits: res.credits || state.credits,
+          csrf: res.csrfToken || state.csrf,
+          phase: 'ready'
+        };
+      } else if (res.status === 401 && !sessionState) {
+        state = {
+          ...state,
+          user: null,
+          credits: null,
+          phase: 'unauthenticated'
+        };
+      }
+      notify();
+    } catch (_) {}
   }
 
   async function refreshCredits() {
     if (!api.getCredits) return;
-    const res = await api.getCredits();
-    if (res.ok && res.credits) {
-      state = {
-        ...state,
-        credits: res.credits
-      };
-      notify();
-    }
+    try {
+      const res = await api.getCredits();
+      if (res.ok && res.credits) {
+        state = {
+          ...state,
+          credits: res.credits
+        };
+        notify();
+      }
+    } catch (_) {}
   }
 
   async function logout() {
+    sessionState = null;
     if (api.logout) {
       try {
         await api.logout();
@@ -182,6 +273,8 @@ export function createAppState({
       return () => listeners.delete(listener);
     },
     bootstrap,
+    setSessionUser,
+    addCredits,
     refreshUser,
     refreshCredits,
     logout,

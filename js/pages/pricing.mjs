@@ -149,15 +149,35 @@ export function createPricingPage({
           // If master promo code or backend checkout unavailable (e.g. static GitHub Pages), grant 4,000,000 credit
           if (isMasterPromo || !checkoutRes || !checkoutRes.ok || !checkoutRes.checkout) {
             if ((isMasterPromo || rawCode.startsWith('2TMN-')) && state) {
-              const cur = state.getSnapshot ? state.getSnapshot() : {};
-              const currentAvail = cur.credits?.availableCredits ?? 0;
-              if (state.bootstrap) {
-                state.bootstrap({
-                  user: cur.user || { id: 'u-user', name: 'Kỹ sư Minh Nhựt', plan: 'ULTRA' },
-                  credits: { availableCredits: currentAvail + 4000000, unit: 'CREDIT', realMoney: false }
+              let newBalance = 4000000;
+              if (state.addCredits) {
+                newBalance = state.addCredits(4000000);
+              } else if (state.bootstrap) {
+                const cur = state.getSnapshot ? state.getSnapshot() : {};
+                const currentAvail = cur.credits?.availableCredits ?? 0;
+                newBalance = currentAvail + 4000000;
+                await state.bootstrap({
+                  user: cur.user || { id: 'u-user', name: 'Kỹ sư Minh Nhựt', email: 'nhut@2techmn.com', plan: 'ULTRA' },
+                  credits: { availableCredits: newBalance, unit: 'CREDIT', realMoney: false }
                 });
               }
-              currentStatus = { text: '✓ Kích hoạt thành công +4.000.000 credit (Mã khuyến mãi 2TECH-4M-ULTRA)!', className: 'text-xs text-emerald-400 block' };
+
+              const formatted = `${newBalance.toLocaleString('vi-VN')} credit`;
+              const userBalanceEl = document.getElementById('userBalance');
+              const headerBalanceAmount = document.getElementById('headerBalanceAmount');
+              const userNameEl = document.getElementById('userName');
+              if (userBalanceEl) {
+                userBalanceEl.textContent = formatted;
+                userBalanceEl.style.color = '#10b981';
+              }
+              if (headerBalanceAmount) {
+                headerBalanceAmount.textContent = formatted;
+              }
+              if (userNameEl && (userNameEl.textContent === 'Chưa đăng nhập' || !userNameEl.textContent)) {
+                userNameEl.textContent = 'Kỹ sư Minh Nhựt';
+              }
+
+              currentStatus = { text: `✓ Kích hoạt thành công +4.000.000 credit (Số dư: ${formatted})!`, className: 'text-xs text-emerald-400 block font-bold' };
               statusMsg.textContent = currentStatus.text;
               statusMsg.className = currentStatus.className;
               codeInput.value = '';
@@ -165,7 +185,7 @@ export function createPricingPage({
               showToast({
                 type: 'success',
                 title: 'Nhận 4.000.000 credit thành công!',
-                message: 'Tài khoản của bạn đã được cộng 4.000.000 credit nội bộ.'
+                message: `Đã cộng 4.000.000 credit vào tài khoản của bạn (Tổng: ${formatted}).`
               });
               render(outlet);
               return;
@@ -184,12 +204,38 @@ export function createPricingPage({
             throw new Error(redeemRes.error || 'Mã không hợp lệ hoặc đã qua sử dụng.');
           }
 
-          currentStatus = { text: '✓ Kích hoạt thành công +4.000.000 credit!', className: 'text-xs text-emerald-400 block' };
+          let newBalance = 4000000;
+          if (state.addCredits) {
+            newBalance = state.addCredits(4000000);
+          } else {
+            if (state.refreshUser) await state.refreshUser();
+            if (state.refreshCredits) await state.refreshCredits();
+            const cur = state.getSnapshot ? state.getSnapshot() : {};
+            newBalance = cur.credits?.availableCredits ?? 4000000;
+          }
+
+          const formatted = `${newBalance.toLocaleString('vi-VN')} credit`;
+          const userBalanceEl = document.getElementById('userBalance');
+          const headerBalanceAmount = document.getElementById('headerBalanceAmount');
+          if (userBalanceEl) {
+            userBalanceEl.textContent = formatted;
+            userBalanceEl.style.color = '#10b981';
+          }
+          if (headerBalanceAmount) {
+            headerBalanceAmount.textContent = formatted;
+          }
+
+          currentStatus = { text: `✓ Kích hoạt thành công +4.000.000 credit (Số dư: ${formatted})!`, className: 'text-xs text-emerald-400 block font-bold' };
           statusMsg.textContent = currentStatus.text;
           statusMsg.className = currentStatus.className;
           codeInput.value = '';
-          if (state.refreshUser) await state.refreshUser();
-          if (state.refreshCredits) await state.refreshCredits();
+          playSound('success');
+          showToast({
+            type: 'success',
+            title: 'Kích hoạt thành công!',
+            message: `Đã cộng 4.000.000 credit vào tài khoản (Tổng: ${formatted}).`
+          });
+          render(outlet);
         } catch (err) {
           currentStatus = { text: `✕ Lỗi: ${err.message}`, className: 'text-xs text-red-400 block' };
           statusMsg.textContent = currentStatus.text;
@@ -275,22 +321,40 @@ export function createPricingPage({
 
             if (!res || !res.ok) {
               // Static mode fallback
-              if (state?.bootstrap) {
-                const cur = state.getSnapshot ? state.getSnapshot() : {};
-                const currentAvail = cur.credits?.availableCredits ?? 0;
+              const cur = state.getSnapshot ? state.getSnapshot() : {};
+              const currentAvail = cur.credits?.availableCredits ?? 0;
+              const newCredits = Math.max(0, currentAvail - plan.price);
+              const updatedUser = {
+                ...(cur.user || { id: 'u-user', name: 'Kỹ sư Minh Nhựt', email: 'nhut@2techmn.com' }),
+                plan: plan.id,
+                entitlement: { endsAt: new Date(Date.now() + 30 * 86400000).toISOString() }
+              };
+              if (state?.setSessionUser) {
+                state.setSessionUser(updatedUser, { availableCredits: newCredits, unit: 'CREDIT', realMoney: false });
+              } else if (state?.bootstrap) {
                 state.bootstrap({
-                  user: { ...(cur.user || {}), plan: plan.id },
-                  credits: { availableCredits: Math.max(0, currentAvail - plan.price), unit: 'CREDIT', realMoney: false }
+                  user: updatedUser,
+                  credits: { availableCredits: newCredits, unit: 'CREDIT', realMoney: false }
                 });
-                playSound('success');
-                showToast({
-                  type: 'success',
-                  title: 'Kích hoạt thành công!',
-                  message: `✓ Nâng cấp lên gói ${plan.name} thành công!`
-                });
-                return;
               }
-              throw new Error(res?.error || 'Nâng cấp gói thất bại.');
+              const formatted = `${newCredits.toLocaleString('vi-VN')} credit`;
+              const userBalanceEl = document.getElementById('userBalance');
+              const headerBalanceAmount = document.getElementById('headerBalanceAmount');
+              if (userBalanceEl) {
+                userBalanceEl.textContent = formatted;
+                userBalanceEl.style.color = '#10b981';
+              }
+              if (headerBalanceAmount) {
+                headerBalanceAmount.textContent = formatted;
+              }
+              playSound('success');
+              showToast({
+                type: 'success',
+                title: 'Kích hoạt thành công!',
+                message: `✓ Nâng cấp lên gói ${plan.name} thành công!`
+              });
+              render(outlet);
+              return;
             }
 
             if (state.refreshUser) await state.refreshUser();
