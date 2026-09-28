@@ -154,3 +154,36 @@ test('service worker purges previous unsafe cache versions on activate', () => {
   assert.equal(swContent.includes('app.js'), false, 'sw.js must not precache app.js');
   assert.equal(swContent.includes('page-dashboard.js'), false, 'sw.js must not precache page-dashboard.js');
 });
+
+test('documentation accurately reflects truthful virtual credits and rejects currency claims', () => {
+  const readmePath = path.join(rootDir, 'README.md');
+  const opsPath = path.join(rootDir, 'docs', 'operations', 'internal-credits.md');
+
+  assert.ok(fs.existsSync(readmePath), 'README.md must exist');
+  assert.ok(fs.existsSync(opsPath), 'docs/operations/internal-credits.md must exist');
+
+  const readme = fs.readFileSync(readmePath, 'utf8');
+  const ops = fs.readFileSync(opsPath, 'utf8');
+
+  // Must include exact welcome credit: 2,500,000 credit
+  assert.ok(readme.includes('2.500.000 credit'), 'README must state 2.500.000 credit');
+  assert.ok(ops.includes('2.500.000 credit'), 'Operator docs must state 2.500.000 credit');
+
+  // Must include exact code value: 4,000,000 credit
+  assert.ok(readme.includes('4.000.000 credit'), 'README must state 4.000.000 credit code value');
+  assert.ok(ops.includes('4.000.000 credit'), 'Operator docs must state 4.000.000 credit code value');
+
+  // Must include trial period: 1 tháng / ULTRA
+  assert.ok(readme.includes('ULTRA'), 'README must mention ULTRA trial');
+  assert.ok(ops.includes('ULTRA'), 'Operator docs must mention ULTRA trial');
+
+  // Must include non-cash / non-withdrawable status
+  assert.ok(readme.includes('không thể rút'), 'README must state credits cannot be withdrawn');
+  assert.ok(ops.includes('không thể rút'), 'Operator docs must state credits cannot be withdrawn');
+
+  // Must reject old claims: 2.000.000, VND/USD equivalence, real currency prices
+  assert.equal(readme.includes('2.000.000'), false, 'README must not state old 2.000.000 credits');
+  assert.equal(readme.includes('149.000'), false, 'README must not contain real currency prices');
+  assert.equal(readme.includes('249.000'), false, 'README must not contain real currency prices');
+  assert.equal(readme.includes('329.000'), false, 'README must not contain real currency prices');
+});

@@ -145,6 +145,20 @@ if (fs.existsSync(stagedDir)) {
   }
 }
 
+// 6. Truthful Documentation Check
+const readmeFile = path.join(rootDir, 'README.md');
+if (fs.existsSync(readmeFile)) {
+  const readmeText = fs.readFileSync(readmeFile, 'utf8');
+  if (!readmeText.includes('2.500.000 credit') || !readmeText.includes('4.000.000 credit')) {
+    errors.push('README.md missing accurate 2.500.000 / 4.000.000 credit values.');
+  }
+  if (readmeText.includes('2.000.000 đồng') || readmeText.includes('149.000')) {
+    errors.push('README.md contains legacy currency or pricing claims.');
+  }
+} else {
+  errors.push('README.md is missing.');
+}
+
 // Result
 if (errors.length > 0) {
   console.error('[Verify Public Safety] FAILED with the following violations:');

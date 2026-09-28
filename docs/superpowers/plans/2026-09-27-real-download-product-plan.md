@@ -8,11 +8,12 @@
 
 **Tech Stack:** Node.js 24, `node:sqlite`, yt-dlp, FFmpeg, guarded HTTP proxy, vanilla browser ES modules, `node:test`, Playwright Chromium.
 
-**Spec:** `docs/superpowers/specs/2026-09-27-layered-productionization-design.md`
+**Spec:** `docs/superpowers/specs/2026-09-27-internal-credit-checkout-design.md`, `docs/superpowers/specs/2026-09-27-layered-productionization-design.md`
 
 ## Global Constraints
 
-- Plan 1 is green and its API/state interfaces remain the integration boundary.
+- Plan 1 (Internal Credit Core Remediation) is green and its API/state interfaces remain the integration boundary.
+- Virtual credits (`{ unit: 'CREDIT', realMoney: false, withdrawable: false }`) are the sole entitlement currency; no real payment, currency symbols, or financial gateways are ever introduced.
 - The private worker is the only component allowed to resolve/download media or handle cookie plaintext.
 - Supported source quality is reported honestly; no code claims generic 4K/60FPS creation or watermark removal.
 - DRM, private content without the user's authorized session, unsupported hosts, and deleted sources fail clearly.
